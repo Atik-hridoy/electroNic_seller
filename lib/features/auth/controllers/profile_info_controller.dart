@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:electronic/routes/app_pages.dart';
 
 class ProfileInfoController extends GetxController {
   // Form key
@@ -131,7 +132,8 @@ class ProfileInfoController extends GetxController {
         duration: const Duration(seconds: 3),
       );
 
-      Get.back();
+      // Navigate to Home after successful confirmation
+      Get.offAllNamed(Routes.home);
 
     } catch (error) {
       Get.snackbar(

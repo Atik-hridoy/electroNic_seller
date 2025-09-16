@@ -9,15 +9,17 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            Expanded(child: _buildForm()),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 24),
+              Expanded(child: _buildForm()),
+            ],
+          ),
         ),
       ),
     );
@@ -332,3 +334,6 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     );
   }
 }
+
+
+

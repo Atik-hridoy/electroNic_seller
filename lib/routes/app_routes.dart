@@ -6,4 +6,5 @@ abstract class Routes {
   static const String auth = '/auth';
   static const String otp = '/otp';
   static const String profileInfo = '/profileInfo';
+  static const String home = '/home';
 }
