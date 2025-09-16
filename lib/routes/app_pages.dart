@@ -4,8 +4,11 @@ import 'package:get/get_navigation/src/routes/get_route.dart';
 import '../features/auth/bindings/bindings.dart';
 import '../features/auth/views/authview.dart';
 import '../features/auth/views/otpView.dart';
+import '../features/auth/views/profile_info.dart';
 import '../features/onboarding/bindings/onboarding_bindings.dart';
 import '../features/onboarding/views/onboarding.dart';
+import '../features/home/home_bindings.dart';
+import '../features/home/home_view.dart';
 
 part 'app_routes.dart';
 
@@ -32,6 +35,16 @@ class AppPages {
       name: Routes.otp,
       page: () => const OtpView(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.profileInfo,
+      page: () => const ProfileInfoView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.home,
+      page: () => const HomeView(),
+      binding: HomeBinding(),
     ),
   ];
 }

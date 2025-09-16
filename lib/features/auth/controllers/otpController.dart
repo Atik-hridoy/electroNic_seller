@@ -69,8 +69,8 @@ class OtpController extends GetxController {
     final otp = otpControllers.map((controller) => controller.text).join();
     if (otp.length == 5) {
       // TODO: Add your OTP verification logic here
-      // For now, we'll just navigate to checkout on successful verification
-      //Get.offAllNamed(Routes.checkout);
+      // For now, navigate to profile info on successful verification
+      Get.offAllNamed(Routes.profileInfo);
     } else {
       Get.snackbar(
         'Error',
