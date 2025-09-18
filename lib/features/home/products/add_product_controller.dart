@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'product_variant_model.dart';
 
 class AddProductController extends GetxController {
-  // Text editing controllers
+  // Text editing controllers for common product fields
   final productNameController = TextEditingController();
   final modelController = TextEditingController();
   final brandController = TextEditingController();
-  final priceController = TextEditingController();
-  final saleTypeController = TextEditingController();
-  final quantityController = TextEditingController();
   final finishController = TextEditingController();
+
+  // Text editing controllers for variant-specific fields
+  final sizeController = TextEditingController();
+  final priceController = TextEditingController();
+  final purchasePriceController = TextEditingController();
+  final profitPriceController = TextEditingController();
+  final quantityController = TextEditingController();
 
   // Observable variables for dropdowns
   var selectedCategory = 'Appliance'.obs;
@@ -21,6 +26,9 @@ class AddProductController extends GetxController {
   // Product images
   var productImages = <String>[].obs;
   final maxImages = 3;
+
+  // Product variants
+  var productVariants = <ProductVariant>[].obs;
 
   // Dropdown options
   final categories = ['Appliance', 'Electronics', 'Furniture', 'Clothing'];
@@ -38,10 +46,12 @@ class AddProductController extends GetxController {
   void onInit() {
     super.onInit();
     // Initialize with default values
-    productNameController.text = "Nipson TV 40tk";
+    productNameController.text = "Nipson TV";
     modelController.text = "LED TV";
+    sizeController.text = "40inch";
     priceController.text = "10.50";
-    saleTypeController.text = "N/A";
+    purchasePriceController.text = "8.00";
+    profitPriceController.text = "2.50";
     quantityController.text = "50";
   }
 
@@ -89,7 +99,7 @@ class AddProductController extends GetxController {
     priceController.text = value.toStringAsFixed(2);
   }
 
-  // Validation
+  // Validation for main product form
   bool validateForm() {
     if (productNameController.text.isEmpty) {
       Get.snackbar('Error', 'Product name is required');
@@ -106,10 +116,71 @@ class AddProductController extends GetxController {
     return true;
   }
 
-  // Add product method
-  void addProduct() {
-    if (validateForm()) {
-      // Create product object
+  // Add product variant method
+  void addProductVariant() {
+    if (validateVariantForm()) {
+      // Create product variant
+      final variant = ProductVariant.create(
+        size: sizeController.text,
+        price: double.tryParse(priceController.text) ?? 0.0,
+        purchasePrice: double.tryParse(purchasePriceController.text) ?? 0.0,
+        profitPrice: double.tryParse(profitPriceController.text) ?? 0.0,
+        quantity: int.tryParse(quantityController.text) ?? 0,
+      );
+
+      productVariants.add(variant);
+
+      Get.snackbar(
+        'Success',
+        'Product variant added successfully!',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      // Reset variant form after successful submission
+      resetVariantForm();
+    }
+  }
+
+  // Remove product variant
+  void removeProductVariant(String variantId) {
+    productVariants.removeWhere((variant) => variant.id == variantId);
+  }
+
+  // Validation for variant form
+  bool validateVariantForm() {
+    if (sizeController.text.isEmpty) {
+      Get.snackbar('Error', 'Size/Type is required');
+      return false;
+    }
+    if (priceController.text.isEmpty) {
+      Get.snackbar('Error', 'Price is required');
+      return false;
+    }
+    if (purchasePriceController.text.isEmpty) {
+      Get.snackbar('Error', 'Purchase price is required');
+      return false;
+    }
+    if (quantityController.text.isEmpty) {
+      Get.snackbar('Error', 'Quantity is required');
+      return false;
+    }
+    return true;
+  }
+
+  // Reset variant form
+  void resetVariantForm() {
+    sizeController.clear();
+    priceController.clear();
+    purchasePriceController.clear();
+    profitPriceController.clear();
+    quantityController.clear();
+  }
+
+  // Submit complete product with all variants
+  void submitProduct() {
+    if (validateForm() && productVariants.isNotEmpty) {
+      // Create complete product object with variants
       final productData = {
         'name': productNameController.text,
         'category': selectedCategory.value,
@@ -117,38 +188,43 @@ class AddProductController extends GetxController {
         'model': modelController.text,
         'brand': selectedBrand.value,
         'colors': selectedColors.toList(),
-        'price': currentPrice.value,
-        'saleType': saleTypeController.text,
-        'quantity': int.tryParse(quantityController.text) ?? 0,
         'specialCategory': selectedSpecialCategory.value,
         'finish': finishController.text,
         'images': productImages.toList(),
+        'variants': productVariants.map((v) => v.toJson()).toList(),
+        'createdAt': DateTime.now().toIso8601String(),
       };
 
-      print('Product Data: $productData');
-      Get.snackbar('Success', 'Product added successfully!',
-          backgroundColor: Colors.green, colorText: Colors.white);
-      
-      // Reset form after successful submission
+      print('Complete Product Data: $productData');
+      Get.snackbar(
+        'Success',
+        'Product with ${productVariants.length} variants submitted successfully!',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      // Reset entire form after successful submission
       resetForm();
+    } else if (productVariants.isEmpty) {
+      Get.snackbar('Error', 'Please add at least one product variant');
     }
   }
 
-  // Reset form
+  // Reset complete form
   void resetForm() {
     productNameController.clear();
     modelController.clear();
     brandController.clear();
-    priceController.clear();
-    saleTypeController.clear();
-    quantityController.clear();
     finishController.clear();
-    
+
+    resetVariantForm();
+
     selectedCategory.value = 'Appliance';
     selectedSubCategory.value = 'TV';
     selectedBrand.value = 'Nipson';
     selectedColors.clear();
     selectedSpecialCategory.value = 'Male';
+    productVariants.clear();
     productImages.clear();
     currentPrice.value = 10.50;
   }
@@ -159,10 +235,12 @@ class AddProductController extends GetxController {
     productNameController.dispose();
     modelController.dispose();
     brandController.dispose();
-    priceController.dispose();
-    saleTypeController.dispose();
-    quantityController.dispose();
     finishController.dispose();
+    sizeController.dispose();
+    priceController.dispose();
+    purchasePriceController.dispose();
+    profitPriceController.dispose();
+    quantityController.dispose();
     super.onClose();
   }
 }

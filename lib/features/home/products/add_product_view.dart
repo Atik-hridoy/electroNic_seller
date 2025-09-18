@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'add_product_controller.dart';
+import 'product_variant_model.dart';
 
 class AddProductView extends StatelessWidget {
   const AddProductView({super.key});
@@ -143,7 +144,7 @@ class AddProductView extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               _buildTextField(
-                                controller: controller.modelController,
+                                controller: controller.sizeController,
                                 hintText: 'Enter type or size',
                               ),
                             ],
@@ -245,7 +246,7 @@ class AddProductView extends StatelessWidget {
                               width: double.infinity,
                               height: 45,
                               child: ElevatedButton.icon(
-                                onPressed: controller.addProduct,
+                                onPressed: controller.addProductVariant,
                                 icon: const Icon(
                                   Icons.add,
                                   color: Colors.white,
@@ -259,7 +260,7 @@ class AddProductView extends StatelessWidget {
                                   elevation: 2,
                                 ),
                                 label: const Text(
-                                  'Add Product',
+                                  'Add Variant',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -277,6 +278,9 @@ class AddProductView extends StatelessWidget {
               ),
               ),
             ),
+
+            // Product Variants Section
+            _buildVariantsSection(controller),
 
             // Special Category Card
             _buildSectionCard(
@@ -305,7 +309,7 @@ class AddProductView extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: controller.addProduct,
+                  onPressed: controller.submitProduct,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFC107),
                     shape: RoundedRectangleBorder(
@@ -314,7 +318,7 @@ class AddProductView extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Confirm',
+                    'Submit Product',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,
@@ -559,7 +563,7 @@ class AddProductView extends StatelessWidget {
         border: Border.all(color: const Color(0xFFE9ECEF)),
       ),
       child: TextFormField(
-        controller: controller.saleTypeController,
+        controller: controller.purchasePriceController,
         keyboardType: TextInputType.numberWithOptions(decimal: true),
         style: const TextStyle(
           fontSize: 14,
@@ -591,7 +595,7 @@ class AddProductView extends StatelessWidget {
         border: Border.all(color: const Color(0xFFE9ECEF)),
       ),
       child: TextFormField(
-        controller: controller.brandController,
+        controller: controller.profitPriceController,
         keyboardType: TextInputType.numberWithOptions(decimal: true),
         style: const TextStyle(
           fontSize: 14,
@@ -713,6 +717,145 @@ class AddProductView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  // Product Variants Section
+  Widget _buildVariantsSection(AddProductController controller) {
+    return Obx(() => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (controller.productVariants.isNotEmpty) ...[
+          const Text(
+            'Product Variants',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF333333),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...controller.productVariants.map((variant) => _buildVariantCard(controller, variant)),
+          const SizedBox(height: 16),
+        ],
+      ],
+    ));
+  }
+
+  // Variant Card Widget
+  Widget _buildVariantCard(AddProductController controller, ProductVariant variant) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with size and remove button
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4CAF50),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    variant.size,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => controller.removeProductVariant(variant.id),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            
+            // Price and quantity details
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSlipRow('Price', '\$${variant.price.toStringAsFixed(2)}'),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildSlipRow('Purchase', '\$${variant.purchasePrice.toStringAsFixed(2)}'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSlipRow('Profit', '\$${variant.profitPrice.toStringAsFixed(2)}'),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildSlipRow('Quantity', '${variant.quantity}'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method for building slip rows
+  Widget _buildSlipRow(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          '$label:',
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF666666),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF333333),
+              fontWeight: FontWeight.w600,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
