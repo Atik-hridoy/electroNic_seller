@@ -43,6 +43,7 @@ dependencies:
   flutter_svg: ^2.2.1
   flutter_spinkit: ^5.2.2
   smooth_page_indicator: ^1.2.1
+  image_picker: ^1.2.0
 
 dev_dependencies:
   flutter_test:

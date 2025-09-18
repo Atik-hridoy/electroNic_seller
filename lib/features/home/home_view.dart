@@ -1,113 +1,242 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'home_controller.dart';
 import 'navigationbar.dart';
+import 'products/products-view.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Obx(() => Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: _buildAppBar(),
-      body: RefreshIndicator(
-        onRefresh: controller.refreshAllData,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildProductStatistic(),
-              const SizedBox(height: 24),
-              _buildTransactionUpdate(),
-              const SizedBox(height: 24),
-              _buildMonthlyStatistic(),
-              const SizedBox(height: 24),
-              _buildRatingsStatistic(),
-              const SizedBox(height: 100),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: const HomeBottomNavigationBar(),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(80),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.15),
-              spreadRadius: 0,
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      appBar: _buildAppBarForView(controller.selectedBottomNavIndex.value),
+      body: Obx(() {
+        return IndexedStack(
+          index: controller.selectedBottomNavIndex.value,
+          children: [
+            // Dashboard View (Index 0)
+            RefreshIndicator(
+              onRefresh: controller.refreshAllData,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProductStatistic(),
+                    const SizedBox(height: 24),
+                    _buildTransactionUpdate(),
+                    const SizedBox(height: 24),
+                    _buildMonthlyStatistic(),
+                    const SizedBox(height: 24),
+                    _buildRatingsStatistic(),
+                    const SizedBox(height: 100),
+                  ],
+                ),
+              ),
+            ),
+            // Products View (Index 1)
+            const ProductsView(),
+            // Orders View (Index 2) - Placeholder
+            const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Orders View', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  SizedBox(height: 8),
+                  Text('This is a placeholder for orders view', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                ],
+              ),
+            ),
+            // Account View (Index 3) - Placeholder
+            const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.person_outline, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Account View', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  SizedBox(height: 8),
+                  Text('This is a placeholder for account view', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                ],
+              ),
             ),
           ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
+        );
+      }),
+      bottomNavigationBar: const HomeBottomNavigationBar(),
+    ));
+  }
 
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Image.asset(
-                    'assets/images/Group 290580.png',
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Obx(() => Text(
-                        controller.userName.value,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      )),
-                      Obx(() => Text(
-                        controller.getFormattedPhone(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      )),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: controller.onNotificationTap,
-                  icon: const Icon(
-                    Icons.notifications_outlined,
-                    color: Colors.black54,
-                    size: 24,
-                  ),
+  PreferredSizeWidget _buildAppBarForView(int index) {
+    switch (index) {
+      case 0: // Dashboard
+        return PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  spreadRadius: 0,
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Image.asset(
+                        'assets/images/Group 290580.png',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Obx(() => Text(
+                            controller.userName.value,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          )),
+                          Obx(() => Text(
+                            controller.getFormattedPhone(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: controller.onNotificationTap,
+                      icon: const Icon(
+                        Icons.notifications_outlined,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        );
+      case 1: // Products
+        return PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 12,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(20),
+              ),
+            ),
+            shadowColor: Colors.black.withValues(alpha: 0.4),
+            title: const Text(
+              'Products',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            centerTitle: true,
+          ),
+        );
+      case 2: // Orders
+        return PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 8,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20),
+              ),
+            ),
+            shadowColor: Colors.black.withOpacity(0.1),
+            title: const Text(
+              'Orders',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            centerTitle: true,
+          ),
+        );
+      case 3: // Account
+        return PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 8,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20),
+              ),
+            ),
+            shadowColor: Colors.black.withOpacity(0.1),
+            title: const Text(
+              'Account',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            centerTitle: true,
+          ),
+        );
+      default:
+        return PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 8,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20),
+              ),
+            ),
+            shadowColor: Colors.black.withOpacity(0.1),
+            title: const Text(
+              'Dashboard',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            centerTitle: true,
+          ),
+        );
+    }
   }
 
   Widget _buildProductStatistic() {
