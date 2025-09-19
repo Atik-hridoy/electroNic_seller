@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
   // Observable variables for user data
@@ -109,11 +110,7 @@ class HomeController extends GetxController {
 
   // Methods for user interactions
   void onNotificationTap() {
-    Get.snackbar(
-      'Notifications',
-      'You have no new notifications',
-      snackPosition: SnackPosition.TOP,
-    );
+    Get.toNamed(Routes.notification);
   }
 
   void onMonthChanged(String month) {
@@ -155,24 +152,7 @@ class HomeController extends GetxController {
 
   void onBottomNavTap(int index) {
     selectedBottomNavIndex.value = index;
-
-    switch (index) {
-      case 0:
-      // Already on home/dashboard
-        break;
-      case 1:
-      // Navigate to products
-        Get.snackbar('Products', 'Navigate to Products page');
-        break;
-      case 2:
-      // Navigate to orders
-        Get.snackbar('Orders', 'Navigate to Orders page');
-        break;
-      case 3:
-      // Navigate to account
-        Get.snackbar('Account', 'Navigate to Account page');
-        break;
-    }
+    // The IndexedStack in the view will automatically switch to the corresponding view
   }
 
   // Refresh methods

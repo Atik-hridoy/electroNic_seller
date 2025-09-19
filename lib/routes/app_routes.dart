@@ -7,4 +7,8 @@ abstract class Routes {
   static const String otp = '/otp';
   static const String profileInfo = '/profileInfo';
   static const String home = '/home';
+  static const String notification = '/notification';
+  static const String addProduct = '/addProduct';
+  static const String productDetails = '/productDetails';
+  static const String category = '/category';
 }

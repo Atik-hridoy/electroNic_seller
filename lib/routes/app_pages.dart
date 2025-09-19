@@ -1,3 +1,5 @@
+import 'package:electronic/features/notification/bindings.dart';
+import 'package:electronic/features/notification/notification_view.dart';
 import 'package:electronic/features/splash/bindings/splash_binding.dart';
 import 'package:electronic/features/splash/views/splash_view.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
@@ -9,11 +11,16 @@ import '../features/onboarding/bindings/onboarding_bindings.dart';
 import '../features/onboarding/views/onboarding.dart';
 import '../features/home/home_bindings.dart';
 import '../features/home/home_view.dart';
+import '../features/home/products/add_products/add_product_view.dart';
+import '../features/home/products/product_details/product_details.dart';
+import '../features/home/products/category/category_view.dart';
+
 
 part 'app_routes.dart';
 
 class AppPages {
-  static const initial = Routes.splash;
+  //static const initial = Routes.splash;
+  static const initial = Routes.home;
 
   static final routes = [
     GetPage(
@@ -44,6 +51,26 @@ class AppPages {
     GetPage(
       name: Routes.home,
       page: () => const HomeView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.notification,
+      page: () => const NotificationView(),
+      binding: NotificationBinding(),
+    ),
+    GetPage(
+      name: Routes.addProduct,
+      page: () => AddProductView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.productDetails,
+      page: () => ProductDetailsView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.category,
+      page: () => CategoryView(),
       binding: HomeBinding(),
     ),
   ];
