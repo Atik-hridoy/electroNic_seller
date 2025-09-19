@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'add_product_controller.dart';
 import 'product_variant_model.dart';
 
@@ -9,7 +10,7 @@ class AddProductView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(AddProductController());
+    final controller = Get.find<AddProductController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -397,58 +398,154 @@ class AddProductView extends StatelessWidget {
   }
 
   Widget _buildImageSection(AddProductController controller) {
-    return Obx(() => Row(
+    return Obx(() => Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
+            // Display existing images
             ...controller.productImages.asMap().entries.map((entry) {
               int index = entry.key;
               final path = entry.value;
-              return Container(
-                width: 50,
-                height: 50,
-                margin: const EdgeInsets.only(right: 8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: FileImage(File(path)),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: GestureDetector(
-                    onTap: () => controller.removeImage(index),
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+              return Stack(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8),
+                      image: DecorationImage(
+                        image: FileImage(File(path)),
+                        fit: BoxFit.cover,
                       ),
-                      child: const Icon(Icons.close,
-                          color: Colors.white, size: 10),
                     ),
                   ),
-                ),
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: GestureDetector(
+                      onTap: () => controller.removeImage(index),
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close,
+                            color: Colors.white, size: 12),
+                      ),
+                    ),
+                  ),
+                ],
               );
             }),
+            
+            // Add image button
             if (controller.productImages.length < controller.maxImages)
               GestureDetector(
-                //onTap: controller.addDummyImage,
+                onTap: () => _pickImage(controller),
                 child: Container(
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFFE0E0E0),
+                      width: 2,
+                      style: BorderStyle.solid,
+                    ),
                   ),
-                  child: const Icon(Icons.add,
-                      color: Color(0xFF999999), size: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate,
+                        color: const Color(0xFF999999),
+                        size: 24,
+                      ),
+                      Text(
+                        '${controller.productImages.length + 1}/5',
+                        style: TextStyle(
+                          color: const Color(0xFF999999),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
         ));
+  }
+
+  // Method to pick image from gallery or camera
+  void _pickImage(AddProductController controller) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Add Photo'),
+        content: const Text('Choose how you want to add a photo'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _pickImageFromSource(controller, ImageSource.camera);
+            },
+            child: const Text('Camera'),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _pickImageFromSource(controller, ImageSource.gallery);
+            },
+            child: const Text('Gallery'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Method to pick image from specific source (camera or gallery)
+  Future<void> _pickImageFromSource(AddProductController controller, ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    
+    try {
+      final XFile? image = await picker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
+      
+      if (image != null) {
+        controller.addImage(image.path);
+        
+        // Show snackbar to indicate image was added
+        Get.snackbar(
+          'Image Added',
+          'Image ${controller.productImages.length} of ${controller.maxImages} added successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+    }
   }
 
   Widget _buildColorSection(AddProductController controller) {

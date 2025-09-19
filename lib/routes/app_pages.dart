@@ -11,7 +11,9 @@ import '../features/onboarding/bindings/onboarding_bindings.dart';
 import '../features/onboarding/views/onboarding.dart';
 import '../features/home/home_bindings.dart';
 import '../features/home/home_view.dart';
-import '../features/home/products/add_product_view.dart';
+import '../features/home/products/add_products/add_product_view.dart';
+import '../features/home/products/product_details/product_details.dart';
+import '../features/home/products/category/category_view.dart';
 
 
 part 'app_routes.dart';
@@ -59,6 +61,16 @@ class AppPages {
     GetPage(
       name: Routes.addProduct,
       page: () => AddProductView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.productDetails,
+      page: () => ProductDetailsView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.category,
+      page: () => CategoryView(),
       binding: HomeBinding(),
     ),
   ];

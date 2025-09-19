@@ -1,6 +1,8 @@
+import 'package:electronic/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'product_variant_model.dart';
+import '../product_model.dart';
 
 class AddProductController extends GetxController {
   // Text editing controllers for common product fields
@@ -25,7 +27,7 @@ class AddProductController extends GetxController {
 
   // Product images
   var productImages = <String>[].obs;
-  final maxImages = 3;
+  final maxImages = 5;
 
   // Product variants
   var productVariants = <ProductVariant>[].obs;
@@ -202,6 +204,33 @@ class AddProductController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
+
+      // Create ProductModel from the form data
+      final product = ProductModel(
+        name: productNameController.text,
+        category: selectedCategory.value,
+        subCategory: selectedSubCategory.value,
+        model: modelController.text,
+        brand: selectedBrand.value,
+        colors: selectedColors.toList(),
+        specialCategory: selectedSpecialCategory.value,
+        finish: finishController.text,
+        images: productImages.toList(),
+        variants: productVariants.map((v) => ProductVariantModel(
+          id: v.id,
+          size: v.size,
+          price: v.price,
+          purchasePrice: v.purchasePrice,
+          profitPrice: v.profitPrice,
+          quantity: v.quantity,
+          createdAt: v.createdAt,
+        )).toList(),
+        createdAt: DateTime.now(),
+      );
+
+      // Navigate to Product Details view with product data
+      //Get.toNamed(Routes.productDetails, arguments: product);
+      Get.toNamed(Routes.category, arguments: product);
 
       // Reset entire form after successful submission
       resetForm();

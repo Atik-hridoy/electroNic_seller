@@ -1,7 +1,7 @@
-import 'package:electronic/features/home/products/add_product_controller.dart';
+import 'package:electronic/features/home/products/add_products/add_product_controller.dart';
+import 'package:electronic/features/home/products/category/category_controller.dart';
+import 'package:electronic/features/home/products/product_details/product_details_controller.dart';
 import 'package:get/get.dart';
-
-
 import 'products/products_controller.dart';
 import 'home_controller.dart';
 
@@ -10,6 +10,9 @@ class HomeBinding extends Bindings {
   void dependencies() {
     Get.put(HomeController());
     Get.put(ProductsController());
-    Get.put(AddProductController());
+    // Use lazy loading for feature-specific controllers to avoid conflicts
+    Get.lazyPut<AddProductController>(() => AddProductController());
+    Get.lazyPut<ProductDetailsController>(() => ProductDetailsController());
+    Get.lazyPut<CategoryController>(() => CategoryController());
   }
 }
