@@ -151,8 +151,13 @@ class HomeController extends GetxController {
   }
 
   void onBottomNavTap(int index) {
-    selectedBottomNavIndex.value = index;
-    // The IndexedStack in the view will automatically switch to the corresponding view
+    if (index == 2) {
+      // Navigate to OrderView when orders tab is tapped
+      Get.toNamed(Routes.order);
+    } else {
+      // For other tabs, switch the index for IndexedStack
+      selectedBottomNavIndex.value = index;
+    }
   }
 
   // Refresh methods

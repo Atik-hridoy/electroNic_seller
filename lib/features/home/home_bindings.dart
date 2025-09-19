@@ -1,8 +1,9 @@
-import 'package:electronic/features/home/products/add_products/add_product_controller.dart';
-import 'package:electronic/features/home/products/category/category_controller.dart';
-import 'package:electronic/features/home/products/product_details/product_details_controller.dart';
+import 'package:electronic/features/add_products/add_product_controller.dart';
+import 'package:electronic/features/category/category_controller.dart';
+import 'package:electronic/features/order/order_controller.dart';
+import 'package:electronic/features/product_details/product_details_controller.dart';
 import 'package:get/get.dart';
-import 'products/products_controller.dart';
+import '../products/products_controller.dart';
 import 'home_controller.dart';
 
 class HomeBinding extends Bindings {
@@ -14,5 +15,7 @@ class HomeBinding extends Bindings {
     Get.lazyPut<AddProductController>(() => AddProductController());
     Get.lazyPut<ProductDetailsController>(() => ProductDetailsController());
     Get.lazyPut<CategoryController>(() => CategoryController());
+    Get.lazyPut<OrderController>(() => OrderController());
+    
   }
 }

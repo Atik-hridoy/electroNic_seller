@@ -1,7 +1,7 @@
 import 'package:electronic/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../product_model.dart';
+import '../products/product_model.dart';
 
 class CategoryController extends GetxController {
   // Search functionality

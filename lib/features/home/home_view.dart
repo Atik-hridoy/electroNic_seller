@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'home_controller.dart';
 import 'navigationbar.dart';
-import 'products/products-view.dart';
+import '../products/products-view.dart';
+import '../../routes/app_pages.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -178,7 +179,7 @@ class HomeView extends GetView<HomeController> {
                 bottom: Radius.circular(20),
               ),
             ),
-            shadowColor: Colors.black.withOpacity(0.1),
+            shadowColor: Colors.black.withValues(alpha: 0.1),
             title: const Text(
               'Orders',
               style: TextStyle(
@@ -275,11 +276,38 @@ class HomeView extends GetView<HomeController> {
               Colors.blue.shade600,
             ))),
             const SizedBox(width: 16),
-            Expanded(child: Obx(() => _buildStatCard(
-              controller.activeOrders.value.toString(),
-              'Active Order',
-              Colors.orange.shade50,
-              Colors.orange.shade600,
+            Expanded(child: Obx(() => GestureDetector(
+              onTap: () => Get.toNamed(Routes.order),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildStatCardContent(
+                      controller.activeOrders.value.toString(),
+                      'Active Order',
+                      Colors.orange.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.orange.shade600,
+                      size: 12,
+                    ),
+                  ],
+                ),
+              ),
             ))),
             const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
@@ -326,28 +354,32 @@ class HomeView extends GetView<HomeController> {
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
+      child: _buildStatCardContent(value, label, textColor),
+    );
+  }
+
+  Widget _buildStatCardContent(String value, String label, Color textColor) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: textColor,
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../product_model.dart';
+import '../products/product_model.dart';
 
 class ProductDetailsController extends GetxController {
   // Product model to hold dynamic data
