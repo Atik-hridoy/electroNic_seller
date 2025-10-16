@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'routes/app_pages.dart';
 
 void main() {
@@ -21,6 +22,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ScreenUtilInit(
+  designSize: const Size(375, 812), // Design size of your app (iPhone 13 mini)
+  minTextAdapt: true,
+  splitScreenMode: true,
+  builder: (context, child){
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Electronic Seller',
@@ -29,4 +35,6 @@ class MyApp extends StatelessWidget {
       getPages: AppPages.routes,
     );
   }
+ );
+}
 }

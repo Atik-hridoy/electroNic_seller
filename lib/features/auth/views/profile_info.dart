@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../controllers/profile_info_controller.dart';
 
@@ -7,19 +8,36 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812));
+    
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 24),
-              Expanded(child: _buildForm()),
-            ],
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
+                        SizedBox(height: 24.h),
+                        Expanded(
+                          child: _buildForm(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -27,27 +45,28 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: Colors.teal.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Profile Information',
+            'Profile Information'.tr,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 24.sp,
               fontWeight: FontWeight.bold,
               color: Colors.teal.shade600,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
-            'Please Confirm your real information to confirm verification',
+            'Please confirm your real information to complete verification'.tr,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: Colors.grey[600],
             ),
           ),
@@ -58,13 +77,14 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
 
   Widget _buildForm() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withAlpha(5),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -74,18 +94,19 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
       child: Form(
         key: controller.formKey,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildFirstNameField(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _buildLastNameField(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _buildGenderField(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _buildDateField(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _buildAddressField(),
-            const Spacer(),
+            SizedBox(height: 24.h),
             _buildConfirmButton(),
           ],
         ),
@@ -93,125 +114,11 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     );
   }
 
-  Widget _buildFirstNameField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildLabel('First Name*'),
-        const SizedBox(height: 8),
-        _buildTextField(
-          controller: controller.firstNameController,
-          hintText: 'Asad',
-          validator: controller.validateFirstName,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLastNameField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildLabel('Last Name*'),
-        const SizedBox(height: 8),
-        _buildTextField(
-          controller: controller.lastNameController,
-          hintText: 'Ujjaman',
-          validator: controller.validateLastName,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGenderField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildLabel('Gender'),
-        const SizedBox(height: 8),
-        Obx(() => _buildDropdown(
-          value: controller.selectedGender.value.isEmpty
-              ? null
-              : controller.selectedGender.value,
-          items: controller.genderOptions,
-          onChanged: (value) => controller.selectedGender.value = value ?? '',
-          hintText: 'Male',
-        )),
-      ],
-    );
-  }
-
-  Widget _buildDateField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildLabel('Last Update'),
-        const SizedBox(height: 8),
-        Obx(() => _buildDateFieldInput(
-          selectedDate: controller.selectedDate.value,
-          onTap: () => controller.selectDate(Get.context!),
-        )),
-      ],
-    );
-  }
-
-  Widget _buildAddressField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildLabel('Address*'),
-        const SizedBox(height: 8),
-        _buildTextField(
-          controller: controller.addressController,
-          hintText: '76/4 R no. 60/1 Rue des Saints-Paris, 75005 Paris',
-          maxLines: 3,
-          validator: controller.validateAddress,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildConfirmButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: Obx(() => ElevatedButton(
-        onPressed: controller.isLoading.value
-            ? null
-            : controller.confirmProfile,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.amber,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          elevation: 0,
-        ),
-        child: controller.isLoading.value
-            ? const SizedBox(
-          height: 20,
-          width: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        )
-            : const Text(
-          'Confirm',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      )),
-    );
-  }
-
   Widget _buildLabel(String text) {
     return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
+      text.tr,
+      style: TextStyle(
+        fontSize: 14.sp,
         fontWeight: FontWeight.w500,
         color: Colors.black87,
       ),
@@ -229,31 +136,143 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
       maxLines: maxLines,
       validator: validator,
       decoration: InputDecoration(
-        hintText: hintText,
+        hintText: hintText.tr,
         hintStyle: TextStyle(
           color: Colors.grey[400],
-          fontSize: 14,
+          fontSize: 14.sp,
         ),
         filled: true,
         fillColor: Colors.grey[50],
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.teal.shade300, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           borderSide: const BorderSide(color: Colors.red),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       ),
+    );
+  }
+
+  Widget _buildFirstNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('First Name*'),
+        SizedBox(height: 8.h),
+        _buildTextField(
+          controller: controller.firstNameController,
+          hintText: 'John',
+          validator: controller.validateFirstName,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLastNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('Last Name*'),
+        SizedBox(height: 8.h),
+        _buildTextField(
+          controller: controller.lastNameController,
+          hintText: 'Doe',
+          validator: controller.validateLastName,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGenderField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('Gender'),
+        SizedBox(height: 8.h),
+        Obx(() => _buildDropdown(
+          value: controller.selectedGender.value.isNotEmpty
+              ? controller.selectedGender.value
+              : null,
+          items: controller.genderOptions,
+          onChanged: (value) => controller.selectedGender.value = value ?? '',
+          hintText: 'Select Gender'.tr,
+        )),
+      ],
+    );
+  }
+
+  Widget _buildDateField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('Date of Birth'),
+        SizedBox(height: 8.h),
+        Obx(() => _buildDateFieldInput(
+          selectedDate: controller.selectedDate.value,
+          onTap: () => controller.selectDate(Get.context!),
+        )),
+      ],
+    );
+  }
+
+  Widget _buildAddressField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('Address*'),
+        SizedBox(height: 8.h),
+        _buildTextField(
+          controller: controller.addressController,
+          hintText: 'Enter your full address',
+          maxLines: 3,
+          validator: controller.validateAddress,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConfirmButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50.h,
+      child: Obx(() => ElevatedButton(
+        onPressed: controller.isLoading.value ? null : controller.confirmProfile,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.amber,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          elevation: 0,
+        ),
+        child: controller.isLoading.value
+            ? SizedBox(
+                height: 20.h,
+                width: 20.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                'Confirm'.tr,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+      )),
     );
   }
 
@@ -264,11 +283,12 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     required String hintText,
   }) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
+      isExpanded: true,
       items: items.map((String item) {
         return DropdownMenuItem<String>(
           value: item,
-          child: Text(item),
+          child: Text(item.tr),
         );
       }).toList(),
       onChanged: onChanged,
@@ -276,23 +296,23 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
         hintText: hintText,
         hintStyle: TextStyle(
           color: Colors.grey[400],
-          fontSize: 14,
+          fontSize: 14.sp,
         ),
         filled: true,
         fillColor: Colors.grey[50],
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.teal.shade300, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       ),
     );
   }
@@ -305,11 +325,11 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: Colors.grey[50],
           border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -317,16 +337,16 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
             Text(
               selectedDate != null
                   ? controller.formatDate(selectedDate)
-                  : '17 Dec, 2024',
+                  : 'Select date'.tr,
               style: TextStyle(
                 color: selectedDate != null ? Colors.black87 : Colors.grey[400],
-                fontSize: 14,
+                fontSize: 14.sp,
               ),
             ),
             Icon(
               Icons.calendar_today,
               color: Colors.grey[400],
-              size: 20,
+              size: 20.sp,
             ),
           ],
         ),
@@ -334,6 +354,3 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     );
   }
 }
-
-
-

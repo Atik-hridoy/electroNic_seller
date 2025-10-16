@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/authController.dart';
 
@@ -9,141 +9,158 @@ class AuthView extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize screen util for this build context
+    ScreenUtil.init(context, designSize: const Size(375, 812));
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFE6F8F3),
-      body: Stack(
-        children: [
-          // First Image
-          Positioned(
-            top: 65,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Image.asset(
-                'assets/auth/auth1.png',
-                width: 366,
-                height: 292,
-                fit: BoxFit.contain,
+      backgroundColor: Colors.white,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-            ),
-          ),
-          
-          // Second Image
-          Positioned(
-            top: 360.5,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset(
-                    'assets/auth/auth2.png',
-                    width: 525,
-                    height: 658.2,
-                    fit: BoxFit.contain,
-                  ),
-                  Positioned(
-                    top: 60,  // Adjust this value to position the SVG vertically
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          'assets/images/Group 290580.png',
-                          width: 94.84,
-                          height: 128.32,
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    // Top Section with Image
+                    Container(
+                      width: double.infinity,
+                      height: 300.h,
+                      color: const Color(0xFFE6F8F3),
+                      child: Center(
+                        child: Image.asset(
+                          'assets/auth/auth1.png',
+                          width: 300.w,
                           fit: BoxFit.contain,
                         ),
-                        const SizedBox(height: 16), // Space between SVG and text
-                        const Text(
-                          'Welcome Back!',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: Color(0xFF09B782),
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600, // SemiBold
-                            height: 32 / 24, // line-height / font-size
-                            letterSpacing: 0,
-                          ),
-                        ),
-                        const SizedBox(height: 8), // Space between title and subtitle
-                        const Text(
-                          'Please Confirm your Mobile Phone Verification',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: Color(0xFF606060),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400, // Regular
-                            height: 21 / 14, // line-height / font-size
-                            letterSpacing: 0,
-                          ),
-                        ),
-                        const SizedBox(height: 24), // Space before phone input
-                        Container(
-                          width: 330, // Specified width
-                          height: 52, // Specified height
-                          margin: const EdgeInsets.only(top: 24), // Position from top (543px - 519px from previous elements)
-                          child: TextField(
-                            style: const TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                            decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xFF09B782), width: 1.5),
-                              ),
-                              hintText: 'Enter your Phone No.',
-                              hintStyle: const TextStyle(
-                                fontFamily: 'Poppins',
-                                color: Color(0xFF9E9E9E),
-                                fontSize: 16,
-                              ),
-                              contentPadding: const EdgeInsets.only(bottom: 8), // Adjust text position within the field
-                            ),
-                            keyboardType: TextInputType.phone,
-                          ),
-                        ),
-                        const SizedBox(height: 15), // Space between input and button
-                        Container(
-                          width: 355,
-                          height: 48,
-                          margin: const EdgeInsets.only(top: 24), // Position from top (619px - 595px from previous elements)
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Get.toNamed(Routes.otp);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF09B782),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 0),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              'Send OTP',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                    
+                    // Bottom Section with Form
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30.r),
+                            topRight: Radius.circular(30.r),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(5),
+                              blurRadius: 20,
+                              offset: const Offset(0, -5),
+                            ),
+                          ],
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              SizedBox(height: 40.h),
+                              Image.asset(
+                                'assets/images/Group 290580.png',
+                                width: 95.w,
+                                height: 128.h,
+                                fit: BoxFit.contain,
+                              ),
+                              SizedBox(height: 16.h),
+                              Text(
+                                'Welcome Back!',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: const Color(0xFF09B782),
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                child: Text(
+                                  'Please Confirm your Mobile Phone Verification',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: const Color(0xFF606060),
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 40.h),
+                              Container(
+                                width: double.infinity,
+                                height: 52.h,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: const Color(0xFFE0E0E0),
+                                      width: 1.h,
+                                    ),
+                                  ),
+                                ),
+                                child: TextField(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 16.sp,
+                                    color: Colors.black,
+                                  ),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Enter your Phone No.',
+                                    hintStyle: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      color: const Color(0xFF9E9E9E),
+                                      fontSize: 16.sp,
+                                    ),
+                                    contentPadding: EdgeInsets.only(bottom: 8.h),
+                                  ),
+                                  keyboardType: TextInputType.phone,
+                                ),
+                              ),
+                              SizedBox(height: 40.h),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 48.h,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Get.toNamed(Routes.otp);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF09B782),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: Text(
+                                    'Send OTP',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 30.h),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
