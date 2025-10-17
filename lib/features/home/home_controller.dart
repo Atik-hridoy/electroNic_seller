@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../routes/app_pages.dart';
 
@@ -20,14 +21,14 @@ class HomeController extends GetxController {
   final sentMoney = 4865.0.obs;
 
   // Monthly statistics
-  final selectedMonth = 'August'.obs;
+  final selectedMonth = 'august'.tr.obs;
   final monthlyIncome = 520.0.obs;
   final monthlyReturnCount = 0.0.obs;
   final monthlyProfit = 250.0.obs;
 
   // Rating statistics
   final overallRating = 4.5.obs;
-  final ratingQuality = 'Very good quality'.obs;
+  final ratingQuality = 'very_good'.tr.obs;
   final ratingBreakdown = <int, int>{
     5: 50,
     4: 30,
@@ -50,8 +51,18 @@ class HomeController extends GetxController {
 
   // Months list for dropdown
   final List<String> months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'january'.tr,
+    'february'.tr,
+    'march'.tr,
+    'april'.tr,
+    'may'.tr,
+    'june'.tr,
+    'july'.tr,
+    'august'.tr,
+    'september'.tr,
+    'october'.tr,
+    'november'.tr,
+    'december'.tr,
   ];
 
   @override
@@ -131,23 +142,24 @@ class HomeController extends GetxController {
 
   void _updateMonthlyStatsForMonth(String month) {
     // Simulate different data for different months
-    switch (month) {
-      case 'August':
-        monthlyIncome.value = 520.0;
-        monthlyProfit.value = 250.0;
-        break;
-      case 'July':
-        monthlyIncome.value = 480.0;
-        monthlyProfit.value = 220.0;
-        break;
-      case 'September':
-        monthlyIncome.value = 560.0;
-        monthlyProfit.value = 280.0;
-        break;
-      default:
-        monthlyIncome.value = 500.0;
-        monthlyProfit.value = 240.0;
+    if (month == 'august'.tr) {
+      monthlyIncome.value = 520.0;
+      monthlyProfit.value = 250.0;
+    } else if (month == 'july'.tr) {
+      monthlyIncome.value = 480.0;
+      monthlyProfit.value = 220.0;
+    } else if (month == 'september'.tr) {
+      monthlyIncome.value = 560.0;
+      monthlyProfit.value = 280.0;
+    } else {
+      monthlyIncome.value = 500.0;
+      monthlyProfit.value = 240.0;
     }
+  }
+
+  String get currentMonth {
+    final now = DateTime.now();
+    return months[now.month - 1];
   }
 
   void onBottomNavTap(int index) {
@@ -157,12 +169,40 @@ class HomeController extends GetxController {
 
   // Refresh methods
   Future<void> refreshAllData() async {
+  try {
     await Future.wait([
       refreshProductStats(),
       refreshTransactionData(),
       refreshMonthlyStats(),
     ]);
+    
+    // Show completion message
+    Future.microtask(() {
+      Get.snackbar(
+        'refresh_complete'.tr,
+        '',
+        duration: const Duration(seconds: 2),
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(10),
+        borderRadius: 8,
+      );
+    });
+  } catch (e) {
+    // Show error message if something goes wrong
+    Future.microtask(() {
+      Get.snackbar(
+        'error'.tr,
+        'update_failed'.tr,
+        duration: const Duration(seconds: 2),
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(10),
+        borderRadius: 8,
+        colorText: Colors.white,
+        backgroundColor: Colors.red,
+      );
+    });
   }
+}
 
   Future<void> refreshProductStats() async {
     isLoadingStats.value = true;

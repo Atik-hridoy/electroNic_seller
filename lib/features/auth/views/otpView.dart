@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -10,7 +9,10 @@ class OtpView extends GetView<OtpController> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
-    
+
+    // Get email from previous screen
+    final String email = Get.arguments?['email'] ?? '';
+
     return Scaffold(
       backgroundColor: const Color(0xFFE6F8F3),
       body: LayoutBuilder(
@@ -28,21 +30,16 @@ class OtpView extends GetView<OtpController> {
                       width: double.infinity,
                       height: 300.h,
                       color: const Color(0xFFE6F8F3),
-                      child: Stack(
-                        children: [
-                          // Center Image
-                          Center(
-                            child: Image.asset(
-                              'assets/auth/auth1.png',
-                              width: 300.w,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ],
+                      child: Center(
+                        child: Image.asset(
+                          'assets/auth/auth1.png',
+                          width: 300.w,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
-                    
-                    // Bottom Section with Form
+
+                    // Bottom Section
                     Expanded(
                       child: Container(
                         width: double.infinity,
@@ -96,7 +93,7 @@ class OtpView extends GetView<OtpController> {
                               ),
                             ),
                             SizedBox(height: 40.h),
-                            
+
                             // OTP Input Fields
                             Form(
                               child: Row(
@@ -138,14 +135,13 @@ class OtpView extends GetView<OtpController> {
                                 ),
                               ),
                             ),
-                            
                             SizedBox(height: 24.h),
-                            
-                            // Resend Code
+
+                            // Resend OTP
                             Obx(() => GestureDetector(
-                              onTap: controller.canResend.value ? controller.resendOtp : null,
+                              onTap: controller.canResend.value ? () => controller.resendOtp(email) : null,
                               child: Text(
-                                controller.canResend.value 
+                                controller.canResend.value
                                     ? 'resend_code'.tr
                                     : 'resend_timer'.trParams({
                                         'minutes': (controller.remainingTime.value ~/ 60).toString().padLeft(2, '0'),
@@ -153,7 +149,7 @@ class OtpView extends GetView<OtpController> {
                                       }),
                                 style: TextStyle(
                                   fontFamily: 'Poppins',
-                                  color: controller.canResend.value 
+                                  color: controller.canResend.value
                                       ? const Color(0xFF09B782)
                                       : const Color(0xFF9E9E9E),
                                   fontSize: 14.sp,
@@ -161,34 +157,40 @@ class OtpView extends GetView<OtpController> {
                                 ),
                               ),
                             )),
-                            
+
                             SizedBox(height: 40.h),
-                            
+
                             // Verify Button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 48.h,
-                              child: ElevatedButton(
-                                onPressed: controller.verifyOtp,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF09B782),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.r),
+                            Obx(() => SizedBox(
+                                  width: double.infinity,
+                                  height: 48.h,
+                                  child: ElevatedButton(
+                                    onPressed: controller.isLoading.value
+                                        ? null
+                                        : () => controller.verifyOtp(email),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF09B782),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8.r),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: controller.isLoading.value
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : Text(
+                                            'verify'.tr,
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                   ),
-                                  elevation: 0,
-                                ),
-                                child: Text(
-                                  'verify'.tr,
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            
+                                )),
+
                             SizedBox(height: 20.h),
                           ],
                         ),

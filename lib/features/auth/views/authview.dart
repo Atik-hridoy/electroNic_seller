@@ -15,6 +15,8 @@ class _AuthViewState extends State<AuthView> {
   final TextEditingController _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  final AuthController _authController = Get.put(AuthController());
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -33,10 +35,10 @@ class _AuthViewState extends State<AuthView> {
               child: Stack(
                 children: [
                   // 🌐 Language Switch Button - Top Right
-                  Positioned(
+                  const Positioned(
                     top: 50,
                     right: 20,
-                    child: const LanguageSwitch(),
+                    child: LanguageSwitch(),
                   ),
 
                   // 🖼️ Top Illustration
@@ -152,42 +154,65 @@ class _AuthViewState extends State<AuthView> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 32),
+                              const SizedBox(height: 16),
+
+                              // 🟢 Error Message
+                              Obx(() {
+                                if (_authController.errorMessage.isNotEmpty) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    child: Text(
+                                      _authController.errorMessage.value,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              }),
+
+                              const SizedBox(height: 16),
 
                               // 🟢 Continue Button
-                              SizedBox(
-                                width: 330,
-                                height: 50,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      final controller =
-                                          Get.find<AuthController>();
-                                      controller
-                                          .login(_emailController.text.trim());
-                                      if (controller.isLoggedIn) {
-                                        Get.offAllNamed(Routes.otp);
-                                      }
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF09B782),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                              Obx(() {
+                                return SizedBox(
+                                  width: 330,
+                                  height: 50,
+                                  child: ElevatedButton(
+                                    onPressed: _authController.isLoading.value
+                                        ? null
+                                        : () async {
+                                            if (_formKey.currentState!.validate()) {
+                                              await _authController
+                                                  .registerUser(_emailController.text.trim());
+                                            }
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF09B782),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
                                     ),
-                                    elevation: 0,
+                                    child: _authController.isLoading.value
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : Text(
+                                            'send_otp'.tr,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Poppins',
+                                            ),
+                                          ),
                                   ),
-                                  child: Text(
-                                    'Send OTP'.tr,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Poppins',
-                                    ),
-                                  ),
-                                ),
-                              ),
+                                );
+                              }),
                             ],
                           ),
                         ),

@@ -1,32 +1,30 @@
 import 'package:flutter/material.dart';
-
-import '../../../core/storage/local_storage_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/storage/storage_keys.dart';
 
 class OnboardingService {
-  final LocalStorageService _localStorage;
+  final SharedPreferences _prefs;
 
-  OnboardingService(this._localStorage);
+  OnboardingService(SharedPreferences prefs) : _prefs = prefs;
 
   // Check if onboarding should be shown
   Future<bool> shouldShowOnboarding() async {
-    final isFirstLaunch = LocalStorageService.isFirstLaunch() ?? true;
-    return isFirstLaunch;
+    return _prefs.getBool(LocalStorageKeys.isFirstLaunch) ?? true;
   }
 
   // Mark onboarding as completed
   Future<void> completeOnboarding() async {
-    await LocalStorageService.setFirstLaunch(false);
+    await _prefs.setBool(LocalStorageKeys.isFirstLaunch, false);
   }
 
   // Get onboarding completion status
   Future<bool> isOnboardingCompleted() async {
-    final isFirstLaunch = LocalStorageService.isFirstLaunch() ?? true;
-    return !isFirstLaunch;
+    return _prefs.getBool(LocalStorageKeys.isFirstLaunch) ?? false;
   }
 
   // Reset onboarding (for testing/debugging)
   Future<void> resetOnboarding() async {
-    await LocalStorageService.setFirstLaunch(true);
+    await _prefs.setBool(LocalStorageKeys.isFirstLaunch, true);
   }
 
   // Get onboarding data

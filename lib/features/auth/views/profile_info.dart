@@ -202,17 +202,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
   }
 
   Widget _buildDateField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildLabel('date_of_birth'),
-        SizedBox(height: 8.h),
-        Obx(() => _buildDateFieldInput(
-          selectedDate: controller.selectedDate.value,
-          onTap: () => controller.selectDate(Get.context!),
-        )),
-      ],
-    );
+    return const SizedBox.shrink(); // Date field removed as per requirements
   }
 
   Widget _buildAddressField() {
@@ -236,7 +226,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
       width: double.infinity,
       height: 50.h,
       child: Obx(() => ElevatedButton(
-        onPressed: controller.isLoading.value ? null : controller.confirmProfile,
+        onPressed: controller.isLoading.value ? null : controller.updateProfile,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.amber,
           shape: RoundedRectangleBorder(
@@ -248,17 +238,17 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
             ? SizedBox(
                 height: 20.h,
                 width: 20.w,
-                child: CircularProgressIndicator(
+                child: const CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
             : Text(
                 'confirm'.tr,
                 style: TextStyle(
-                  color: Colors.black,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
       )),
@@ -307,7 +297,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
   }
 
   Widget _buildDateFieldInput({
-    required DateTime? selectedDate,
+
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -323,15 +313,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              selectedDate != null
-                  ? controller.formatDate(selectedDate)
-                  : 'Select_date'.tr,
-              style: TextStyle(
-                color: selectedDate != null ? Colors.black87 : Colors.grey[400],
-                fontSize: 14.sp,
-              ),
-            ),
+            
             Icon(
               Icons.calendar_today,
               color: Colors.grey[400],
