@@ -1,166 +1,204 @@
+import 'package:electronic/core/switching_language_facilities/Language_Switch_Widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/authController.dart';
 
-class AuthView extends GetView<AuthController> {
+class AuthView extends StatefulWidget {
   const AuthView({super.key});
 
   @override
+  State<AuthView> createState() => _AuthViewState();
+}
+
+class _AuthViewState extends State<AuthView> {
+  final TextEditingController _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Initialize screen util for this build context
-    ScreenUtil.init(context, designSize: const Size(375, 812));
-    
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    // Top Section with Image
-                    Container(
-                      width: double.infinity,
-                      height: 300.h,
-                      color: const Color(0xFFE6F8F3),
-                      child: Center(
-                        child: Image.asset(
-                          'assets/auth/auth1.png',
-                          width: 300.w,
-                          fit: BoxFit.contain,
-                        ),
+      backgroundColor: const Color(0xFFE6F8F3),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Stack(
+                children: [
+                  // 🌐 Language Switch Button - Top Right
+                  Positioned(
+                    top: 50,
+                    right: 20,
+                    child: const LanguageSwitch(),
+                  ),
+
+                  // 🖼️ Top Illustration
+                  Positioned(
+                    top: 65,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Image.asset(
+                        'assets/auth/auth1.png',
+                        width: 366,
+                        height: 292,
+                        fit: BoxFit.contain,
                       ),
                     ),
-                    
-                    // Bottom Section with Form
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: 24.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30.r),
-                            topRight: Radius.circular(30.r),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(5),
-                              blurRadius: 20,
-                              offset: const Offset(0, -5),
-                            ),
-                          ],
-                        ),
-                        child: SingleChildScrollView(
+                  ),
+
+                  // 🧾 Form Section
+                  Positioned(
+                    top: 360.5,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Form(
+                          key: _formKey,
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(height: 40.h),
+                              // Logo
                               Image.asset(
                                 'assets/images/Group 290580.png',
-                                width: 95.w,
-                                height: 128.h,
+                                width: 94.84,
+                                height: 128.32,
                                 fit: BoxFit.contain,
                               ),
-                              SizedBox(height: 16.h),
+                              const SizedBox(height: 16),
+
+                              // 🟢 Welcome Text
                               Text(
-                                'Welcome Back!',
-                                style: TextStyle(
+                                'welcome_back'.tr,
+                                style: const TextStyle(
                                   fontFamily: 'Poppins',
-                                  color: const Color(0xFF09B782),
-                                  fontSize: 24.sp,
+                                  color: Color(0xFF09B782),
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w600,
+                                  height: 1.2,
                                 ),
                               ),
-                              SizedBox(height: 8.h),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                                child: Text(
-                                  'Please Confirm your Mobile Phone Verification',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: const Color(0xFF606060),
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.5,
-                                  ),
+                              const SizedBox(height: 8),
+
+                              // 🟢 Subtitle
+                              Text(
+                                'enter_email'.tr,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Color(0xFF606060),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.5,
                                 ),
                               ),
-                              SizedBox(height: 40.h),
+                              const SizedBox(height: 24),
+
+                              // 🟢 Email Input Field
                               Container(
-                                width: double.infinity,
-                                height: 52.h,
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: const Color(0xFFE0E0E0),
-                                      width: 1.h,
-                                    ),
-                                  ),
-                                ),
-                                child: TextField(
-                                  style: TextStyle(
+                                width: 330,
+                                margin: const EdgeInsets.only(top: 24),
+                                child: TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.done,
+                                  style: const TextStyle(
                                     fontFamily: 'Poppins',
-                                    fontSize: 16.sp,
+                                    fontSize: 16,
                                     color: Colors.black,
                                   ),
                                   decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Enter your Phone No.',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: const Color(0xFF9E9E9E),
-                                      fontSize: 16.sp,
+                                    prefixIcon: const Icon(Icons.email_outlined,
+                                        color: Color(0xFF09B782)),
+                                    hintText: 'email'.tr,
+                                    hintStyle: const TextStyle(
+                                      color: Color(0xFF9E9E9E),
+                                      fontSize: 14,
                                     ),
-                                    contentPadding: EdgeInsets.only(bottom: 8.h),
+                                    enabledBorder: const UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xFFE0E0E0)),
+                                    ),
+                                    focusedBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(0xFF09B782), width: 1.5),
+                                    ),
+                                    errorBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.red, width: 1.5),
+                                    ),
+                                    focusedErrorBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.red, width: 1.5),
+                                    ),
                                   ),
-                                  keyboardType: TextInputType.phone,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'email_required'.tr;
+                                    }
+                                    if (!GetUtils.isEmail(value)) {
+                                      return 'invalid_email'.tr;
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
-                              SizedBox(height: 40.h),
+                              const SizedBox(height: 32),
+
+                              // 🟢 Continue Button
                               SizedBox(
-                                width: double.infinity,
-                                height: 48.h,
+                                width: 330,
+                                height: 50,
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    Get.toNamed(Routes.otp);
+                                  onPressed: () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      final controller =
+                                          Get.find<AuthController>();
+                                      controller
+                                          .login(_emailController.text.trim());
+                                      if (controller.isLoggedIn) {
+                                        Get.offAllNamed(Routes.otp);
+                                      }
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF09B782),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
                                     elevation: 0,
                                   ),
                                   child: Text(
-                                    'Send OTP',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w600,
+                                    'Send OTP'.tr,
+                                    style: const TextStyle(
                                       color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Poppins',
                                     ),
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 30.h),
                             ],
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

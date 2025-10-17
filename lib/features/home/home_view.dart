@@ -85,7 +85,7 @@ class HomeView extends GetView<HomeController> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
+                  color: Colors.grey.withAlpha(15),
                   spreadRadius: 0,
                   blurRadius: 10,
                   offset: const Offset(0, 4),
@@ -156,8 +156,8 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             shadowColor: Colors.black.withValues(alpha: 0.4),
-            title: const Text(
-              'Products',
+            title: Text(
+              'Products'.tr,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18,
@@ -201,9 +201,9 @@ class HomeView extends GetView<HomeController> {
                 bottom: Radius.circular(20),
               ),
             ),
-            shadowColor: Colors.black.withOpacity(0.1),
-            title: const Text(
-              'Account',
+            shadowColor: Colors.black.withValues(alpha: 0.1),
+            title: Text(
+              'Account'.tr,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18,
@@ -224,9 +224,9 @@ class HomeView extends GetView<HomeController> {
                 bottom: Radius.circular(20),
               ),
             ),
-            shadowColor: Colors.black.withOpacity(0.1),
-            title: const Text(
-              'Dashboard',
+            shadowColor: Colors.black.withValues(alpha: 0.1),
+            title: Text(
+              'Dashboard'.tr,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18,
@@ -246,8 +246,8 @@ class HomeView extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Product Statistic',
+          Text(
+            'product_statistic'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -270,21 +270,21 @@ class HomeView extends GetView<HomeController> {
           children: [
             Expanded(child: Obx(() => _buildStatCard(
               controller.storedItems.value.toString(),
-              'Stored Items',
+              'stored_items'.tr,
               Colors.blue.shade50,
               Colors.blue.shade600,
             ))),
             const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
               controller.activeOrders.value.toString(),
-              'Active Order',
+              'active_order'.tr,
               Colors.orange.shade50,
               Colors.orange.shade600,
             ))),
             const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
               controller.delivered.value.toString(),
-              'Delivered',
+              'delivered'.tr,
               Colors.green.shade50,
               Colors.green.shade600,
             ))),
@@ -295,21 +295,21 @@ class HomeView extends GetView<HomeController> {
           children: [
             Expanded(child: Obx(() => _buildStatCard(
               controller.returns.value.toString(),
-              'Return',
+              'return'.tr,
               Colors.red.shade50,
               Colors.red.shade600,
             ))),
             const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
               '0${controller.cancelledProducts.value}',
-              'Cancel products',
+              'cancel_products'.tr,
               Colors.purple.shade50,
               Colors.purple.shade600,
             ))),
             const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
               controller.rating.value.toString(),
-              'Rating',
+              'rating'.tr,
               Colors.amber.shade50,
               Colors.amber.shade600,
             ))),
@@ -338,7 +338,7 @@ class HomeView extends GetView<HomeController> {
           ),
           const SizedBox(height: 4),
           Text(
-            label,
+            label.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 11,
@@ -358,8 +358,8 @@ class HomeView extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Transaction update',
+          Text(
+            'transaction_update'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -380,19 +380,19 @@ class HomeView extends GetView<HomeController> {
       children: [
         Expanded(child: Obx(() => _buildTransactionCard(
           controller.formatCurrency(controller.totalEarning.value),
-          'Total Earning',
+          'total_earning'.tr,
           Colors.grey[700]!,
         ))),
         const SizedBox(width: 16),
         Expanded(child: Obx(() => _buildTransactionCard(
           controller.formatCurrency(controller.pendingMoney.value),
-          'Pending money',
+          'pending_money'.tr,
           Colors.orange.shade600,
         ))),
         const SizedBox(width: 16),
         Expanded(child: Obx(() => _buildTransactionCard(
           controller.formatCurrency(controller.sentMoney.value),
-          'Sent money',
+          'sent_money'.tr,
           Colors.green.shade600,
         ))),
       ],
@@ -433,8 +433,8 @@ class HomeView extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Monthly Statistic',
+              Text(
+                'monthly_statistic'.tr,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -483,19 +483,19 @@ class HomeView extends GetView<HomeController> {
     return Row(
       children: [
         Obx(() => _buildMonthlyStatItem(
-            'Income',
+            'income'.tr,
             controller.formatCurrency(controller.monthlyIncome.value),
             Colors.red.shade400
         )),
         const SizedBox(width: 24),
         Obx(() => _buildMonthlyStatItem(
-            'Return count',
+            'return_count'.tr,
             controller.formatCurrency(controller.monthlyReturnCount.value),
             Colors.grey[600]!
         )),
         const SizedBox(width: 24),
         Obx(() => _buildMonthlyStatItem(
-            'Profit',
+            'profit'.tr,
             controller.formatCurrency(controller.monthlyProfit.value),
             Colors.green.shade400
         )),
@@ -508,7 +508,7 @@ class HomeView extends GetView<HomeController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          label.tr,
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
         const SizedBox(height: 4),
@@ -546,8 +546,8 @@ class HomeView extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Ratings Statistic',
+          Text(
+            'ratings_statistic'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -582,7 +582,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   const SizedBox(height: 8),
                   Obx(() => Text(
-                    'Total Rating  ${controller.getTotalRatingCount()}',
+                    '${'total_rating'.tr}  ${controller.getTotalRatingCount()}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -620,7 +620,7 @@ class HomeView extends GetView<HomeController> {
               const Icon(Icons.star, color: Colors.amber, size: 14),
               const SizedBox(width: 2),
               Text(
-                '$stars',
+                '$stars'.tr,
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey[700],
@@ -656,7 +656,7 @@ class HomeView extends GetView<HomeController> {
           SizedBox(
             width: 35,
             child: Text(
-              '$percentage%',
+              '$percentage%'.tr,
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.grey[600],

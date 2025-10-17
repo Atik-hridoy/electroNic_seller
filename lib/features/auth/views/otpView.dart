@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -27,12 +28,17 @@ class OtpView extends GetView<OtpController> {
                       width: double.infinity,
                       height: 300.h,
                       color: const Color(0xFFE6F8F3),
-                      child: Center(
-                        child: Image.asset(
-                          'assets/auth/auth1.png',
-                          width: 300.w,
-                          fit: BoxFit.contain,
-                        ),
+                      child: Stack(
+                        children: [
+                          // Center Image
+                          Center(
+                            child: Image.asset(
+                              'assets/auth/auth1.png',
+                              width: 300.w,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     
@@ -65,7 +71,7 @@ class OtpView extends GetView<OtpController> {
                             ),
                             SizedBox(height: 16.h),
                             Text(
-                              'Enter OTP',
+                              'enter_otp'.tr,
                               style: TextStyle(
                                 fontFamily: 'Poppins',
                                 color: const Color(0xFF09B782),
@@ -78,7 +84,7 @@ class OtpView extends GetView<OtpController> {
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 20.w),
                               child: Text(
-                                'Please enter the verification code sent to your phone',
+                                'otp_instruction'.tr,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: 'Poppins',
@@ -140,8 +146,11 @@ class OtpView extends GetView<OtpController> {
                               onTap: controller.canResend.value ? controller.resendOtp : null,
                               child: Text(
                                 controller.canResend.value 
-                                    ? 'Didn\'t receive code? Send again' 
-                                    : 'Resend code in ${(controller.remainingTime.value ~/ 60).toString().padLeft(2, '0')}:${(controller.remainingTime.value % 60).toString().padLeft(2, '0')}',
+                                    ? 'resend_code'.tr
+                                    : 'resend_timer'.trParams({
+                                        'minutes': (controller.remainingTime.value ~/ 60).toString().padLeft(2, '0'),
+                                        'seconds': (controller.remainingTime.value % 60).toString().padLeft(2, '0'),
+                                      }),
                                 style: TextStyle(
                                   fontFamily: 'Poppins',
                                   color: controller.canResend.value 
@@ -169,7 +178,7 @@ class OtpView extends GetView<OtpController> {
                                   elevation: 0,
                                 ),
                                 child: Text(
-                                  'Verify',
+                                  'verify'.tr,
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 16.sp,

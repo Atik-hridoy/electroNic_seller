@@ -10,7 +10,7 @@ class AuthController extends GetxController {
   bool get isLoggedIn => _isLoggedIn.value;
 
   // Call this when user successfully logs in
-  void login() {
+  void login(String trim) {
     _isLoggedIn.value = true;
   }
 

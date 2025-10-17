@@ -1,31 +1,41 @@
+// File: lib/core/switching_language_facilities/localization_service.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../constants/app_constants.dart';
 
 class LocalizationService extends GetxService {
   static LocalizationService get to => Get.find();
-  final RxString currentLanguage = AppConstants.defaultLanguage.obs;
+  
+  // Observable current language
+  final RxString currentLanguage = 'en'.obs;
 
   Future<LocalizationService> init() async {
     // Load saved language from shared preferences
-    final prefs = await SharedPreferences.getInstance();
-    String? languageCode = prefs.getString(AppConstants.languageKey);
-    if (languageCode != null && AppConstants.supportedLocales.contains(languageCode)) {
+    final prefs = Get.find<SharedPreferences>();
+    String? languageCode = prefs.getString('language_code');
+    
+    if (languageCode != null) {
       currentLanguage.value = languageCode;
+      // Update locale immediately on app start
+      await Get.updateLocale(Locale(languageCode));
+    } else {
+      // Set default language
+      currentLanguage.value = 'en';
+      await prefs.setString('language_code', 'en');
     }
+    
     return this;
   }
 
   Future<void> changeLanguage(String languageCode) async {
-    if (!AppConstants.supportedLocales.contains(languageCode)) return;
+    if (currentLanguage.value == languageCode) return;
     
     // Update current language
     currentLanguage.value = languageCode;
     
     // Save to shared preferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppConstants.languageKey, languageCode);
+    final prefs = Get.find<SharedPreferences>();
+    await prefs.setString('language_code', languageCode);
     
     // Update app locale
     await Get.updateLocale(Locale(languageCode));
@@ -38,4 +48,7 @@ class LocalizationService extends GetxService {
   bool isCurrentLanguage(String languageCode) {
     return currentLanguage.value == languageCode;
   }
+  
+  bool get isEnglish => currentLanguage.value == 'en';
+  bool get isSpanish => currentLanguage.value == 'es';
 }

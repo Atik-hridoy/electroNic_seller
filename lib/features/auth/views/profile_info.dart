@@ -13,31 +13,18 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(),
-                        SizedBox(height: 24.h),
-                        Expanded(
-                          child: _buildForm(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                SizedBox(height: 24.h),
+                _buildForm(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -55,7 +42,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Profile Information'.tr,
+             'profile_information'.tr,
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.bold,
@@ -64,7 +51,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
           ),
           SizedBox(height: 8.h),
           Text(
-            'Please confirm your real information to complete verification'.tr,
+            'confirm_real_info'.tr,
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.grey[600],
@@ -116,13 +103,15 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
 
   Widget _buildLabel(String text) {
     return Text(
-      text.tr,
-      style: TextStyle(
-        fontSize: 14.sp,
-        fontWeight: FontWeight.w500,
-        color: Colors.black87,
-      ),
-    );
+  text.endsWith('*') 
+      ? '${text.substring(0, text.length - 1)}*'.tr 
+      : text.tr,
+  style: TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w500,
+    color: Colors.black87,
+  ),
+);
   }
 
   Widget _buildTextField({
@@ -168,7 +157,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel('First Name*'),
+        _buildLabel('first_name'),
         SizedBox(height: 8.h),
         _buildTextField(
           controller: controller.firstNameController,
@@ -183,7 +172,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel('Last Name*'),
+        _buildLabel('last_name'),
         SizedBox(height: 8.h),
         _buildTextField(
           controller: controller.lastNameController,
@@ -198,7 +187,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel('Gender'),
+        _buildLabel('gender'),
         SizedBox(height: 8.h),
         Obx(() => _buildDropdown(
           value: controller.selectedGender.value.isNotEmpty
@@ -216,7 +205,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel('Date of Birth'),
+        _buildLabel('date_of_birth'),
         SizedBox(height: 8.h),
         Obx(() => _buildDateFieldInput(
           selectedDate: controller.selectedDate.value,
@@ -230,11 +219,11 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel('Address*'),
+        _buildLabel('address'),
         SizedBox(height: 8.h),
         _buildTextField(
           controller: controller.addressController,
-          hintText: 'Enter your full address',
+          hintText: 'enter_full_address'.tr,
           maxLines: 3,
           validator: controller.validateAddress,
         ),
@@ -265,7 +254,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
                 ),
               )
             : Text(
-                'Confirm'.tr,
+                'confirm'.tr,
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 16.sp,
@@ -337,7 +326,7 @@ class ProfileInfoView extends GetView<ProfileInfoController> {
             Text(
               selectedDate != null
                   ? controller.formatDate(selectedDate)
-                  : 'Select date'.tr,
+                  : 'Select_date'.tr,
               style: TextStyle(
                 color: selectedDate != null ? Colors.black87 : Colors.grey[400],
                 fontSize: 14.sp,
