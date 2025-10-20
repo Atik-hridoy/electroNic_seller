@@ -19,7 +19,7 @@ class SplashController extends GetxController {
 
       if (LocalStorage.isLogIn && LocalStorage.token.isNotEmpty) {
         // User is logged in, navigate to profile info
-        Get.offAllNamed(Routes.profileInfo);
+        Get.offAllNamed(Routes.home);
       } else {
         // User is not logged in, go to onboarding
         Get.offAllNamed(Routes.onboarding);

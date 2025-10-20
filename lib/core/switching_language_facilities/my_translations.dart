@@ -112,6 +112,23 @@ class MyTranslations extends Translations {
           'november': 'November',
           'december': 'December',
           'very_good': 'Very Good',
+
+          // 🔹 Account Settings
+          'account_setting': 'Account Settings',
+          'account_setting_description': 'Manage your account settings and preferences',
+          'language': 'Language',
+          'change_password': 'Change Password',
+          'delete_account': 'Delete Account',
+          'delete_account_confirmation': 'Delete Account',
+          'delete_account_message':
+              'Are you sure you want to delete your account? This action cannot be undone.',
+          'account_deleted': 'Account Deleted',
+          'account_deleted_message': 'Your account has been successfully deleted.',
+          'english': 'English',
+          'spanish': 'Español',
+          'select_language': 'Select Language',
+          'language_updated': 'Language Updated',
+          'language_updated_message': 'Your language preference has been updated.',
         },
 
         // 🇪🇸 Spanish (ES)
@@ -222,7 +239,26 @@ class MyTranslations extends Translations {
           'october': 'Octubre',
           'november': 'Noviembre',
           'december': 'Diciembre',
-          'very_good': 'Muy Bueno',
+          'very_good': 'Muy bueno',
+
+          // 🔹 Account Settings
+          'account_setting': 'Configuración de la cuenta',
+          'account_setting_description': 'Administra la configuración y preferencias de tu cuenta',
+          'language': 'Idioma',
+          'change_password': 'Cambiar contraseña',
+          'delete_account': 'Eliminar cuenta',
+          'delete_account_confirmation': 'Eliminar cuenta',
+          'delete_account_message':
+              '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.',
+          'account_deleted': 'Cuenta eliminada',
+          'account_deleted_message': 'Tu cuenta ha sido eliminada exitosamente.',
+          'english': 'Inglés',
+          'spanish': 'Español',
+          'select_language': 'Seleccionar idioma',
+          'language_updated': 'Idioma actualizado',
+          'language_updated_message': 'Tu preferencia de idioma ha sido actualizada.',
+
+
         },
       };
 }

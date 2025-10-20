@@ -11,4 +11,6 @@ abstract class Routes {
   static const String addProduct = '/addProduct';
   static const String productDetails = '/productDetails';
   static const String category = '/category';
+  static const String history = '/history';
+  static const String accountSettingView = '/accountSettingView';
 }

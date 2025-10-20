@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-
 import '../../../core/constants/app_urls.dart';
 import '../../../core/util/app_logger.dart';
 

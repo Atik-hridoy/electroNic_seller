@@ -14,6 +14,7 @@ import '../features/home/home_view.dart';
 import '../features/home/products/add_products/add_product_view.dart';
 import '../features/home/products/product_details/product_details.dart';
 import '../features/home/products/category/category_view.dart';
+import '../../features/home/views/account_otions/views/account_settings.dart';
 
 
 part 'app_routes.dart';
@@ -50,7 +51,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.home,
-      page: () => const HomeView(),
+      page: () => HomeView(),
       binding: HomeBinding(),
     ),
     GetPage(
@@ -71,6 +72,11 @@ class AppPages {
     GetPage(
       name: Routes.category,
       page: () => CategoryView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.accountSettingView,
+      page: () => const AccountSettingView(),
       binding: HomeBinding(),
     ),
   ];
