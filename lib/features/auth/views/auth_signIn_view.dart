@@ -1,27 +1,18 @@
-import 'package:electronic/core/switching_language_facilities/Language_Switch_Widget.dart';
-import '../controllers/authController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/auth_signIn_controller.dart';
 import '../../../routes/app_pages.dart';
 
-
-class AuthView extends StatefulWidget {
-  const AuthView({super.key});
+class AuthSignInView extends StatefulWidget {
+  const AuthSignInView({super.key});
 
   @override
-  State<AuthView> createState() => _AuthViewState();
+  State<AuthSignInView> createState() => _AuthSignInViewState();
 }
 
-class _AuthViewState extends State<AuthView> {
-  final TextEditingController _emailController = TextEditingController();
+class _AuthSignInViewState extends State<AuthSignInView> {
   final _formKey = GlobalKey<FormState>();
-  final _authController = Get.put(AuthController());
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
+  final AuthSignInController _authSignInController = Get.put(AuthSignInController());
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +25,6 @@ class _AuthViewState extends State<AuthView> {
               height: MediaQuery.of(context).size.height,
               child: Stack(
                 children: [
-                  // 🌐 Language Switch Button - Top Right
-                  const Positioned(
-                    top: 50,
-                    right: 20,
-                    child: LanguageSwitch(),
-                  ),
-
                   // 🖼️ Top Illustration
                   Positioned(
                     top: 65,
@@ -78,9 +62,9 @@ class _AuthViewState extends State<AuthView> {
                               ),
                               const SizedBox(height: 16),
 
-                              // 🟢 Welcome Text
+                              // 🟢 Sign In Title
                               Text(
-                                'welcome_back'.tr,
+                                'sign_in'.tr,
                                 style: const TextStyle(
                                   fontFamily: 'Poppins',
                                   color: Color(0xFF09B782),
@@ -93,7 +77,7 @@ class _AuthViewState extends State<AuthView> {
 
                               // 🟢 Subtitle
                               Text(
-                                'enter_email'.tr,
+                                'enter_email_to_continue'.tr,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontFamily: 'Poppins',
@@ -105,42 +89,41 @@ class _AuthViewState extends State<AuthView> {
                               ),
                               const SizedBox(height: 24),
 
-                              // 🟢 Email Input Field
+                              // 🟢 Email Field
                               Container(
                                 width: 330,
                                 margin: const EdgeInsets.only(top: 24),
                                 child: TextFormField(
-                                  controller: _emailController,
+                                  controller: _authSignInController.emailController,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.done,
+                                  onChanged: (_) => _authSignInController.clearError(),
                                   style: const TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 16,
                                     color: Colors.black,
                                   ),
                                   decoration: InputDecoration(
-                                    prefixIcon: const Icon(Icons.email_outlined,
-                                        color: Color(0xFF09B782)),
+                                    prefixIcon: const Icon(
+                                      Icons.email_outlined,
+                                      color: Color(0xFF09B782),
+                                    ),
                                     hintText: 'email'.tr,
                                     hintStyle: const TextStyle(
                                       color: Color(0xFF9E9E9E),
                                       fontSize: 14,
                                     ),
                                     enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Color(0xFFE0E0E0)),
+                                      borderSide: BorderSide(color: Color(0xFFE0E0E0)),
                                     ),
                                     focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Color(0xFF09B782), width: 1.5),
+                                      borderSide: BorderSide(color: Color(0xFF09B782), width: 1.5),
                                     ),
                                     errorBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.red, width: 1.5),
+                                      borderSide: BorderSide(color: Colors.red, width: 1.5),
                                     ),
                                     focusedErrorBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.red, width: 1.5),
+                                      borderSide: BorderSide(color: Colors.red, width: 1.5),
                                     ),
                                   ),
                                   validator: (value) {
@@ -158,12 +141,11 @@ class _AuthViewState extends State<AuthView> {
 
                               // 🟢 Error Message
                               Obx(() {
-                                if (_authController.errorMessage.isNotEmpty) {
+                                if (_authSignInController.errorMessage.isNotEmpty) {
                                   return Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 8),
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
                                     child: Text(
-                                      _authController.errorMessage.value,
+                                      _authSignInController.errorMessage.value,
                                       style: const TextStyle(
                                         color: Colors.red,
                                         fontSize: 14,
@@ -177,33 +159,29 @@ class _AuthViewState extends State<AuthView> {
 
                               const SizedBox(height: 16),
 
-                              // 🟢 Continue Button
+                              // 🟢 Sign In Button
                               Obx(() {
                                 return SizedBox(
                                   width: 330,
                                   height: 50,
                                   child: ElevatedButton(
-                                    onPressed: _authController.isLoading.value
+                                    onPressed: _authSignInController.isLoading.value
                                         ? null
                                         : () async {
-                                            if (_formKey.currentState!
-                                                .validate()) {
-                                              await _authController
-                                                  .registerUser(_emailController.text.trim());
+                                            if (_formKey.currentState!.validate()) {
+                                              await _authSignInController.signIn(
+                                                email: _authSignInController.emailController.text);
                                             }
                                           },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          const Color(0xFF09B782),
+                                      backgroundColor: const Color(0xFF09B782),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       elevation: 0,
                                     ),
-                                    child: _authController.isLoading.value
-                                        ? const CircularProgressIndicator(
-                                            color: Colors.white,
-                                          )
+                                    child: _authSignInController.isLoading.value
+                                        ? const CircularProgressIndicator(color: Colors.white)
                                         : Text(
                                             'send_otp'.tr,
                                             style: const TextStyle(
@@ -219,25 +197,25 @@ class _AuthViewState extends State<AuthView> {
 
                               const SizedBox(height: 20),
 
-                              // 🟢 Sign In Text Button
+                              // 🟢 Sign Up Redirect
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-  "already_have_account".tr,
-  style: const TextStyle(
-    color: Color(0xFF606060),
-    fontFamily: 'Poppins',
-    fontSize: 16,
-    fontWeight: FontWeight.w500,
-  ),
-),
+                                    "dont_have_account".tr,
+                                    style: const TextStyle(
+                                      color: Color(0xFF606060),
+                                      fontFamily: 'Poppins',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                   GestureDetector(
                                     onTap: () {
-                                      Get.toNamed(Routes.authSignIn);
+                                      Get.toNamed(Routes.auth);
                                     },
                                     child: Text(
-                                      "sign_in".tr,
+                                      "sign_up".tr,
                                       style: const TextStyle(
                                         color: Color(0xFF09B782),
                                         fontSize: 16,

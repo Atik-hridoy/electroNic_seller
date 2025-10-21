@@ -4,6 +4,8 @@ class AppUrls {
 
   static const String createAccount = 'auth/register';
 
+  static const String signIn = 'auth/login';
+
   static const String verifyOtp = 'auth/verify-otp';
 
   static const String updateProfile = 'users/complete';

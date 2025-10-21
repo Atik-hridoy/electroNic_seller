@@ -13,6 +13,10 @@ class MyTranslations extends Translations {
           'invalid_email': 'Please enter a valid email',
           'continue': 'Continue',
           'send_otp': 'Send OTP',
+          'enter_email_to_continue': 'Enter email to continue',
+          'already_have_account': 'Already have an account?',
+          'dont_have_account': "Don't have an account?",
+          'sign_in': 'Sign In', 
 
           // 🔹 Profile Info
           'profile_information': 'Profile Information',
@@ -53,7 +57,6 @@ class MyTranslations extends Translations {
           'or': 'Or',
           'login_with_google': 'Continue with Google',
           'login_with_apple': 'Continue with Apple',
-          'dont_have_account': "Don't have an account?",
           'sign_up': 'Sign Up',
           'back': 'Back',
           'next': 'Next',
@@ -141,6 +144,10 @@ class MyTranslations extends Translations {
           'invalid_email': 'Por favor ingresa un correo válido',
           'continue': 'Continuar',
           'send_otp': 'Enviar OTP',
+          'enter_email_to_continue': 'Introduce tu correo electrónico para continuar',
+          'sign_in': 'Iniciar sesión',
+          'dont_have_account': "No tengo una cuenta?",
+          'already_have_account': '¿Ya tienes una cuenta?',
 
           // 🔹 Profile Info
           'profile_information': 'Información del perfil',

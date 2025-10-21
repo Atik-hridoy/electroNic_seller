@@ -10,7 +10,6 @@ class OtpView extends GetView<OtpController> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
 
-    // Get email from previous screen
     final String email = Get.arguments?['email'] ?? '';
 
     return Scaffold(
@@ -19,9 +18,7 @@ class OtpView extends GetView<OtpController> {
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: IntrinsicHeight(
                 child: Column(
                   children: [
@@ -43,7 +40,8 @@ class OtpView extends GetView<OtpController> {
                     Expanded(
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 24.w, vertical: 40.h),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(
@@ -60,6 +58,7 @@ class OtpView extends GetView<OtpController> {
                         ),
                         child: Column(
                           children: [
+                            // Logo
                             Image.asset(
                               'assets/images/Group 290580.png',
                               width: 95.w,
@@ -67,6 +66,8 @@ class OtpView extends GetView<OtpController> {
                               fit: BoxFit.contain,
                             ),
                             SizedBox(height: 16.h),
+
+                            // Title
                             Text(
                               'enter_otp'.tr,
                               style: TextStyle(
@@ -78,6 +79,8 @@ class OtpView extends GetView<OtpController> {
                               ),
                             ),
                             SizedBox(height: 8.h),
+
+                            // Subtitle
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 20.w),
                               child: Text(
@@ -97,7 +100,8 @@ class OtpView extends GetView<OtpController> {
                             // OTP Input Fields
                             Form(
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: List.generate(
                                   5,
                                   (index) => Container(
@@ -112,11 +116,13 @@ class OtpView extends GetView<OtpController> {
                                       ),
                                     ),
                                     child: TextFormField(
-                                      controller: controller.otpControllers[index],
+                                      controller:
+                                          controller.otpControllers[index],
                                       textAlign: TextAlign.center,
                                       keyboardType: TextInputType.number,
                                       maxLength: 1,
-                                      onChanged: (value) => controller.onOtpChange(index, value, context),
+                                      onChanged: (value) => controller
+                                          .onOtpChange(index, value, context),
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
                                         fontSize: 24.sp,
@@ -138,58 +144,83 @@ class OtpView extends GetView<OtpController> {
                             SizedBox(height: 24.h),
 
                             // Resend OTP
-                            Obx(() => GestureDetector(
-                              onTap: controller.canResend.value ? () => controller.resendOtp(email) : null,
-                              child: Text(
-                                controller.canResend.value
-                                    ? 'resend_code'.tr
-                                    : 'resend_timer'.trParams({
-                                        'minutes': (controller.remainingTime.value ~/ 60).toString().padLeft(2, '0'),
-                                        'seconds': (controller.remainingTime.value % 60).toString().padLeft(2, '0'),
-                                      }),
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: controller.canResend.value
-                                      ? const Color(0xFF09B782)
-                                      : const Color(0xFF9E9E9E),
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w500,
+                            Obx(
+                              () => GestureDetector(
+                                onTap: controller.canResend.value
+                                    ? () => controller.resendOtp()
+                                    : null,
+                                child: Text(
+                                  controller.canResend.value
+                                      ? 'resend_code'.tr
+                                      : 'resend_timer'.trParams({
+                                          'minutes': (controller
+                                                      .secondsRemaining.value ~/
+                                                  60)
+                                              .toString()
+                                              .padLeft(2, '0'),
+                                          'seconds': (controller
+                                                      .secondsRemaining.value %
+                                                  60)
+                                              .toString()
+                                              .padLeft(2, '0'),
+                                        }),
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: controller.canResend.value
+                                        ? const Color(0xFF09B782)
+                                        : const Color(0xFF9E9E9E),
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
-                            )),
+                            ),
 
                             SizedBox(height: 40.h),
 
                             // Verify Button
-                            Obx(() => SizedBox(
-                                  width: double.infinity,
-                                  height: 48.h,
-                                  child: ElevatedButton(
-                                    onPressed: controller.isLoading.value
-                                        ? null
-                                        : () => controller.verifyOtp(email),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF09B782),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8.r),
-                                      ),
-                                      elevation: 0,
+                            Obx(
+                              () => SizedBox(
+                                width: double.infinity,
+                                height: 50.h,
+                                child: ElevatedButton(
+                                  onPressed: controller.isLoading.value
+                                      ? null
+                                      : () {
+                                          controller
+                                              .verifyOtp()
+                                              .catchError((_) {
+                                            Get.snackbar(
+                                              'Error',
+                                              'Failed to verify OTP. Please try again.',
+                                              backgroundColor: Colors.red,
+                                              colorText: Colors.white,
+                                            );
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF09B782),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
                                     ),
-                                    child: controller.isLoading.value
-                                        ? const CircularProgressIndicator(
-                                            color: Colors.white,
-                                          )
-                                        : Text(
-                                            'verify'.tr,
-                                            style: TextStyle(
-                                              fontFamily: 'Poppins',
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            ),
-                                          ),
+                                    elevation: 0,
                                   ),
-                                )),
+                                  child: controller.isLoading.value
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      : Text(
+                                          'verify'.tr,
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
 
                             SizedBox(height: 20.h),
                           ],

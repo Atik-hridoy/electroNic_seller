@@ -1,3 +1,4 @@
+import 'package:electronic/features/auth/views/auth_signIn_view.dart';
 import 'package:electronic/features/notification/bindings.dart';
 import 'package:electronic/features/notification/notification_view.dart';
 import 'package:electronic/features/splash/bindings/splash_binding.dart';
@@ -15,6 +16,7 @@ import '../features/home/products/add_products/add_product_view.dart';
 import '../features/home/products/product_details/product_details.dart';
 import '../features/home/products/category/category_view.dart';
 import '../../features/home/views/account_otions/views/account_settings.dart';
+import '../features/auth/views/auth_signIn_view.dart';
 
 
 part 'app_routes.dart';
@@ -78,6 +80,12 @@ class AppPages {
       name: Routes.accountSettingView,
       page: () => const AccountSettingView(),
       binding: HomeBinding(),
+
+    ),
+    GetPage(
+      name: Routes.authSignIn,
+      page: () => const AuthSignInView(),
+      binding: AuthBinding(),
     ),
   ];
 }

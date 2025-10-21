@@ -13,4 +13,5 @@ abstract class Routes {
   static const String category = '/category';
   static const String history = '/history';
   static const String accountSettingView = '/accountSettingView';
+  static const String authSignIn = '/authSignIn';
 }

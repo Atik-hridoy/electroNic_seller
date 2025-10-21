@@ -22,6 +22,7 @@ class AuthController extends GetxController {
         Get.offNamed(Routes.otp, arguments: {
           'email': email,
           'message': response['message'],
+          'isLogin': false,
         });
       } else {
         errorMessage.value = response['message'] ?? 'Registration failed';

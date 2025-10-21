@@ -1,3 +1,4 @@
+import 'package:electronic/features/auth/controllers/auth_signIn_controller.dart';
 import 'package:get/get.dart';
 
 import '../controllers/authController.dart';
@@ -21,6 +22,7 @@ class AuthBinding extends Bindings {
     Get.put(AuthController());
     Get.put(AuthCreateUserService());
     Get.put(AuthVerifyOtpService());
+    Get.put(AuthSignInController());
   
   }
 }
