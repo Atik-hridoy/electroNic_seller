@@ -15,8 +15,8 @@ import '../features/home/home_view.dart';
 import '../features/home/products/add_products/add_product_view.dart';
 import '../features/home/products/product_details/product_details.dart';
 import '../features/home/products/category/category_view.dart';
-import '../../features/home/views/account_otions/views/account_settings.dart';
-import '../features/auth/views/auth_signIn_view.dart';
+import '../features/home/views/account/account_otions/views/account_settings.dart';
+import '../features/home/views/account/edit_account.dart';
 
 
 part 'app_routes.dart';
@@ -79,6 +79,12 @@ class AppPages {
     GetPage(
       name: Routes.accountSettingView,
       page: () => const AccountSettingView(),
+      binding: HomeBinding(),
+
+    ),
+    GetPage(
+      name: Routes.editAccount,
+      page: () => EditAccountView(),
       binding: HomeBinding(),
 
     ),
