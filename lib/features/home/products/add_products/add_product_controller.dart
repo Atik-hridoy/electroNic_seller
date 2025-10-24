@@ -33,11 +33,55 @@ class AddProductController extends GetxController {
   var productVariants = <ProductVariant>[].obs;
 
   // Dropdown options
-  final categories = ['Appliance', 'Electronics', 'Furniture', 'Clothing'];
-  final subCategories = ['TV', 'Refrigerator', 'Washing Machine', 'Air Conditioner'];
-  final brands = ['Nipson', 'Samsung', 'LG', 'Sony', 'Panasonic'];
-  final colors = ['Black', 'White', 'Silver', 'Red', 'Blue'];
-  final specialCategories = ['Male', 'Female', 'Unisex', 'Kids'];
+  final Map<String, List<String>> categorySubcategories = {
+    'Electronics': ['Smartphones', 'Laptops', 'TVs', 'Cameras', 'Audio'],
+    'Fashion': ['Men', 'Women', 'Kids', 'Accessories', 'Shoes'],
+    'Home & Garden': ['Furniture', 'Kitchen', 'Decor', 'Garden', 'Lighting'],
+    'Sports': ['Fitness', 'Team Sports', 'Outdoor', 'Cycling', 'Water Sports'],
+    'Others': ['Books', 'Toys', 'Beauty', 'Health', 'Pets']
+  };
+
+  // Getter for categories list (includes 'Select Category' as first item)
+  List<String> get categories => ['Select Category', ...categorySubcategories.keys.toList()];
+
+  // Getter for available subcategories based on selected category
+  List<String> get availableSubcategories {
+    if (selectedCategory.value == 'Select Category' || !categorySubcategories.containsKey(selectedCategory.value)) {
+      return [];
+    }
+    return categorySubcategories[selectedCategory.value]!;
+  }
+
+  // Getter for brands list
+  List<String> get brands => [
+    'Nipson',
+    'Samsung',
+    'LG',
+    'Sony',
+    'Apple',
+    'Other'
+  ];
+
+  // Getter for colors list
+  List<String> get colors => [
+    'Red',
+    'Blue',
+    'Green',
+    'Black',
+    'White',
+    'Silver',
+    'Gold',
+    'Other'
+  ];
+
+  // Getter for special categories
+  List<String> get specialCategories => [
+    'Male',
+    'Female',
+    'Kids',
+    'Unisex',
+    'Other'
+  ];
 
   // Price range
   var minPrice = 10.40.obs;
@@ -58,8 +102,12 @@ class AddProductController extends GetxController {
   }
 
   // Methods to handle dropdown changes
-  void updateCategory(String value) {
-    selectedCategory.value = value;
+  void updateCategory(String? newValue) {
+    if (newValue != null) {
+      selectedCategory.value = newValue;
+      // Reset subcategory when category changes
+      selectedSubCategory.value = '';
+    }
   }
 
   void updateSubCategory(String value) {

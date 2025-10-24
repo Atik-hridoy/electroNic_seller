@@ -15,12 +15,26 @@ class ProductsView extends GetView<ProductsController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            _buildAddProductButton(),
+            _buildButtonRow(),
             const SizedBox(height: 24),
             _buildCategoryGrid(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildButtonRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildAddProductButton(),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildSeeAllButton(),
+        ),
+      ],
     );
   }
 
@@ -39,7 +53,7 @@ class ProductsView extends GetView<ProductsController> {
             width: 2,
           ),
         ),
-        minimumSize: const Size(double.infinity, 56),
+        minimumSize: const Size(0, 56),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
       child: Row(
@@ -83,6 +97,44 @@ class ProductsView extends GetView<ProductsController> {
           category['color'] as Color,
         );
       },
+    );
+  }
+
+  Widget _buildSeeAllButton() {
+    return ElevatedButton(
+      onPressed: controller.onSeeAllTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue.shade50,
+        foregroundColor: Colors.blue.shade800,
+        elevation: 4,
+        shadowColor: Colors.blue.withValues(alpha: 0.2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: Colors.blue.shade300,
+            width: 2,
+          ),
+        ),
+        minimumSize: const Size(0, 56),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.list_alt,
+            size: 24,
+          ),
+          SizedBox(width: 8),
+          Text(
+            'See All',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

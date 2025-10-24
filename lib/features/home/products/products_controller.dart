@@ -28,6 +28,11 @@ class ProductsController extends GetxController {
     Get.toNamed(Routes.addProduct);
   }
 
+  void onSeeAllTap() {
+    // Navigate to Product Details view
+    Get.toNamed(Routes.category);
+  }
+
   void onCategoryTap(String categoryName) {
     // Handle category tap
     Get.snackbar(

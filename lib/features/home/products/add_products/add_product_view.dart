@@ -53,16 +53,17 @@ class AddProductView extends StatelessWidget {
               ),
             ),
 
-            // Sub-category Card
-            _buildSectionCard(
-              title: 'Sub-category',
-              required: true,
-              child: _buildDropdown(
-                value: controller.selectedSubCategory.value,
-                items: controller.subCategories,
-                onChanged: controller.updateSubCategory,
-              ),
-            ),
+            // Sub Category Card - Only show when a category is selected
+            Obx(() => controller.selectedCategory.value != 'Select Category' && controller.availableSubcategories.isNotEmpty
+              ? _buildSectionCard(
+                  title: 'Sub Category',
+                  required: true,
+                  child: _buildDropdown(
+                  value: controller.selectedSubCategory.value.isEmpty ? 'Select Subcategory' : controller.selectedSubCategory.value,                    items: controller.availableSubcategories,
+                    onChanged: controller.updateSubCategory,
+                  ),
+                )
+              : const SizedBox()),
 
             // Product Image Card
             _buildSectionCard(
@@ -337,34 +338,43 @@ class AddProductView extends StatelessWidget {
   }
 
   Widget _buildDropdown({
-    required String value,
-    required List<String> items,
-    required Function(String) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE9ECEF)),
+  required String value,
+  required List<String> items,
+  required Function(String) onChanged,
+}) {
+  // Ensure we have a valid value that exists in items, or use the first item
+  final selectedValue = items.contains(value) ? value : (items.isNotEmpty ? items.first : null);
+  
+  return Container(
+    decoration: BoxDecoration(
+      color: const Color(0xFFF8F9FA),
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: const Color(0xFFE9FCFF)),
+    ),
+    child: DropdownButtonFormField<String>(
+      value: selectedValue,
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
-      child: DropdownButtonFormField<String>(
-        value: value.isEmpty ? null : value,
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-        style: const TextStyle(
-          color: Color(0xFF333333),
-          fontSize: 14,
-        ),
-        items: items
-            .map((item) => DropdownMenuItem(value: item, child: Text(item)))
-            .toList(),
-        onChanged: (newValue) => onChanged(newValue ?? ''),
-        icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF666666)),
+      style: const TextStyle(
+        color: Color(0xFF333333),
+        fontSize: 14,
       ),
-    );
-  }
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          onChanged(newValue);
+        }
+      },
+    ),
+  );
+}
 
   Widget _buildTextField({
     required TextEditingController controller,
