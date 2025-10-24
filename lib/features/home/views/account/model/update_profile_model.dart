@@ -3,12 +3,14 @@ class UpdateProfileModel {
   final String lastName;
   final String gender;
   final String address;
+  final String phone;
 
   UpdateProfileModel({
     required this.firstName,
     required this.lastName,
     this.gender = '',
     this.address = '',
+    required this.phone,
   });
 
   // Convert model to JSON
@@ -18,6 +20,7 @@ class UpdateProfileModel {
       'lastName': lastName,
       'gender': gender,
       'address': address,
+      'phone': phone,
     };
   }
 
@@ -28,6 +31,7 @@ class UpdateProfileModel {
       lastName: json['lastName'] ?? '',
       gender: json['gender'] ?? '',
       address: json['address'] ?? '',
+      phone: json['phone'] ?? '',
     );
   }
 
@@ -37,12 +41,14 @@ class UpdateProfileModel {
     String? lastName,
     String? gender,
     String? address,
+    String? phone,
   }) {
     return UpdateProfileModel(
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       gender: gender ?? this.gender,
       address: address ?? this.address,
+      phone: phone ?? this.phone,
     );
   }
 }

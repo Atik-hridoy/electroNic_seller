@@ -7,4 +7,4 @@ class LocalStorageKeys {
   static const String myName = "myName";
   static const String myEmail = "myEmail";
   static const String isFirstLaunch = "isFirstLaunch";
-}
+  }

@@ -10,14 +10,14 @@ import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
 import '../model/update_profile_model.dart';
 
-class UpdateProfileService {
+class UpdateProfileServiceInsideApp {
   // Singleton pattern
-  static final UpdateProfileService _instance = UpdateProfileService._internal();
-  factory UpdateProfileService() => _instance;
-  UpdateProfileService._internal();
+  static final UpdateProfileServiceInsideApp _instance = UpdateProfileServiceInsideApp._internal();
+  factory UpdateProfileServiceInsideApp() => _instance;
+  UpdateProfileServiceInsideApp._internal();
 
   // Update user profile with form data using UpdateProfileModel
-  Future<Map<String, dynamic>> updateProfile({
+  Future<Map<String, dynamic>> updateProfileInsideApp({
     required UpdateProfileModel profileData,
     File? profileImage,
   }) async {
@@ -26,8 +26,8 @@ class UpdateProfileService {
     try {
       // Log start of API call
       AppLogger.apiRequest(
-        method: 'POST',
-        endpoint: '${AppUrls.baseUrl}${AppUrls.updateProfile}',
+        method: 'PATCH',
+        endpoint: '${AppUrls.baseUrl}${AppUrls.updateProfileInsideApp}',
         body: profileData.toJson(),
       );
 
@@ -43,8 +43,8 @@ class UpdateProfileService {
 
       // Create multipart request
       var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('${AppUrls.baseUrl}${AppUrls.updateProfile}'),
+        'PATCH',
+        Uri.parse('${AppUrls.baseUrl}${AppUrls.updateProfileInsideApp}'),
       );
 
       // Add headers
@@ -98,8 +98,8 @@ class UpdateProfileService {
 
     
       AppLogger.apiResponse(
-        method: 'POST',
-        endpoint: '${AppUrls.baseUrl}${AppUrls.updateProfile}',
+        method: 'PATCH',
+        endpoint: '${AppUrls.baseUrl}${AppUrls.updateProfileInsideApp}',
         statusCode: response.statusCode,
         responseData: responseData,
         duration: duration,

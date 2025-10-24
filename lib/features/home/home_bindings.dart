@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:electronic/features/home/products/add_products/add_product_controller.dart';
 import 'package:electronic/features/home/products/category/category_controller.dart';
 import 'package:electronic/features/home/products/product_details/product_details_controller.dart';
@@ -13,6 +14,7 @@ import 'controllers/edit_account_controller.dart';
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
+    Get.put<Dio>(Dio(), permanent: true);
     // Register services
     Get.lazyPut<GetProfileService>(() => GetProfileService());
 
@@ -28,5 +30,6 @@ class HomeBinding extends Bindings {
     Get.lazyPut<AccountSettingController>(() => AccountSettingController());
     Get.lazyPut<AccountController>(() => AccountController());
     Get.lazyPut<EditAccountController>(() => EditAccountController());
+    
   }
 }

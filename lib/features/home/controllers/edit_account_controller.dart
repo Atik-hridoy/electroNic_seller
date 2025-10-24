@@ -6,7 +6,7 @@ import '../views/account/services/get_profile_service.dart';
 
 class EditAccountController extends GetxController {
   // Services
-  final UpdateProfileService _profileService = UpdateProfileService();
+  final UpdateProfileServiceInsideApp _profileService = UpdateProfileServiceInsideApp();
   final GetProfileService _getProfileService = GetProfileService();
   
   // Loading state
@@ -48,12 +48,14 @@ class EditAccountController extends GetxController {
         gender.value = profileData.data.gender;
         address.value = profileData.data.address;
         registrationNo.value = profileData.data.registrationNo;
+        phone.value = profileData.data.phone;
         
         // Update form controllers
         fullNameController.text = profileData.data.firstName;
         lastNameController.text = profileData.data.lastName;
         genderController.text = profileData.data.gender;
         addressController.text = profileData.data.address;
+        phoneController.text = profileData.data.phone;
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to load profile: $e');
@@ -72,10 +74,11 @@ class EditAccountController extends GetxController {
         lastName: lastNameController.text.trim(),
         gender: genderController.text.trim().toLowerCase(),
         address: addressController.text.trim(),
+        phone: phoneController.text.trim(),
       );
 
       // Call the update service
-      final response = await _profileService.updateProfile(
+      final response = await _profileService.updateProfileInsideApp(
         profileData: profileData,
       );
 

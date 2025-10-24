@@ -154,9 +154,11 @@ class EditAccountView extends GetView<EditAccountController> {
                   Obx(() => _buildDetailItem('Registration No', controller.registrationNo.value)),
                   Obx(() => _buildDetailItem('Name', controller.fullName.value)),
                   // Contact No and Date of Birth are not in the current model
+                  Obx(() => _buildDetailItem('Phone', controller.phone.value)),
                   // You can add them later when they're available in the API response
                   Obx(() => _buildDetailItem('Gender', controller.gender.value.capitalizeFirst ?? '')),
                 ],
+
               ),
             ),
 
@@ -383,7 +385,7 @@ class EditAccountView extends GetView<EditAccountController> {
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
-                          hintText: 'Enter your phone no.',
+                          hintText: 'Enter your contact no.',
                         ),
                         style: const TextStyle(fontSize: 14),
                       ),
