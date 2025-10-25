@@ -4,6 +4,7 @@ import 'package:electronic/features/home/everything_related_products/products_vi
 import 'package:electronic/features/home/everything_related_products/products_view/model/get_product_brands_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'products_controller.dart';
 
 class ProductsView extends GetView<ProductsController> {
@@ -14,8 +15,12 @@ class ProductsView extends GetView<ProductsController> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: Obx(() {
+        // If still loading → show skeletons
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return Skeletonizer(
+            enabled: true,
+            child: _buildSkeletonView(),
+          );
         }
 
         if (controller.errorMessage.value.isNotEmpty) {
@@ -30,7 +35,6 @@ class ProductsView extends GetView<ProductsController> {
               const SizedBox(height: 20),
               _buildButtonRow(),
               const SizedBox(height: 24),
-              // Categories Section
               const Text(
                 'Categories',
                 style: TextStyle(
@@ -41,7 +45,6 @@ class ProductsView extends GetView<ProductsController> {
               const SizedBox(height: 16),
               _buildCategoryGrid(),
               const SizedBox(height: 24),
-              // Brands Section
               const Text(
                 'Brands',
                 style: TextStyle(
@@ -55,6 +58,89 @@ class ProductsView extends GetView<ProductsController> {
           ),
         );
       }),
+    );
+  }
+
+  /// 🔹 Skeleton layout used while loading
+  Widget _buildSkeletonView() {
+    // Fake structure mimicking real layout
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          _buildButtonRow(),
+          const SizedBox(height: 24),
+          const Text(
+            'Categories',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.8,
+            ),
+            itemCount: 8,
+            itemBuilder: (_, __) => Column(
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 50,
+                  height: 10,
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Brands',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 120,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 5,
+              itemBuilder: (_, __) => Container(
+                width: 90,
+                margin: const EdgeInsets.only(right: 12),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(width: 60, height: 10, color: Colors.white),
+                    const SizedBox(height: 4),
+                    Container(width: 40, height: 8, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
