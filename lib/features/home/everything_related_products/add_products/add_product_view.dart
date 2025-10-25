@@ -365,7 +365,7 @@ class AddProductView extends StatelessWidget {
       border: Border.all(color: const Color(0xFFE9FCFF)),
     ),
     child: DropdownButtonFormField<String>(
-      value: selectedValue,
+      initialValue: selectedValue,
       decoration: const InputDecoration(
         border: InputBorder.none,
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -572,57 +572,148 @@ class AddProductView extends StatelessWidget {
   }
 
   Widget _buildColorSection(AddProductController controller) {
-    return Obx(() => Wrap(
-          spacing: 12,
-          children: controller.colors.map((color) {
-            bool isSelected = controller.selectedColors.contains(color);
+  return Obx(
+    () => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Selected Colors Preview
+        if (controller.selectedColors.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: controller.selectedColors.map((color) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _getColorFromName(color).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: _getColorFromName(color),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 14,
+                        height: 14,
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: BoxDecoration(
+                          color: _getColorFromName(color),
+                          shape: BoxShape.circle,
+                          border: color.toLowerCase() == 'white'
+                              ? Border.all(color: Colors.grey.shade300)
+                              : null,
+                        ),
+                      ),
+                      Text(
+                        color,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () => controller.toggleColor(color),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        
+        // Color Grid
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 2.2,
+            mainAxisExtent: 36,
+          ),
+          itemCount: controller.colors.length,
+          itemBuilder: (context, index) {
+            final color = controller.colors[index];
+            final isSelected = controller.selectedColors.contains(color);
+            final colorValue = _getColorFromName(color);
+            
             return GestureDetector(
               onTap: () => controller.toggleColor(color),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                margin: const EdgeInsets.all(1),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  color: isSelected 
+                      ? colorValue.withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isSelected ? Colors.blue : const Color(0xFFE0E0E0),
-                    width: isSelected ? 2 : 1,
+                    color: isSelected ? colorValue : Colors.grey.shade300,
+                    width: isSelected ? 1.5 : 1,
                   ),
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       width: 12,
                       height: 12,
+                      margin: const EdgeInsets.only(right: 4),
                       decoration: BoxDecoration(
-                        color: _getColorFromName(color),
+                        color: colorValue,
                         shape: BoxShape.circle,
                         border: color.toLowerCase() == 'white'
-                            ? Border.all(color: const Color(0xFFE0E0E0))
+                            ? Border.all(color: Colors.grey.shade300)
                             : null,
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      color,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color:
-                            isSelected ? Colors.blue : const Color(0xFF666666),
+                    Flexible(
+                      child: Text(
+                        color,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          color: isSelected ? colorValue : Colors.grey.shade800,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (isSelected) ...[
-                      const SizedBox(width: 4),
-                      const Icon(Icons.close, size: 14, color: Colors.blue),
+                      const SizedBox(width: 2),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 14,
+                        color: colorValue,
+                      ),
                     ],
                   ],
                 ),
               ),
             );
-          }).toList(),
-        ));
-  }
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildPriceSection(AddProductController controller) {
     return Obx(() {
@@ -919,7 +1010,7 @@ class AddProductView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ...controller.productVariants.map((variant) => _buildVariantCard(controller, variant)),
+        ...controller.productVariants.map((variant) => _buildVariantCard(controller, variant)),
           const SizedBox(height: 16),
         ],
       ],
@@ -928,170 +1019,218 @@ class AddProductView extends StatelessWidget {
 
   // Variant Card Widget
   Widget _buildVariantCard(AddProductController controller, ProductVariant variant) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Card(
-      margin: const EdgeInsets.only(bottom: 16),
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.only(bottom: 16),
+    child: Card(
+      margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade200, width: 1),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade200, width: 1.5),
       ),
       elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with size and delete button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Type/Size and Quantity
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Type/Size: ${variant.size}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF333333),
-                      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              Colors.grey.shade50,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with size and delete button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Type/Size and Quantity with enhanced styling
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue.shade100),
+                          ),
+                          child: Text(
+                            variant.size,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.blue.shade700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.inventory_2_outlined, 
+                              size: 16, 
+                              color: Colors.grey[600]
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${variant.quantity} pieces',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Qty: ${variant.quantity} pcs',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                  ),
+                  // Delete button with enhanced styling
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade100),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                      onPressed: () => controller.removeProductVariant(variant.id),
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Remove variant',
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Price information grid with enhanced cards
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  children: [
+                    // Price and Purchase Price Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildPriceItem(
+                            icon: Icons.attach_money,
+                            label: 'Selling Price',
+                            value: '\$${variant.price.toStringAsFixed(2)}',
+                            color: Colors.purple,
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 50,
+                          color: Colors.grey.shade300,
+                          margin: const EdgeInsets.symmetric(horizontal: 12),
+                        ),
+                        Expanded(
+                          child: _buildPriceItem(
+                            icon: Icons.shopping_cart_outlined,
+                            label: 'Purchase',
+                            value: '\$${variant.purchasePrice.toStringAsFixed(2)}',
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    Divider(height: 24, thickness: 1, color: Colors.grey.shade300),
+                    
+                    // Profit and Discount Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildPriceItem(
+                            icon: Icons.trending_up,
+                            label: 'Profit',
+                            value: '\$${variant.profitPrice.toStringAsFixed(2)}',
+                            color: Colors.blue,
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 50,
+                          color: Colors.grey.shade300,
+                          margin: const EdgeInsets.symmetric(horizontal: 12),
+                        ),
+                        Expanded(
+                          child: _buildPriceItem(
+                            icon: Icons.local_offer_outlined,
+                            label: 'Discount',
+                            value: '\$${variant.discountPrice.toStringAsFixed(2)}',
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                  onPressed: () => controller.removeProductVariant(variant.id),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            
-            const Divider(height: 24, thickness: 1),
-            
-            // Price and Purchase Price
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Price',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${variant.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Purchase Price',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${variant.purchasePrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Profit and Discount
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Profit',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${variant.profitPrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Discount',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${variant.discountPrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.orange,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
-    )
-    );
-  }
+    ),
+  );
+}
+
+// Helper widget for price items
+Widget _buildPriceItem({
+  required IconData icon,
+  required String label,
+  required String value,
+  required Color color,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 6),
+      Text(
+        value,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: color,
+          letterSpacing: 0.3,
+        ),
+      ),
+    ],
+  );
+}
 
   // Helper method for building slip rows
   Widget _buildSlipRow(String label, String value) {

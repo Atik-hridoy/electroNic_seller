@@ -30,8 +30,28 @@ class LocalStorage {
     myImage = localStorage.getString(LocalStorageKeys.myImage) ?? "";
     myName = localStorage.getString(LocalStorageKeys.myName) ?? "";
     myEmail = localStorage.getString(LocalStorageKeys.myEmail) ?? "";
+  }
 
-    
+  /// Print all stored preferences for debugging
+  static Future<void> printAllStoredData() async {
+    try {
+      final localStorage = await _getStorage();
+      final keys = localStorage.getKeys();
+      
+      if (keys.isEmpty) {
+        print('No data stored in SharedPreferences');
+        return;
+      }
+      
+      print('=== Stored Preferences ===');
+      for (String key in keys) {
+        final value = localStorage.get(key);
+        print('$key: $value');
+      }
+      print('=========================');
+    } catch (e) {
+      print('Error reading stored data: $e');
+    }
   }
 
   /// Remove All Data From SharedPreferences

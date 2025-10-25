@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:electronic/core/storage/storage_services.dart';
+import 'package:electronic/core/storage/storage_keys.dart';
 import 'package:get/get.dart';
 import '../../../routes/app_pages.dart';
 import '../services/auth_verify_otp_service.dart';
@@ -92,9 +93,15 @@ class OtpController extends GetxController {
           throw Exception('Tokens not found in response');
         }
 
-        // Save tokens
+        // Save tokens to persistent storage
+        await LocalStorage.setString(LocalStorageKeys.token, accessToken);
+        await LocalStorage.setString(LocalStorageKeys.refreshToken, refreshToken);
+        await LocalStorage.setBool(LocalStorageKeys.isLogIn, true);
+        
+        // Also update the static variables
         LocalStorage.token = accessToken;
         LocalStorage.refreshToken = refreshToken;
+        LocalStorage.isLogIn = true;
 
         // Add logging to verify flow
         AppLogger.info('OTP Flow Type: ${isLoginFlow ? "Login" : "Registration"}', 
