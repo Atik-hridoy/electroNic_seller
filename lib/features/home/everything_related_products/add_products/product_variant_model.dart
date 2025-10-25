@@ -4,7 +4,10 @@ class ProductVariant {
   final double price;
   final double purchasePrice;
   final double profitPrice;
+  final double discountPrice;
+  final double quantityDiscountPrice;
   final int quantity;
+  final String color;
   final DateTime createdAt;
 
   ProductVariant({
@@ -13,7 +16,10 @@ class ProductVariant {
     required this.price,
     required this.purchasePrice,
     required this.profitPrice,
+    this.discountPrice = 0.0,
+    this.quantityDiscountPrice = 0.0,
     required this.quantity,
+    this.color = '',
     required this.createdAt,
   });
 
@@ -22,7 +28,10 @@ class ProductVariant {
     required double price,
     required double purchasePrice,
     required double profitPrice,
+    double discountPrice = 0.0,
+    double quantityDiscountPrice = 0.0,
     required int quantity,
+    String color = '',
   }) {
     return ProductVariant(
       id: 'variant_${DateTime.now().millisecondsSinceEpoch}',
@@ -30,7 +39,10 @@ class ProductVariant {
       price: price,
       purchasePrice: purchasePrice,
       profitPrice: profitPrice,
+      discountPrice: discountPrice,
+      quantityDiscountPrice: quantityDiscountPrice,
       quantity: quantity,
+      color: color,
       createdAt: DateTime.now(),
     );
   }
@@ -42,7 +54,10 @@ class ProductVariant {
       'price': price,
       'purchasePrice': purchasePrice,
       'profitPrice': profitPrice,
+      'discountPrice': discountPrice,
+      'quantityDiscountPrice': quantityDiscountPrice,
       'quantity': quantity,
+      'color': color,
       'createdAt': createdAt.toIso8601String(),
     };
   }

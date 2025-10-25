@@ -2,7 +2,9 @@ import 'package:electronic/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'product_variant_model.dart';
-import '../product_model.dart';
+import '../products_view/product_model.dart';
+import '../products_view/products_controller.dart';
+import '../products_view/model/get_product_category_model.dart';
 
 class AddProductController extends GetxController {
   // Text editing controllers for common product fields
@@ -16,6 +18,8 @@ class AddProductController extends GetxController {
   final priceController = TextEditingController();
   final purchasePriceController = TextEditingController();
   final profitPriceController = TextEditingController();
+  final discountPriceController = TextEditingController();
+  final quantityDiscountPriceController = TextEditingController();
   final quantityController = TextEditingController();
 
   // Observable variables for dropdowns
@@ -32,24 +36,38 @@ class AddProductController extends GetxController {
   // Product variants
   var productVariants = <ProductVariant>[].obs;
 
-  // Dropdown options
-  final Map<String, List<String>> categorySubcategories = {
-    'Electronics': ['Smartphones', 'Laptops', 'TVs', 'Cameras', 'Audio'],
-    'Fashion': ['Men', 'Women', 'Kids', 'Accessories', 'Shoes'],
-    'Home & Garden': ['Furniture', 'Kitchen', 'Decor', 'Garden', 'Lighting'],
-    'Sports': ['Fitness', 'Team Sports', 'Outdoor', 'Cycling', 'Water Sports'],
-    'Others': ['Books', 'Toys', 'Beauty', 'Health', 'Pets']
-  };
+  // Reference to ProductsController
+  final ProductsController productsController = Get.find<ProductsController>();
 
-  // Getter for categories list (includes 'Select Category' as first item)
-  List<String> get categories => ['Select Category', ...categorySubcategories.keys.toList()];
+  // Getter for categories list
+  List<String> get categories {
+    return ['Select Category', ...productsController.categories.map((cat) => cat.name).toList()];
+  }
 
   // Getter for available subcategories based on selected category
   List<String> get availableSubcategories {
-    if (selectedCategory.value == 'Select Category' || !categorySubcategories.containsKey(selectedCategory.value)) {
-      return [];
+    // Always include 'Select Subcategory' as the first option
+    final subcategories = <String>['Select Subcategory'];
+    
+    if (selectedCategory.value == 'Select Category' || productsController.categories.isEmpty) {
+      return subcategories;
     }
-    return categorySubcategories[selectedCategory.value]!;
+    
+    try {
+      // Find the selected category
+      final category = productsController.categories.firstWhere(
+        (cat) => cat.name == selectedCategory.value,
+      );
+      
+      // Add all subcategory names to the list
+      subcategories.addAll(
+        category.subCategories.map((sub) => sub.name).toList()
+      );
+      
+      return subcategories;
+    } catch (e) {
+      return subcategories;
+    }
   }
 
   // Getter for brands list
@@ -175,6 +193,8 @@ class AddProductController extends GetxController {
         price: double.tryParse(priceController.text) ?? 0.0,
         purchasePrice: double.tryParse(purchasePriceController.text) ?? 0.0,
         profitPrice: double.tryParse(profitPriceController.text) ?? 0.0,
+        discountPrice: double.tryParse(discountPriceController.text) ?? 0.0,
+        quantityDiscountPrice: double.tryParse(quantityDiscountPriceController.text) ?? 0.0,
         quantity: int.tryParse(quantityController.text) ?? 0,
       );
 
@@ -200,19 +220,23 @@ class AddProductController extends GetxController {
   // Validation for variant form
   bool validateVariantForm() {
     if (sizeController.text.isEmpty) {
-      Get.snackbar('Error', 'Size/Type is required');
+      Get.snackbar('Error', 'Please enter a size/type');
       return false;
     }
     if (priceController.text.isEmpty) {
-      Get.snackbar('Error', 'Price is required');
+      Get.snackbar('Error', 'Please enter a price');
       return false;
     }
     if (purchasePriceController.text.isEmpty) {
-      Get.snackbar('Error', 'Purchase price is required');
+      Get.snackbar('Error', 'Please enter a purchase price');
+      return false;
+    }
+    if (profitPriceController.text.isEmpty) {
+      Get.snackbar('Error', 'Please enter a profit price');
       return false;
     }
     if (quantityController.text.isEmpty) {
-      Get.snackbar('Error', 'Quantity is required');
+      Get.snackbar('Error', 'Please enter a quantity');
       return false;
     }
     return true;
@@ -224,6 +248,8 @@ class AddProductController extends GetxController {
     priceController.clear();
     purchasePriceController.clear();
     profitPriceController.clear();
+    discountPriceController.clear();
+    quantityDiscountPriceController.clear();
     quantityController.clear();
   }
 

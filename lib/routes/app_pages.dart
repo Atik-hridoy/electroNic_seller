@@ -12,9 +12,9 @@ import '../features/onboarding/bindings/onboarding_bindings.dart';
 import '../features/onboarding/views/onboarding.dart';
 import '../features/home/home_bindings.dart';
 import '../features/home/home_view.dart';
-import '../features/home/products/add_products/add_product_view.dart';
-import '../features/home/products/product_details/product_details.dart';
-import '../features/home/products/category/category_view.dart';
+import '../features/home/everything_related_products/add_products/add_product_view.dart';
+import '../features/home/everything_related_products/product_details/product_details.dart';
+import '../features/home/everything_related_products/category/category_view.dart';
 import '../features/home/views/account/account_otions/views/account_settings.dart';
 import '../features/home/views/account/edit_account.dart';
 

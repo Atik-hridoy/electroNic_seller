@@ -225,7 +225,20 @@ class AddProductView extends StatelessWidget {
                   
                   const SizedBox(height: 16),
                   
-                  // Third Row: Quantity (spans both columns)
+                  // Discount Price
+                  _buildSectionCard(
+                    title: 'Discount Price',
+                    required: false,
+                    child: _buildTextField(
+                      controller: controller.discountPriceController,
+                      hintText: '0.00',
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Fourth Row: Quantity (spans both columns)
                   Row(
                     children: [
                       // Quantity field spanning full width
@@ -706,22 +719,86 @@ class AddProductView extends StatelessWidget {
         keyboardType: TextInputType.numberWithOptions(decimal: true),
         style: const TextStyle(
           fontSize: 14,
+          fontWeight: FontWeight.w500,
           color: Color(0xFF333333),
         ),
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           border: InputBorder.none,
           hintText: '0.00',
-          hintStyle: const TextStyle(
-            color: Color(0xFF999999),
+          hintStyle: TextStyle(
+            color: Color(0xFFADB5BD),
             fontSize: 14,
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          prefixIcon: const Icon(
-            Icons.attach_money,
-            color: Color(0xFF666666),
-            size: 20,
+            fontWeight: FontWeight.w400,
           ),
         ),
+        onChanged: (value) {
+          // You can add any validation or formatting logic here
+        },
+      ),
+    );
+  }
+
+  Widget _buildDiscountPriceSection(AddProductController controller) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE9ECEF)),
+      ),
+      child: TextFormField(
+        controller: controller.discountPriceController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF333333),
+        ),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: InputBorder.none,
+          hintText: '0.00',
+          hintStyle: TextStyle(
+            color: Color(0xFFADB5BD),
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        onChanged: (value) {
+          // You can add any validation or formatting logic here
+        },
+      ),
+    );
+  }
+
+  Widget _buildQuantityDiscountPriceSection(AddProductController controller) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE9ECEF)),
+      ),
+      child: TextFormField(
+        controller: controller.quantityDiscountPriceController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF333333),
+        ),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: InputBorder.none,
+          hintText: '0.00',
+          hintStyle: TextStyle(
+            color: Color(0xFFADB5BD),
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        onChanged: (value) {
+          // You can add any validation or formatting logic here
+        },
       ),
     );
   }
@@ -851,61 +928,39 @@ class AddProductView extends StatelessWidget {
 
   // Variant Card Widget
   Widget _buildVariantCard(AddProductController controller, ProductVariant variant) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: const Color(0xFFE0E0E0)),
+        side: BorderSide(color: Colors.grey.shade200, width: 1),
       ),
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with size and remove button
+            // Header with size and delete button
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    variant.size,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+                Text(
+                  '${variant.size} (${variant.quantity} pcs)',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF333333),
                   ),
                 ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => controller.removeProductVariant(variant.id),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
-                      size: 16,
-                    ),
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                  onPressed: () => controller.removeProductVariant(variant.id),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
+            
             const SizedBox(height: 12),
             
             // Price and quantity details
@@ -920,7 +975,9 @@ class AddProductView extends StatelessWidget {
                 ),
               ],
             ),
+            
             const SizedBox(height: 8),
+            
             Row(
               children: [
                 Expanded(
@@ -928,8 +985,20 @@ class AddProductView extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildSlipRow('Quantity', '${variant.quantity}'),
+                  child: _buildSlipRow('Discount', '\$${variant.discountPrice.toStringAsFixed(2)}'),
                 ),
+              ],
+            ),
+            
+            const SizedBox(height: 8),
+            
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSlipRow('Qty Discount', '\$${variant.quantityDiscountPrice.toStringAsFixed(2)}'),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(child: SizedBox()),
               ],
             ),
           ],

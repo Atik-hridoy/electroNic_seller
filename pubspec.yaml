@@ -46,6 +46,7 @@ dependencies:
   image_picker: ^1.2.0
   flutter_screenutil: ^5.9.3
   intl: ^0.20.2
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
