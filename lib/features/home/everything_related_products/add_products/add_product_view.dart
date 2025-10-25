@@ -928,7 +928,10 @@ class AddProductView extends StatelessWidget {
 
   // Variant Card Widget
   Widget _buildVariantCard(AddProductController controller, ProductVariant variant) {
-    return Card(
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -938,19 +941,35 @@ class AddProductView extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header with size and delete button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${variant.size} (${variant.quantity} pcs)',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF333333),
-                  ),
+                // Type/Size and Quantity
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Type/Size: ${variant.size}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Qty: ${variant.quantity} pcs',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
@@ -961,49 +980,116 @@ class AddProductView extends StatelessWidget {
               ],
             ),
             
-            const SizedBox(height: 12),
+            const Divider(height: 24, thickness: 1),
             
-            // Price and quantity details
+            // Price and Purchase Price
             Row(
               children: [
                 Expanded(
-                  child: _buildSlipRow('Price', '\$${variant.price.toStringAsFixed(2)}'),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Price',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${variant.price.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 16),
                 Expanded(
-                  child: _buildSlipRow('Purchase', '\$${variant.purchasePrice.toStringAsFixed(2)}'),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Purchase Price',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${variant.purchasePrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             
+            // Profit and Discount
             Row(
               children: [
                 Expanded(
-                  child: _buildSlipRow('Profit', '\$${variant.profitPrice.toStringAsFixed(2)}'),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Profit',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${variant.profitPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 16),
                 Expanded(
-                  child: _buildSlipRow('Discount', '\$${variant.discountPrice.toStringAsFixed(2)}'),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Discount',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${variant.discountPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            
-            const SizedBox(height: 8),
-            
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSlipRow('Qty Discount', '\$${variant.quantityDiscountPrice.toStringAsFixed(2)}'),
-                ),
-                const SizedBox(width: 16),
-                const Expanded(child: SizedBox()),
               ],
             ),
           ],
         ),
       ),
+    )
     );
   }
 

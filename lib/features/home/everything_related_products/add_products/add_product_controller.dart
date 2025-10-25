@@ -70,15 +70,21 @@ class AddProductController extends GetxController {
     }
   }
 
-  // Getter for brands list
-  List<String> get brands => [
-    'Nipson',
-    'Samsung',
-    'LG',
-    'Sony',
-    'Apple',
-    'Other'
-  ];
+  // Getter for brands list from ProductsController
+  List<String> get brands {
+    // Add a default 'Select Brand' option
+    final brandList = ['Select Brand'];
+    
+    // Add all brand names from the ProductsController
+    if (productsController.brands.isNotEmpty) {
+      brandList.addAll(productsController.brands.map((brand) => brand.name).toList());
+    } else {
+      // Fallback to default brands if none are loaded
+      brandList.addAll(['Nipson', 'Samsung', 'LG']);
+    }
+    
+    return brandList;
+  }
 
   // Getter for colors list
   List<String> get colors => [
