@@ -1,17 +1,41 @@
-import 'package:electronic/routes/app_pages.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'product_variant_model.dart';
-import '../products_view/product_model.dart';
-import '../products_view/products_controller.dart';
 import '../products_view/model/get_product_category_model.dart';
 
+import '../../../../../core/util/app_logger.dart';
+import 'models/add_product_model.dart';
+import 'product_variant_model.dart';
+import 'services/add_products_service.dart';
+import '../products_view/products_controller.dart';
+
+// Subcategory class to hold both name and ID
+class Subcategory {
+  final String name;
+  final String id;
+  
+  Subcategory({required this.name, required this.id});
+  
+  @override
+  String toString() => name; // For backward compatibility with UI
+}
+
 class AddProductController extends GetxController {
+  // Services
+  final AddProductService _addProductService = Get.find<AddProductService>();
+  
+  // Loading state
+  final isLoading = false.obs;
+  
   // Text editing controllers for common product fields
   final productNameController = TextEditingController();
   final modelController = TextEditingController();
   final brandController = TextEditingController();
   final finishController = TextEditingController();
+  final techSpecController = TextEditingController();
+  final highlightController = TextEditingController();
+  final overviewController = TextEditingController();
 
   // Text editing controllers for variant-specific fields
   final sizeController = TextEditingController();
@@ -22,9 +46,15 @@ class AddProductController extends GetxController {
   final quantityDiscountPriceController = TextEditingController();
   final quantityController = TextEditingController();
 
+
   // Observable variables for dropdowns
-  var selectedCategory = 'Appliance'.obs;
-  var selectedSubCategory = 'TV'.obs;
+  final selectedCategory = CategoryModel(
+    id: '',
+    name: 'Appliance',
+    thumbnail: '',
+    subCategories: [],
+  ).obs;
+  var selectedSubCategory = Subcategory(name: 'Select Subcategory', id: '').obs;
   var selectedBrand = 'Nipson'.obs;
   var selectedColors = <String>[].obs;
   var selectedSpecialCategory = 'Male'.obs;
@@ -40,28 +70,36 @@ class AddProductController extends GetxController {
   final ProductsController productsController = Get.find<ProductsController>();
 
   // Getter for categories list
-  List<String> get categories {
-    return ['Select Category', ...productsController.categories.map((cat) => cat.name).toList()];
+  List<CategoryModel> get categories {
+    return productsController.categories;
   }
+  
+  // Get category ID from CategoryModel
+  String getCategoryId(CategoryModel category) {
+    return category.id;
+  }
+  
 
   // Getter for available subcategories based on selected category
-  List<String> get availableSubcategories {
+  List<Subcategory> get availableSubcategories {
     // Always include 'Select Subcategory' as the first option
-    final subcategories = <String>['Select Subcategory'];
+    final subcategories = <Subcategory>[
+      Subcategory(name: 'Select Subcategory', id: '')
+    ];
     
-    if (selectedCategory.value == 'Select Category' || productsController.categories.isEmpty) {
+    if (productsController.categories.isEmpty) {
       return subcategories;
     }
     
     try {
-      // Find the selected category
-      final category = productsController.categories.firstWhere(
-        (cat) => cat.name == selectedCategory.value,
-      );
+      // Use the selected category
+      final category = selectedCategory.value;
       
-      // Add all subcategory names to the list
+      // Add all subcategories with their IDs
       subcategories.addAll(
-        category.subCategories.map((sub) => sub.name).toList()
+        category.subCategories.map((sub) => 
+          Subcategory(name: sub.name, id: sub.id)
+        ).toList()
       );
       
       return subcategories;
@@ -112,9 +150,45 @@ class AddProductController extends GetxController {
   var maxPrice = 50.50.obs;
   var currentPrice = 10.50.obs;
 
+  // Category ID and name from navigation arguments
+  final RxString categoryId = ''.obs;
+  final RxString categoryName = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
+    
+    // Get category ID and name from navigation arguments if provided
+    final arguments = Get.arguments as Map<String, dynamic>?;
+    if (arguments != null) {
+      if (arguments['categoryId'] != null) {
+        categoryId.value = arguments['categoryId'].toString();
+      }
+      if (arguments['categoryName'] != null) {
+        final name = arguments['categoryName'].toString();
+        categoryName.value = name;
+        
+        // Find and set the selected category from the categories list
+        if (productsController.categories.isNotEmpty) {
+          try {
+            final category = productsController.categories.firstWhere(
+              (cat) => cat.name == name,
+              orElse: () => CategoryModel(
+                id: categoryId.value,
+                name: name,
+                thumbnail: '',
+                subCategories: [],
+              ),
+            );
+            selectedCategory.value = category;
+          } catch (e) {
+            // Fallback to default category if not found
+            AppLogger.error('Category not found: $name');
+          }
+        }
+      }
+    }
+    
     // Initialize with default values
     productNameController.text = "Nipson TV";
     modelController.text = "LED TV";
@@ -126,15 +200,13 @@ class AddProductController extends GetxController {
   }
 
   // Methods to handle dropdown changes
-  void updateCategory(String? newValue) {
-    if (newValue != null) {
-      selectedCategory.value = newValue;
-      // Reset subcategory when category changes
-      selectedSubCategory.value = '';
-    }
+  void updateCategory(CategoryModel newValue) {
+    selectedCategory.value = newValue;
+    // Reset subcategory when category changes
+    selectedSubCategory.value = Subcategory(name: 'Select Subcategory', id: '');
   }
 
-  void updateSubCategory(String value) {
+  void updateSubCategory(Subcategory value) {
     selectedSubCategory.value = value;
   }
 
@@ -196,11 +268,10 @@ class AddProductController extends GetxController {
       // Create product variant
       final variant = ProductVariant.create(
         size: sizeController.text,
-        price: double.tryParse(priceController.text) ?? 0.0,
-        purchasePrice: double.tryParse(purchasePriceController.text) ?? 0.0,
-        profitPrice: double.tryParse(profitPriceController.text) ?? 0.0,
-        discountPrice: double.tryParse(discountPriceController.text) ?? 0.0,
-        quantityDiscountPrice: double.tryParse(quantityDiscountPriceController.text) ?? 0.0,
+        price: int.tryParse(priceController.text) ?? 0,
+        purchasePrice: int.tryParse(purchasePriceController.text) ?? 0,
+        profitPrice: int.tryParse(profitPriceController.text) ?? 0,
+        discountPrice: int.tryParse(discountPriceController.text) ?? 0,
         quantity: int.tryParse(quantityController.text) ?? 0,
       );
 
@@ -260,64 +331,102 @@ class AddProductController extends GetxController {
   }
 
   // Submit complete product with all variants
-  void submitProduct() {
-    if (validateForm() && productVariants.isNotEmpty) {
-      // Create complete product object with variants
-      final productData = {
-        'name': productNameController.text,
-        'category': selectedCategory.value,
-        'subCategory': selectedSubCategory.value,
-        'model': modelController.text,
-        'brand': selectedBrand.value,
-        'colors': selectedColors.toList(),
-        'specialCategory': selectedSpecialCategory.value,
-        'finish': finishController.text,
-        'images': productImages.toList(),
-        'variants': productVariants.map((v) => v.toJson()).toList(),
-        'createdAt': DateTime.now().toIso8601String(),
-      };
-
-      print('Complete Product Data: $productData');
+  Future<void> submitProduct() async {
+    try {
+      if (isLoading.value) return;
+      
+      // Validate form
+      if (!validateForm()) {
+        return;
+      }
+      
+      if (productVariants.isEmpty) {
+        Get.snackbar('Error', 'Please add at least one product variant');
+        return;
+      }
+      
+      isLoading.value = true;
+      AppLogger.info('Starting product submission');
+      
+      // Convert product variants to SizeType list
+      final sizeTypes = productVariants.map((variant) => SizeType(
+        size: variant.size,
+        price: variant.price.toDouble(),
+        quantity: variant.quantity.toDouble(),
+        purchasePrice: variant.purchasePrice.toDouble(),
+        profit: variant.profitPrice.toDouble(),
+        discount: variant.discountPrice.toDouble(),
+      )).toList();
+      
+      // Create product model with both names and IDs
+      final product = AddProductModel(
+        category: selectedCategory.value,
+        subCategory: selectedSubCategory.value.name,
+        subCategoryId: selectedSubCategory.value.id,
+        name: productNameController.text.trim(),
+        model: modelController.text.trim(),
+        brand: selectedBrand.value,
+        color: selectedColors,
+        sizeType: sizeTypes,
+        specialCategory: selectedSpecialCategory.value,
+        overview: overviewController.text.trim(),
+        highlights: highlightController.text.trim(),
+        techSpecs: techSpecController.text.trim(),
+      );
+      
+      // Log the product data
+      AppLogger.info('Submitting product: ${product.toJson()}');
+      
+      // Convert image paths to File objects
+      final imageFiles = productImages
+          .where((path) => path.isNotEmpty)
+          .map((path) => File(path))
+          .toList();
+      
+      // Call the service to add product
+      final response = await _addProductService.addProduct(
+        product: product,
+        images: imageFiles,
+      );
+      
+      // Log the response
+      AppLogger.info('Product submission response: ${response.data}');
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        AppLogger.success('Product added successfully');
+        Get.snackbar(
+          'Success',
+          'Product added successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        
+        // Clear the form after successful submission
+        resetForm();
+        
+        // Navigate back or to products list
+        Get.until((route) => route.isFirst);
+      } else {
+        final errorMessage = response.data?['message'] ?? 'Failed to add product';
+        throw errorMessage;
+      }
+    } catch (e) {
+      AppLogger.error('Error submitting product: $e');
       Get.snackbar(
-        'Success',
-        'Product with ${productVariants.length} variants submitted successfully!',
-        backgroundColor: Colors.green,
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-
-      // Create ProductModel from the form data
-      final product = ProductModel(
-        name: productNameController.text,
-        category: selectedCategory.value,
-        subCategory: selectedSubCategory.value,
-        model: modelController.text,
-        brand: selectedBrand.value,
-        colors: selectedColors.toList(),
-        specialCategory: selectedSpecialCategory.value,
-        finish: finishController.text,
-        images: productImages.toList(),
-        variants: productVariants.map((v) => ProductVariantModel(
-          id: v.id,
-          size: v.size,
-          price: v.price,
-          purchasePrice: v.purchasePrice,
-          profitPrice: v.profitPrice,
-          quantity: v.quantity,
-          createdAt: v.createdAt,
-        )).toList(),
-        createdAt: DateTime.now(),
-      );
-
-      // Navigate to Product Details view with product data
-      //Get.toNamed(Routes.productDetails, arguments: product);
-      Get.toNamed(Routes.category, arguments: product);
-
-      // Reset entire form after successful submission
-      resetForm();
-    } else if (productVariants.isEmpty) {
-      Get.snackbar('Error', 'Please add at least one product variant');
+    } finally {
+      isLoading.value = false;
     }
   }
+
+  // Submit the product to the server
+  
 
   // Reset complete form
   void resetForm() {
@@ -328,8 +437,13 @@ class AddProductController extends GetxController {
 
     resetVariantForm();
 
-    selectedCategory.value = 'Appliance';
-    selectedSubCategory.value = 'TV';
+    selectedCategory.value = CategoryModel(
+      id: '',
+      name: 'Appliance',
+      thumbnail: '',
+      subCategories: [],
+    );
+    selectedSubCategory.value = Subcategory(name: 'Select Subcategory', id: '');
     selectedBrand.value = 'Nipson';
     selectedColors.clear();
     selectedSpecialCategory.value = 'Male';

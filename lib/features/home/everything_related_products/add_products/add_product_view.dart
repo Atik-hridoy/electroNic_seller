@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'add_product_controller.dart';
+import '../products_view/model/get_product_category_model.dart';
 import 'product_variant_model.dart';
 
 class AddProductView extends StatelessWidget {
@@ -46,21 +47,24 @@ class AddProductView extends StatelessWidget {
             _buildSectionCard(
               title: 'Category',
               required: true,
-              child: _buildDropdown(
+              child: _buildDropdown<CategoryModel>(
                 value: controller.selectedCategory.value,
                 items: controller.categories,
                 onChanged: controller.updateCategory,
+                itemAsString: (category) => category.name,
               ),
             ),
 
             // Sub Category Card - Only show when a category is selected
-            Obx(() => controller.selectedCategory.value != 'Select Category' && controller.availableSubcategories.isNotEmpty
+            Obx(() => controller.selectedCategory.value.name.isNotEmpty && controller.availableSubcategories.isNotEmpty
               ? _buildSectionCard(
                   title: 'Sub Category',
                   required: true,
-                  child: _buildDropdown(
-                  value: controller.selectedSubCategory.value.isEmpty ? 'Select Subcategory' : controller.selectedSubCategory.value,                    items: controller.availableSubcategories,
+                  child: _buildDropdown<Subcategory>(
+                    value: controller.selectedSubCategory.value,
+                    items: controller.availableSubcategories,
                     onChanged: controller.updateSubCategory,
+                    itemAsString: (subcategory) => subcategory.name,
                   ),
                 )
               : const SizedBox()),
@@ -96,10 +100,11 @@ class AddProductView extends StatelessWidget {
             _buildSectionCard(
               title: 'Brand',
               required: true,
-              child: _buildDropdown(
+              child: _buildDropdown<String>(
                 value: controller.selectedBrand.value,
                 items: controller.brands,
                 onChanged: controller.updateBrand,
+                itemAsString: (brand) => brand,
               ),
             ),
 
@@ -301,19 +306,83 @@ class AddProductView extends StatelessWidget {
             _buildSectionCard(
               title: 'Product Special Category',
               required: true,
-              child: _buildDropdown(
+              child: _buildDropdown<String>(
                 value: controller.selectedSpecialCategory.value,
                 items: controller.specialCategories,
                 onChanged: controller.updateSpecialCategory,
+                itemAsString: (category) => category,
               ),
             ),
 
             // Details Card
+            // _buildSectionCard(
+            //   title: 'Details',
+            //   child: _buildTextField(
+            //     controller: controller.finishController,
+            //     hintText: 'Enter product details...',
+            //   ),
+            // ),
+
+            // Technical Specifications Card
             _buildSectionCard(
-              title: 'Details',
-              child: _buildTextField(
-                controller: controller.finishController,
-                hintText: 'Enter product details...',
+              title: 'Overview',
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE9FCFF)),
+                ),
+                child: TextField(
+                  controller: controller.techSpecController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter Overview',
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+            ),
+
+            // Technical Specifications Card
+            _buildSectionCard(
+              title: 'Highlight',
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE9FCFF)),
+                ),
+                child: TextField(
+                  controller: controller.techSpecController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter Highlight',
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+            ),
+
+            // Technical Specifications Card
+            _buildSectionCard(
+              title: 'Technical Specifications',
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE9FCFF)),
+                ),
+                child: TextField(
+                  controller: controller.techSpecController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter Technical Specifications',
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
               ),
             ),
 
@@ -350,11 +419,12 @@ class AddProductView extends StatelessWidget {
     );
   }
 
-  Widget _buildDropdown({
-  required String value,
-  required List<String> items,
-  required Function(String) onChanged,
-}) {
+  Widget _buildDropdown<T>({
+    required T value,
+    required List<T> items,
+    required Function(T) onChanged,
+    required String Function(T) itemAsString,
+  }) {
   // Ensure we have a valid value that exists in items, or use the first item
   final selectedValue = items.contains(value) ? value : (items.isNotEmpty ? items.first : null);
   
@@ -364,7 +434,7 @@ class AddProductView extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       border: Border.all(color: const Color(0xFFE9FCFF)),
     ),
-    child: DropdownButtonFormField<String>(
+    child: DropdownButtonFormField<T>(
       initialValue: selectedValue,
       decoration: const InputDecoration(
         border: InputBorder.none,
@@ -374,13 +444,13 @@ class AddProductView extends StatelessWidget {
         color: Color(0xFF333333),
         fontSize: 14,
       ),
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
+      items: items.map<DropdownMenuItem<T>>((T item) {
+        return DropdownMenuItem<T>(
           value: item,
-          child: Text(item),
+          child: Text(itemAsString(item)),
         );
       }).toList(),
-      onChanged: (String? newValue) {
+      onChanged: (T? newValue) {
         if (newValue != null) {
           onChanged(newValue);
         }

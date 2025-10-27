@@ -5,7 +5,7 @@ import 'home_controller.dart';
 import 'navigationbar.dart';
 import 'everything_related_products/products_view/products-view.dart';
 import 'views/account/account_view.dart';
-import 'views/order_view.dart';
+import 'views/history_view.dart';
 
 class HomeView extends GetView<HomeController> {
 

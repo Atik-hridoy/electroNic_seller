@@ -106,13 +106,16 @@ class AccountView extends GetView<AccountController> {
                         ),
                       )),
                   const SizedBox(height: 4),
-                  // Phone
+                  // Address
                   Obx(() => Text(
-                        controller.userPhone.value,
+                        controller.userAddress.value,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.shade600,
                         ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       )),
                 ],
               ),

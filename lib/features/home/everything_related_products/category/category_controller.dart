@@ -1,9 +1,14 @@
+import 'package:electronic/features/home/everything_related_products/category/model/get_model.dart';
+import 'package:electronic/features/home/everything_related_products/category/services/get_allProducts_service.dart';
 import 'package:electronic/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../products_view/product_model.dart';
 
+
 class CategoryController extends GetxController {
+  final GetAllProductsService _productsService = Get.put(GetAllProductsService());
+
   // Search functionality
   final TextEditingController searchController = TextEditingController();
   final RxString searchQuery = ''.obs;
@@ -12,97 +17,68 @@ class CategoryController extends GetxController {
   final RxInt selectedCategoryIndex = 0.obs;
   final RxString selectedSortCategory = 'Select Category'.obs;
 
-  // Categories data (using the same from previous ProductsView)
+  // Loading and error states
+  final RxBool isLoading = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxString errorMessage = ''.obs;
+
+  // Pagination
+  final RxInt currentPage = 1.obs;
+  final RxInt totalPages = 1.obs;
+  final RxInt totalProducts = 0.obs;
+  final int limit = 10;
+
+  // Categories data
   final RxList<Map<String, dynamic>> categories = <Map<String, dynamic>>[
+    {
+      'name': 'All',
+      'image': 'assets/images/all.png',
+      'color': Colors.grey,
+      'fallbackIcon': Icons.apps,
+
+    },
     {
       'name': 'Computers',
       'image': 'assets/images/computer.png',
       'color': Colors.blue,
       'fallbackIcon': Icons.computer,
+
     },
     {
       'name': 'Phone',
       'image': 'assets/images/phone.png',
       'color': Colors.orange,
       'fallbackIcon': Icons.phone_android,
+
     },
     {
       'name': 'Server Tool',
       'image': 'assets/images/server.png',
       'color': Colors.purple,
       'fallbackIcon': Icons.dns,
+
     },
     {
       'name': 'accessories',
       'image': 'assets/images/accessories.png',
       'color': Colors.red,
       'fallbackIcon': Icons.headphones,
+
     },
     {
       'name': 'Camera',
       'image': 'assets/images/camera.png',
       'color': Colors.green,
       'fallbackIcon': Icons.camera_alt,
+
     },
   ].obs;
 
-  // Products data
-  final RxList<Map<String, dynamic>> allProducts = <Map<String, dynamic>>[
-    {
-      'id': '1',
-      'name': 'Trkil Tracker',
-      'brand': 'Trkil',
-      'price': '16.30',
-      'originalPrice': '5.00',
-      'image': 'assets/images/tracker1.png',
-      'category': 'accessories',
-    },
-    {
-      'id': '2',
-      'name': 'Oppo A35 mobile..',
-      'brand': 'Osaka',
-      'price': '2500',
-      'originalPrice': null,
-      'image': 'assets/images/oppo_phone.png',
-      'category': 'Phone',
-    },
-    {
-      'id': '3',
-      'name': 'CMF Buds By Noth..',
-      'brand': 'Tribute',
-      'price': '562',
-      'originalPrice': null,
-      'image': 'assets/images/cmf_buds.png',
-      'category': 'accessories',
-    },
-    {
-      'id': '4',
-      'name': 'Nippon TV 40in',
-      'brand': 'Nippon',
-      'price': '500',
-      'originalPrice': null,
-      'image': 'assets/images/nippon_tv.png',
-      'category': 'accessories',
-    },
-    {
-      'id': '5',
-      'name': 'Realme Phone',
-      'brand': 'Realme',
-      'price': '850',
-      'originalPrice': null,
-      'image': 'assets/images/realme_phone.png',
-      'category': 'Phone',
-    },
-    {
-      'id': '6',
-      'name': 'ASUS Laptop',
-      'brand': 'ASUS',
-      'price': '1200',
-      'originalPrice': null,
-      'image': 'assets/images/asus_laptop.png',
-      'category': 'Computers',
-    },
-  ].obs;
+  // Products data from API
+  final RxList<ProductData> apiProducts = <ProductData>[].obs;
+  
+  // Converted products for display
+  final RxList<Map<String, dynamic>> allProducts = <Map<String, dynamic>>[].obs;
 
   // Filtered products based on search and category
   final RxList<Map<String, dynamic>> filteredProducts = <Map<String, dynamic>>[].obs;
@@ -122,17 +98,18 @@ class CategoryController extends GetxController {
   void onInit() {
     super.onInit();
     
+    // Load products from API
+    fetchProducts();
+    
     // Check if we received a ProductModel from Add Product view
     if (Get.arguments != null && Get.arguments is ProductModel) {
       final newProduct = Get.arguments as ProductModel;
       addProductFromAddProductView(newProduct);
     }
     
-    // Initialize filtered products with all products
-    filteredProducts.assignAll(allProducts);
-    
     // Listen to search query changes
-    debounce(searchQuery, (_) => filterProducts(), time: const Duration(milliseconds: 300));
+    debounce(searchQuery, (_) => fetchProducts(isRefresh: true), 
+      time: const Duration(milliseconds: 500));
   }
 
   @override
@@ -141,39 +118,136 @@ class CategoryController extends GetxController {
     super.onClose();
   }
 
+  // Fetch products from API
+  Future<void> fetchProducts({bool isRefresh = false, bool loadMore = false}) async {
+    try {
+      if (isRefresh) {
+        currentPage.value = 1;
+        isLoading.value = true;
+      } else if (loadMore) {
+        if (currentPage.value >= totalPages.value) return;
+        currentPage.value++;
+        isLoadingMore.value = true;
+      } else {
+        isLoading.value = true;
+      }
+
+      errorMessage.value = '';
+
+      // Get selected category ID
+      String? categoryId;
+      if (selectedCategoryIndex.value > 0 && 
+          selectedCategoryIndex.value < categories.length) {
+        categoryId = categories[selectedCategoryIndex.value]['id'];
+      }
+
+      // Fetch products from API
+      final response = await _productsService.getAllProducts(
+        page: currentPage.value,
+        limit: limit,
+        categoryId: categoryId,
+        searchQuery: searchQuery.value.isNotEmpty ? searchQuery.value : null,
+      );
+
+      // Update pagination info
+      totalPages.value = response.meta.totalPage;
+      totalProducts.value = response.meta.total;
+
+      // Convert API products to display format
+      final convertedProducts = response.data.map((product) => 
+        _convertProductDataToMap(product)
+      ).toList();
+
+      if (loadMore) {
+        // Append to existing products
+        allProducts.addAll(convertedProducts);
+      } else {
+        // Replace products
+        apiProducts.value = response.data;
+        allProducts.value = convertedProducts;
+      }
+
+      // Update filtered products
+      filteredProducts.value = allProducts;
+
+      // Apply sorting if needed
+      if (selectedSortCategory.value != 'Select Category') {
+        sortProducts(selectedSortCategory.value);
+      }
+
+    } catch (e) {
+      errorMessage.value = e.toString();
+      Get.snackbar(
+        'Error',
+        'Failed to load products: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: Colors.red.shade800,
+      );
+    } finally {
+      isLoading.value = false;
+      isLoadingMore.value = false;
+    }
+  }
+
+  // Convert ProductData to Map for display
+  Map<String, dynamic> _convertProductDataToMap(ProductData product) {
+    // Get the first variant's price or 0
+    double price = product.sizeType.isNotEmpty 
+      ? product.sizeType.first.price 
+      : 0.0;
+    
+    // Calculate original price if there's a discount
+    double? originalPrice;
+    if (product.sizeType.isNotEmpty && product.sizeType.first.discount > 0) {
+      originalPrice = price + product.sizeType.first.discount;
+    }
+
+    return {
+      'id': product.id,
+      'name': product.name,
+      'brand': product.brand,
+      'price': price.toStringAsFixed(2),
+      'originalPrice': originalPrice?.toStringAsFixed(2),
+      'image': product.images.isNotEmpty ? product.images.first : '',
+      'category': product.category,
+      'subCategory': product.subCategory,
+      'model': product.model,
+      'images': product.images,
+      'colors': product.color,
+      'variants': product.sizeType.map((v) => {
+        'size': v.size,
+        'price': v.price,
+        'quantity': v.quantity,
+        'discount': v.discount,
+        'purchasePrice': v.purchasePrice,
+        'profit': v.profit,
+      }).toList(),
+      'rating': product.rating,
+      'reviewCount': product.reviewCount,
+      'totalStock': product.totalStock,
+      'specialCategory': product.specialCategory,
+      'overview': product.overview,
+      'highlights': product.highlights,
+      'techSpecs': product.techSpecs,
+      'seller': {
+        'id': product.seller.id,
+        'firstName': product.seller.firstName,
+        'lastName': product.seller.lastName,
+        'image': product.seller.image,
+      },
+      'createdAt': product.createdAt.toIso8601String(),
+      'updatedAt': product.updatedAt.toIso8601String(),
+    };
+  }
+
   void onSearchChanged(String query) {
     searchQuery.value = query;
   }
 
   void selectCategory(int index) {
     selectedCategoryIndex.value = index;
-    filterProducts();
-  }
-
-  void filterProducts() {
-    List<Map<String, dynamic>> filtered = allProducts.toList();
-
-    // Filter by category if not "All" (index 0 could be "All" category)
-    if (selectedCategoryIndex.value > 0) {
-      final selectedCategory = categories[selectedCategoryIndex.value]['name'];
-      filtered = filtered.where((product) => 
-        product['category'].toString().toLowerCase() == 
-        selectedCategory.toString().toLowerCase()
-      ).toList();
-    }
-
-    // Filter by search query
-    if (searchQuery.value.isNotEmpty) {
-      filtered = filtered.where((product) {
-        final name = product['name'].toString().toLowerCase();
-        final brand = product['brand'].toString().toLowerCase();
-        final query = searchQuery.value.toLowerCase();
-        
-        return name.contains(query) || brand.contains(query);
-      }).toList();
-    }
-
-    filteredProducts.assignAll(filtered);
+    fetchProducts(isRefresh: true);
   }
 
   void onProductTap(Map<String, dynamic> product) {
@@ -254,8 +328,22 @@ class CategoryController extends GetxController {
       case 'Name: Z to A':
         sorted.sort((a, b) => b['name'].toString().compareTo(a['name'].toString()));
         break;
+      case 'Newest First':
+        sorted.sort((a, b) {
+          DateTime dateA = DateTime.tryParse(a['createdAt'] ?? '') ?? DateTime.now();
+          DateTime dateB = DateTime.tryParse(b['createdAt'] ?? '') ?? DateTime.now();
+          return dateB.compareTo(dateA);
+        });
+        break;
+      case 'Oldest First':
+        sorted.sort((a, b) {
+          DateTime dateA = DateTime.tryParse(a['createdAt'] ?? '') ?? DateTime.now();
+          DateTime dateB = DateTime.tryParse(b['createdAt'] ?? '') ?? DateTime.now();
+          return dateA.compareTo(dateB);
+        });
+        break;
       default:
-        // Keep original order for other options
+        // Keep original order
         break;
     }
 
@@ -264,7 +352,6 @@ class CategoryController extends GetxController {
 
   void addToCart(Map<String, dynamic> product) {
     print('Added to cart: ${product['name']}');
-    // Implement add to cart functionality
     Get.snackbar(
       'Added to Cart',
       '${product['name']} has been added to your cart',
@@ -283,16 +370,12 @@ class CategoryController extends GetxController {
   }
 
   int getProductCountForCurrentCategory() {
-    return filteredProducts.length;
+    return totalProducts.value;
   }
 
   // Method to refresh products (for pull-to-refresh)
   Future<void> refreshProducts() async {
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // Reload products
-    filterProducts();
+    await fetchProducts(isRefresh: true);
     
     Get.snackbar(
       'Refreshed',
@@ -302,9 +385,15 @@ class CategoryController extends GetxController {
     );
   }
 
+  // Load more products (for pagination)
+  Future<void> loadMoreProducts() async {
+    if (!isLoadingMore.value && currentPage.value < totalPages.value) {
+      await fetchProducts(loadMore: true);
+    }
+  }
+
   // Add product from Add Product view
   void addProductFromAddProductView(ProductModel product) {
-    // Convert ProductModel to the format used in category view
     Map<String, dynamic> newProduct = {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'name': product.name,
@@ -313,9 +402,9 @@ class CategoryController extends GetxController {
       'originalPrice': null,
       'image': product.images.isNotEmpty ? product.images.first : 'assets/images/placeholder.png',
       'category': product.category,
-      'images': product.images, // Store all images
-      'colors': product.colors, // Store colors
-      'variants': product.variants.map((v) => v.toJson()).toList(), // Store variants
+      'images': product.images,
+      'colors': product.colors,
+      'variants': product.variants.map((v) => v.toJson()).toList(),
       'model': product.model,
       'subCategory': product.subCategory,
       'specialCategory': product.specialCategory,
@@ -323,13 +412,9 @@ class CategoryController extends GetxController {
       'createdAt': product.createdAt.toIso8601String(),
     };
     
-    // Add to the beginning of the list
     allProducts.insert(0, newProduct);
+    filteredProducts.insert(0, newProduct);
     
-    // Update filtered products to show the new product
-    filterProducts();
-    
-    // Show success message
     Get.snackbar(
       'Success',
       'Product added successfully!',
@@ -337,5 +422,10 @@ class CategoryController extends GetxController {
       backgroundColor: Colors.green.shade100,
       colorText: Colors.green.shade800,
     );
+  }
+
+  // Retry loading products on error
+  void retryLoading() {
+    fetchProducts(isRefresh: true);
   }
 }

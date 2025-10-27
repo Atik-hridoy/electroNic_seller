@@ -1,21 +1,37 @@
 import 'package:electronic/routes/app_pages.dart';
 import 'package:get/get.dart';
+import '../views/account/services/get_profile_service.dart';
 
 class AccountController extends GetxController {
   // User data with proper null safety
-  final RxString userName = 'John Doe'.obs;
-  final RxString userPhone = '+1 234 567 8900'.obs;
+  final RxString userName = ''.obs;
+
+  final RxString userAddress = ''.obs;
+  final GetProfileService _getProfileService = GetProfileService();
   
   @override
   void onInit() {
     super.onInit();
-    // Initialize any required data here
     _initializeUserData();
   }
   
-  void _initializeUserData() {
-    // Load user data from storage or API if needed
-    // Example: userName.value = storageService.getUserName() ?? 'John Doe';
+  Future<void> _initializeUserData() async {
+    try {
+      final profileData = await _getProfileService.getProfile();
+      if (profileData != null) {
+        userName.value = '${profileData.data.firstName} ${profileData.data.lastName}';
+        userAddress.value = profileData.data.address;
+      } else {
+        // Fallback to default values if profile data is not available
+        userName.value = 'John Doe';
+        userAddress.value = 'No address provided';
+      }
+    } catch (e) {
+      // Fallback to default values in case of error
+      userName.value = 'John Doe';
+      userAddress.value = 'No address available';
+      print('Error loading profile data: $e');
+    }
   }
   
   // Logout method
@@ -30,10 +46,5 @@ class AccountController extends GetxController {
       print('Error during logout: $e');
       Get.snackbar('Error', 'Failed to logout. Please try again.');
     }
-  }
-  
-  // Format phone number for display
-  String getFormattedPhone() {
-    return userPhone.value;
   }
 }

@@ -187,11 +187,13 @@ class ProductsController extends GetxController {
   }
 
   void onCategoryTap(CategoryModel category) {
-    // Navigate to category details or products list
-    Get.snackbar(
-      'Category Selected',
-      'You selected: ${category.name}',
-      snackPosition: SnackPosition.BOTTOM,
+    // Navigate to add product view with the selected category ID and name
+    Get.toNamed(
+      Routes.addProduct,
+      arguments: {
+        'categoryId': category.id,
+        'categoryName': category.name,
+      },
     );
   }
 

@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:electronic/features/home/everything_related_products/add_products/add_product_controller.dart';
+import 'package:electronic/features/home/everything_related_products/add_products/services/add_products_service.dart';
 import 'package:electronic/features/home/everything_related_products/category/category_controller.dart';
+import 'package:electronic/features/home/everything_related_products/category/services/get_allProducts_service.dart';
 import 'package:electronic/features/home/everything_related_products/product_details/product_details_controller.dart';
 import 'package:electronic/features/home/everything_related_products/products_view/services/get_product_brand_service.dart';
 import 'package:electronic/features/home/everything_related_products/products_view/services/get_product_category_service.dart';
@@ -34,6 +36,8 @@ class HomeBinding extends Bindings {
     Get.lazyPut<EditAccountController>(() => EditAccountController());
     Get.lazyPut<ProductCategoryService>(() => ProductCategoryService());
     Get.lazyPut<ProductBrandService>(() => ProductBrandService());
+    Get.lazyPut<AddProductService>(() => AddProductService());
+    Get.lazyPut<GetAllProductsService>(() => GetAllProductsService());
     
   }
 }

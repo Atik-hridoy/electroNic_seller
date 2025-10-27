@@ -1,11 +1,10 @@
 class ProductVariant {
   final String id;
   final String size;
-  final double price;
-  final double purchasePrice;
-  final double profitPrice;
-  final double discountPrice;
-  final double quantityDiscountPrice;
+  final int price;
+  final int purchasePrice;
+  final int profitPrice;
+  final int discountPrice;
   final int quantity;
   final String color;
   final DateTime createdAt;
@@ -16,8 +15,7 @@ class ProductVariant {
     required this.price,
     required this.purchasePrice,
     required this.profitPrice,
-    this.discountPrice = 0.0,
-    this.quantityDiscountPrice = 0.0,
+    this.discountPrice = 0,
     required this.quantity,
     this.color = '',
     required this.createdAt,
@@ -25,11 +23,10 @@ class ProductVariant {
 
   factory ProductVariant.create({
     required String size,
-    required double price,
-    required double purchasePrice,
-    required double profitPrice,
-    double discountPrice = 0.0,
-    double quantityDiscountPrice = 0.0,
+    required int price,
+    required int purchasePrice,
+    required int profitPrice,
+    int discountPrice = 0,
     required int quantity,
     String color = '',
   }) {
@@ -40,7 +37,6 @@ class ProductVariant {
       purchasePrice: purchasePrice,
       profitPrice: profitPrice,
       discountPrice: discountPrice,
-      quantityDiscountPrice: quantityDiscountPrice,
       quantity: quantity,
       color: color,
       createdAt: DateTime.now(),
@@ -55,7 +51,6 @@ class ProductVariant {
       'purchasePrice': purchasePrice,
       'profitPrice': profitPrice,
       'discountPrice': discountPrice,
-      'quantityDiscountPrice': quantityDiscountPrice,
       'quantity': quantity,
       'color': color,
       'createdAt': createdAt.toIso8601String(),
@@ -64,6 +59,6 @@ class ProductVariant {
 
   @override
   String toString() {
-    return 'ProductVariant(size: $size, price: \$${price.toStringAsFixed(2)}, quantity: $quantity)';
+    return 'ProductVariant(size: $size, price: $price, quantity: $quantity)';
   }
 }
