@@ -18,4 +18,18 @@ class AppUrls {
   static const String addProduct = 'products/create';
   static const String getAllProducts = 'products/get-all-for-seller';
 
+
+  // dashboard
+
+  static const String getProductStatistics  = 'dashboard/seller-products-analysis';
+
+  //settings
+
+  static const String getPrivacyPolicy = 'settings?key=privacyPolicy';
+  static const String getSupport = 'settings?key=support';
+  static const String getSocial = 'settings?key=social';
+  static const String getAboutUs = 'settings?key=aboutUs';
+  static const String getWorkFuntionality = 'settings?key=workFuntionality';
+  static const String getTermsOfService = 'settings?key=termsOfService';
+
 }

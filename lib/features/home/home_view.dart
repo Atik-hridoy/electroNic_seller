@@ -104,7 +104,7 @@ class HomeView extends GetView<HomeController> {
                             ),
                           )),
                           Obx(() => Text(
-                            controller.getFormattedPhone(),
+                            controller.maskedUserPhone.value,
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
@@ -275,13 +275,6 @@ class HomeView extends GetView<HomeController> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: Obx(() => _buildStatCard(
-              controller.returns.value.toString(),
-              'return'.tr,
-              Colors.red.shade50,
-              Colors.red.shade600,
-            ))),
-            const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
               '0${controller.cancelledProducts.value}',
               'cancel_products'.tr,

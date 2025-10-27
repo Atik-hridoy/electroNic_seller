@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:electronic/core/constants/app_urls.dart';
 import 'category_controller.dart';
 
 class CategoryView extends GetView<CategoryController> {
@@ -115,18 +116,11 @@ class CategoryView extends GetView<CategoryController> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
-                        child: Image.asset(
+                        child: _buildCategoryImage(
                           category['image'] as String,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              category['fallbackIcon'] as IconData,
-                              color: isSelected 
-                                ? (category['color'] as Color)
-                                : Colors.grey[600],
-                              size: 24,
-                            );
-                          },
+                          category['fallbackIcon'] as IconData,
+                          category['color'] as Color,
+                          isSelected,
                         ),
                       ),
                     ),
@@ -508,6 +502,14 @@ class CategoryView extends GetView<CategoryController> {
   }
 
   Widget _buildProductImage(String imagePath) {
+    // Normalize relative API paths to full URL
+    if (imagePath.isNotEmpty &&
+        !imagePath.startsWith('http') &&
+        !imagePath.startsWith('assets/') &&
+        !(imagePath.startsWith('/') || imagePath.contains(':'))) {
+      imagePath = '${AppUrls.imageBaseUrl}$imagePath';
+    }
+
     // Check if it's a URL from API
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return Image.network(
@@ -542,7 +544,7 @@ class CategoryView extends GetView<CategoryController> {
       );
     }
     
-    // Check if it's a file path (from Add Product view)
+    // If it's a local file path (from camera/gallery)
     if (imagePath.startsWith('/') || imagePath.contains(':')) {
       return Image.file(
         File(imagePath),
@@ -559,7 +561,7 @@ class CategoryView extends GetView<CategoryController> {
         },
       );
     }
-    
+
     // It's an asset path
     return Image.asset(
       imagePath,
@@ -572,6 +574,48 @@ class CategoryView extends GetView<CategoryController> {
             color: Colors.grey[400],
             size: 40,
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryImage(String path, IconData fallback, Color color, bool isSelected) {
+    if (path.isEmpty) {
+      return Icon(
+        fallback,
+        color: isSelected ? color : Colors.grey[600],
+        size: 24,
+      );
+    }
+
+    // Normalize to full URL if relative
+    String imagePath = path;
+    if (!imagePath.startsWith('http') && !imagePath.startsWith('assets/')) {
+      imagePath = '${AppUrls.imageBaseUrl}$imagePath';
+    }
+
+    if (imagePath.startsWith('http')) {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            fallback,
+            color: isSelected ? color : Colors.grey[600],
+            size: 24,
+          );
+        },
+      );
+    }
+
+    return Image.asset(
+      imagePath,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        return Icon(
+          fallback,
+          color: isSelected ? color : Colors.grey[600],
+          size: 24,
         );
       },
     );

@@ -1,5 +1,7 @@
 import 'package:electronic/features/home/everything_related_products/category/model/get_model.dart';
 import 'package:electronic/features/home/everything_related_products/category/services/get_allProducts_service.dart';
+import 'package:electronic/features/home/everything_related_products/products_view/products_controller.dart';
+import 'package:electronic/core/constants/app_urls.dart';
 import 'package:electronic/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,51 +30,140 @@ class CategoryController extends GetxController {
   final RxInt totalProducts = 0.obs;
   final int limit = 10;
 
-  // Categories data
-  final RxList<Map<String, dynamic>> categories = <Map<String, dynamic>>[
-    {
-      'name': 'All',
-      'image': 'assets/images/all.png',
-      'color': Colors.grey,
-      'fallbackIcon': Icons.apps,
-
-    },
-    {
-      'name': 'Computers',
-      'image': 'assets/images/computer.png',
-      'color': Colors.blue,
-      'fallbackIcon': Icons.computer,
-
-    },
-    {
-      'name': 'Phone',
-      'image': 'assets/images/phone.png',
-      'color': Colors.orange,
-      'fallbackIcon': Icons.phone_android,
-
-    },
-    {
-      'name': 'Server Tool',
-      'image': 'assets/images/server.png',
-      'color': Colors.purple,
-      'fallbackIcon': Icons.dns,
-
-    },
-    {
-      'name': 'accessories',
-      'image': 'assets/images/accessories.png',
-      'color': Colors.red,
-      'fallbackIcon': Icons.headphones,
-
-    },
-    {
-      'name': 'Camera',
-      'image': 'assets/images/camera.png',
-      'color': Colors.green,
-      'fallbackIcon': Icons.camera_alt,
-
-    },
-  ].obs;
+  // Get categories from ProductsController
+  RxList<Map<String, dynamic>> get categories {
+    try {
+      final productsController = Get.find<ProductsController>();
+      
+      // Start with 'All' category
+      final allCategories = <Map<String, dynamic>>[
+        {
+          'id': 'all',
+          'name': 'All',
+          'image': 'assets/images/all.png',
+          'color': Colors.grey,
+          'fallbackIcon': Icons.apps,
+        }
+      ];
+      
+      // Add dynamic categories from ProductsController
+      if (productsController.categories.isNotEmpty) {
+        allCategories.addAll(productsController.categories.map((category) {
+          final categoryName = category.name.isNotEmpty ? category.name : 'Unnamed Category';
+          String image = category.thumbnail.isNotEmpty 
+              ? category.thumbnail 
+              : _getDefaultCategoryImage(categoryName);
+          if (image.isNotEmpty && !image.startsWith('http')) {
+            image = '${AppUrls.imageBaseUrl}$image';
+          }
+          return {
+            'id': category.id,
+            'name': categoryName,
+            'image': image,
+            'color': _getCategoryColor(categoryName),
+            'fallbackIcon': _getFallbackIcon(categoryName),
+          };
+        }).toList());
+      } else {
+        // Fallback categories if ProductsController hasn't loaded yet or has no categories
+        allCategories.addAll([
+          {
+            'id': 'computers',
+            'name': 'Computers',
+            'image': 'assets/images/computer.png',
+            'color': Colors.blue,
+            'fallbackIcon': Icons.computer,
+          },
+          {
+            'id': 'phone',
+            'name': 'Phone',
+            'image': 'assets/images/phone.png',
+            'color': Colors.orange,
+            'fallbackIcon': Icons.phone_android,
+          },
+        ]);
+      }
+      
+      return allCategories.obs;
+    } catch (e) {
+      // In case ProductsController is not found or any other error occurs
+      return <Map<String, dynamic>>[
+        {
+          'id': 'all',
+          'name': 'All',
+          'image': 'assets/images/all.png',
+          'color': Colors.grey,
+          'fallbackIcon': Icons.apps,
+        },
+        {
+          'id': 'computers',
+          'name': 'Computers',
+          'image': 'assets/images/computer.png',
+          'color': Colors.blue,
+          'fallbackIcon': Icons.computer,
+        },
+        {
+          'id': 'phone',
+          'name': 'Phone',
+          'image': 'assets/images/phone.png',
+          'color': Colors.orange,
+          'fallbackIcon': Icons.phone_android,
+        },
+      ].obs;
+    }
+  }
+  
+  // Helper methods for category properties
+  String _getDefaultCategoryImage(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'computers':
+        return 'assets/images/computer.png';
+      case 'phone':
+        return 'assets/images/phone.png';
+      case 'server tool':
+        return 'assets/images/server.png';
+      case 'accessories':
+        return 'assets/images/accessories.png';
+      case 'camera':
+        return 'assets/images/camera.png';
+      default:
+        return 'assets/images/all.png';
+    }
+  }
+  
+  Color _getCategoryColor(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'computers':
+        return Colors.blue;
+      case 'phone':
+        return Colors.orange;
+      case 'server tool':
+        return Colors.purple;
+      case 'accessories':
+        return Colors.red;
+      case 'camera':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+  
+  IconData _getFallbackIcon(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'computers':
+        return Icons.computer;
+      case 'phone':
+        return Icons.phone_android;
+      case 'server tool':
+        return Icons.dns;
+      case 'accessories':
+        return Icons.headphones;
+      case 'camera':
+        return Icons.camera_alt;
+      default:
+        return Icons.category;
+    }
+  }
 
   // Products data from API
   final RxList<ProductData> apiProducts = <ProductData>[].obs;
@@ -98,6 +189,27 @@ class CategoryController extends GetxController {
   void onInit() {
     super.onInit();
     
+    // Initialize products
+    _initializeProducts();
+    
+    // Ensure ProductsController is initialized
+    Get.put(ProductsController());
+    
+    // Listen to category updates from ProductsController
+    try {
+      final productsController = Get.find<ProductsController>();
+      ever(productsController.categories, (_) {
+        // Refresh products when categories are updated
+        fetchProducts(isRefresh: true);
+        update(); // Notify listeners that categories might have changed
+      });
+    } catch (e) {
+      // If ProductsController is not available, continue without the listener
+      // The categories getter has a fallback mechanism
+    }
+  }
+  
+  void _initializeProducts() {
     // Load products from API
     fetchProducts();
     
@@ -119,7 +231,11 @@ class CategoryController extends GetxController {
   }
 
   // Fetch products from API
-  Future<void> fetchProducts({bool isRefresh = false, bool loadMore = false}) async {
+  Future<void> fetchProducts({
+    bool isRefresh = false, 
+    bool loadMore = false,
+    String? categoryId,
+  }) async {
     try {
       if (isRefresh) {
         currentPage.value = 1;
@@ -134,9 +250,9 @@ class CategoryController extends GetxController {
 
       errorMessage.value = '';
 
-      // Get selected category ID
-      String? categoryId;
-      if (selectedCategoryIndex.value > 0 && 
+      // If no categoryId provided, get it from selected index
+      if (categoryId == null && 
+          selectedCategoryIndex.value > 0 && 
           selectedCategoryIndex.value < categories.length) {
         categoryId = categories[selectedCategoryIndex.value]['id'];
       }
@@ -192,15 +308,29 @@ class CategoryController extends GetxController {
 
   // Convert ProductData to Map for display
   Map<String, dynamic> _convertProductDataToMap(ProductData product) {
-    // Get the first variant's price or 0
     double price = product.sizeType.isNotEmpty 
       ? product.sizeType.first.price 
       : 0.0;
     
-    // Calculate original price if there's a discount
     double? originalPrice;
     if (product.sizeType.isNotEmpty && product.sizeType.first.discount > 0) {
       originalPrice = price + product.sizeType.first.discount;
+    }
+
+    String mainImage = product.images.isNotEmpty ? product.images.first : '';
+    if (mainImage.isNotEmpty && !mainImage.startsWith('http') && !mainImage.startsWith('assets/')) {
+      mainImage = '${AppUrls.imageBaseUrl}$mainImage';
+    }
+    final normalizedImages = product.images.map((img) {
+      if (img.isNotEmpty && !img.startsWith('http') && !img.startsWith('assets/')) {
+        return '${AppUrls.imageBaseUrl}$img';
+      }
+      return img;
+    }).toList();
+
+    String sellerImage = product.seller.image ?? '';
+    if (sellerImage.isNotEmpty && !sellerImage.startsWith('http') && !sellerImage.startsWith('assets/')) {
+      sellerImage = '${AppUrls.imageBaseUrl}$sellerImage';
     }
 
     return {
@@ -209,11 +339,11 @@ class CategoryController extends GetxController {
       'brand': product.brand,
       'price': price.toStringAsFixed(2),
       'originalPrice': originalPrice?.toStringAsFixed(2),
-      'image': product.images.isNotEmpty ? product.images.first : '',
+      'image': mainImage,
       'category': product.category,
       'subCategory': product.subCategory,
       'model': product.model,
-      'images': product.images,
+      'images': normalizedImages,
       'colors': product.color,
       'variants': product.sizeType.map((v) => {
         'size': v.size,
@@ -234,7 +364,7 @@ class CategoryController extends GetxController {
         'id': product.seller.id,
         'firstName': product.seller.firstName,
         'lastName': product.seller.lastName,
-        'image': product.seller.image,
+        'image': sellerImage,
       },
       'createdAt': product.createdAt.toIso8601String(),
       'updatedAt': product.updatedAt.toIso8601String(),
@@ -246,8 +376,38 @@ class CategoryController extends GetxController {
   }
 
   void selectCategory(int index) {
-    selectedCategoryIndex.value = index;
-    fetchProducts(isRefresh: true);
+    try {
+      // Ensure we have valid categories before proceeding
+      if (categories.isEmpty) return;
+      
+      // Clamp the index to valid range
+      final safeIndex = index.clamp(0, categories.length - 1);
+      selectedCategoryIndex.value = safeIndex;
+      
+      // If 'All' is selected, clear the category filter
+      if (safeIndex == 0) {
+        fetchProducts(isRefresh: true);
+        return;
+      }
+      
+      // Get the selected category ID safely
+      if (safeIndex < categories.length) {
+        final selectedCategory = categories[safeIndex];
+        final categoryId = selectedCategory['id'];
+        if (categoryId != null) {
+          fetchProducts(isRefresh: true, categoryId: categoryId.toString());
+        } else {
+          fetchProducts(isRefresh: true);
+        }
+      } else {
+        // Fallback to fetching all products if index is out of bounds
+        fetchProducts(isRefresh: true);
+      }
+    } catch (e) {
+      // If any error occurs, fallback to fetching all products
+      selectedCategoryIndex.value = 0;
+      fetchProducts(isRefresh: true);
+    }
   }
 
   void onProductTap(Map<String, dynamic> product) {

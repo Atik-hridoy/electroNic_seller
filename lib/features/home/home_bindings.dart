@@ -8,6 +8,9 @@ import 'package:electronic/features/home/everything_related_products/products_vi
 import 'package:electronic/features/home/everything_related_products/products_view/services/get_product_category_service.dart';
 import 'package:electronic/features/home/views/account/account_otions/controller/account_setting_controller.dart';
 import 'package:electronic/features/home/views/account/services/get_profile_service.dart';
+import 'package:electronic/features/home/views/account/services/get_about_us_service.dart';
+import 'package:electronic/features/home/views/account/services/get_work_funtionality.dart';
+import 'package:electronic/features/home/views/account/services/get_terms_service.dart';
 import 'package:get/get.dart';
 import 'everything_related_products/products_view/products_controller.dart';
 import 'home_controller.dart';
@@ -21,6 +24,9 @@ class HomeBinding extends Bindings {
     Get.put<Dio>(Dio(), permanent: true);
     // Register services
     Get.lazyPut<GetProfileService>(() => GetProfileService());
+    Get.lazyPut<GetAboutUsService>(() => GetAboutUsService());
+    Get.lazyPut<GetWorkFuntionalityService>(() => GetWorkFuntionalityService());
+    Get.lazyPut<GetTermsService>(() => GetTermsService());
 
     // Register controllers
     Get.put(HomeController());
@@ -38,6 +44,7 @@ class HomeBinding extends Bindings {
     Get.lazyPut<ProductBrandService>(() => ProductBrandService());
     Get.lazyPut<AddProductService>(() => AddProductService());
     Get.lazyPut<GetAllProductsService>(() => GetAllProductsService());
+    Get.lazyPut<GetTermsService>(() => GetTermsService());
     
   }
 }

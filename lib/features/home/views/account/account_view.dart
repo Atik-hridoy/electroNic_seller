@@ -123,12 +123,19 @@ class AccountView extends GetView<AccountController> {
           ),
 
           // Menu Items
-        
+
+          _buildMenuItem(
+            icon: Icons.settings,
+            title: 'account_settings'.tr,
+            onTap: () {
+              Get.toNamed(Routes.accountSettings);
+            },
+          ),
           _buildMenuItem(
             icon: Icons.info_outline,
-            title: 'About',
+            title: 'about_us'.tr,
             onTap: () {
-              // Navigate to about
+              Get.toNamed(Routes.accountAboutUs);
             },
           ),
 
@@ -136,7 +143,7 @@ class AccountView extends GetView<AccountController> {
             icon: Icons.work_outline,
             title: 'Work Functionality',
             onTap: () {
-              // Navigate to work functionality
+              Get.toNamed(Routes.workFuntiuonality);
             },
           ),
 
@@ -144,7 +151,7 @@ class AccountView extends GetView<AccountController> {
             icon: Icons.description_outlined,
             title: 'Terms & Conditions',
             onTap: () {
-              // Navigate to terms & conditions
+              Get.toNamed(Routes.termsOfService);
             },
           ),
 

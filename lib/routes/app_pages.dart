@@ -1,4 +1,7 @@
 import 'package:electronic/features/auth/views/auth_signIn_view.dart';
+import 'package:electronic/features/home/views/account/account_otions/views/account_about_us.dart';
+import 'package:electronic/features/home/views/account/account_otions/views/tearms_view.dart';
+import 'package:electronic/features/home/views/account/account_otions/views/work_funtiuonality.dart';
 import 'package:electronic/features/notification/bindings.dart';
 import 'package:electronic/features/notification/notification_view.dart';
 import 'package:electronic/features/splash/bindings/splash_binding.dart';
@@ -83,6 +86,12 @@ class AppPages {
 
     ),
     GetPage(
+      name: Routes.accountSettings,
+      page: () => const AccountSettingView(),
+      binding: HomeBinding(),
+
+    ),
+    GetPage(
       name: Routes.editAccount,
       page: () => EditAccountView(),
       binding: HomeBinding(),
@@ -92,6 +101,21 @@ class AppPages {
       name: Routes.authSignIn,
       page: () => const AuthSignInView(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.accountAboutUs,
+      page: () => const AccountAboutUs(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.workFuntiuonality,
+      page: () => const AccountWorkFuntiuonality(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.termsOfService,
+      page: () => const TermsView(),
+      binding: HomeBinding(),
     ),
   ];
 }

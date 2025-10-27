@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../routes/app_pages.dart';
+import 'controllers/edit_account_controller.dart';
+import 'views/account/services/get_product_stat_service.dart';
+import 'views/account/model/get_product_stat_model.dart';
 
 class HomeController extends GetxController {
   // Observable variables for user data
-  final userName = 'Nadir Hossain'.obs;
-  final userPhone = '+8801955******33'.obs;
+  final EditAccountController accountController = Get.put(EditAccountController());
+  final userName = ''.obs;
+  final userPhone = ''.obs;
+  final maskedUserPhone = ''.obs;
 
   // Product statistics observables
-  final storedItems = 520.obs;
-  final activeOrders = 25.obs;
+  final storedItems = 0.obs;
+  final activeOrders = 0.obs;
   final delivered = 256.obs;
-  final returns = 20.obs;
-  final cancelledProducts = 2.obs;
-  final rating = 200.obs;
+  final cancelledProducts = 0.obs;
+  final rating = 0.obs;
 
   // Transaction data observables
   final totalEarning = 5620.0.obs;
@@ -68,8 +72,26 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Initialize user fields from EditAccountController and react to changes
+    try {
+      userName.value = accountController.fullName.value;
+      userPhone.value = accountController.phone.value;
+      maskedUserPhone.value = _maskPhone(userPhone.value);
+      ever<String>(accountController.fullName, (v) => userName.value = v);
+      ever<String>(accountController.phone, (v) {
+        userPhone.value = v;
+        maskedUserPhone.value = _maskPhone(v);
+      });
+    } catch (_) {}
     _initializeData();
     _loadChartData();
+  }
+
+  String _maskPhone(String input) {
+    final digits = input.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty) return '***';
+    final last3 = digits.length >= 3 ? digits.substring(digits.length - 3) : digits;
+    return '***$last3';
   }
 
   void _initializeData() {
@@ -80,13 +102,37 @@ class HomeController extends GetxController {
     _loadRatingStats();
   }
 
-  void _loadProductStats() {
+  Future<void> _loadProductStats() async {
     isLoadingStats.value = true;
-    // Simulate API call
-    Future.delayed(const Duration(milliseconds: 500), () {
-      // Data is already initialized in observables
+    try {
+      // Ensure service is available
+      if (!Get.isRegistered<GetProductStatService>()) {
+        Get.put(GetProductStatService());
+      }
+      final svc = Get.find<GetProductStatService>();
+      final res = await svc.getProductStatistics();
+      final body = res.data;
+      // Some APIs wrap in { success, data: {...} }
+      final dataJson = (body is Map && body['data'] is Map)
+          ? body['data'] as Map<String, dynamic>
+          : (body is Map<String, dynamic> ? body : <String, dynamic>{});
+      final stats = ProductStatsModel.fromJson(dataJson);
+
+      // Assign to observables
+      storedItems.value = stats.storedItems;
+      activeOrders.value = stats.activeOrder;
+      delivered.value = stats.deliveredOrder;
+      cancelledProducts.value = stats.cancelledOrder;
+      rating.value = stats.totalRating;
+      // 'returns' not provided by API; keep as-is or set to 0 if absent
+      if (!(dataJson.containsKey('returns'))) {
+        // returns.value = returns.value; // no-op
+      }
+    } catch (e) {
+      // Keep existing values and optionally log/snackbar if desired
+    } finally {
       isLoadingStats.value = false;
-    });
+    }
   }
 
   void _loadTransactionData() {
@@ -270,7 +316,6 @@ class HomeController extends GetxController {
       'stored_items': storedItems.value,
       'active_orders': activeOrders.value,
       'delivered': delivered.value,
-      'returns': returns.value,
       'cancelled': cancelledProducts.value,
       'rating': rating.value,
     };

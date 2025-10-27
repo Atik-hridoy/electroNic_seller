@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:electronic/core/constants/app_urls.dart';
 import 'product_details_controller.dart';
 
 class ProductDetailsView extends GetView<ProductDetailsController> {
@@ -20,10 +22,207 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
             _buildProductInfo(),
             const SizedBox(height: 24),
             _buildProductDescription(),
+            const SizedBox(height: 24),
+            _buildReviewsSection(),
             const SizedBox(height: 100),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReviewsSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 0,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Reviews',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              Obx(() => Text(
+                '${controller.totalReviews} reviews • ${controller.averageRating.value.toStringAsFixed(1)}/5',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              )),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Obx(() {
+            if (controller.reviews.isEmpty) {
+              return Text(
+                'No reviews yet',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              );
+            }
+            return Column(
+              children: controller.reviews.map((r) {
+                final rating = (r['rating'] as int? ?? 0).clamp(0, 5);
+                final String avatar = (r['image']?.toString() ?? '').trim();
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildReviewerAvatar(avatar, r['reviewer']?.toString()),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  r['reviewer']?.toString() ?? 'Anonymous',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                Text(
+                                  (r['createdAt']?.toString() ?? '').split('T').first,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: List.generate(5, (i) => Icon(
+                                i < rating ? Icons.star : Icons.star_border,
+                                size: 16,
+                                color: Colors.amber[600],
+                              )),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              r['comment']?.toString() ?? '',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[800],
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          }),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewerAvatar(String avatar, String? reviewerName) {
+    final double size = 36;
+    if (avatar.isNotEmpty) {
+      String img = avatar;
+      if (!img.startsWith('http') && !img.startsWith('assets/') && !(img.startsWith('/') || img.contains(':')) ) {
+        img = '${AppUrls.imageBaseUrl}$img';
+      }
+      if (img.startsWith('http')) {
+        return CircleAvatar(radius: size/2, backgroundImage: NetworkImage(img));
+      }
+      if (img.startsWith('/') || img.contains(':')) {
+        return CircleAvatar(radius: size/2, backgroundImage: FileImage(File(img)));
+      }
+      return CircleAvatar(radius: size/2, backgroundImage: AssetImage(img));
+    }
+    final initial = (reviewerName?.isNotEmpty == true ? reviewerName!.substring(0,1).toUpperCase() : 'A');
+    return CircleAvatar(
+      radius: size/2,
+      backgroundColor: Colors.blue[50],
+      child: Text(
+        initial,
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blue[700]),
+      ),
+    );
+  }
+
+  Widget _buildDetailImage(String path) {
+    String imagePath = path;
+    if (imagePath.isNotEmpty &&
+        !imagePath.startsWith('http') &&
+        !imagePath.startsWith('assets/') &&
+        !(imagePath.startsWith('/') || imagePath.contains(':'))) {
+      imagePath = '${AppUrls.imageBaseUrl}$imagePath';
+    }
+    if (imagePath.startsWith('http')) {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[200],
+            child: Icon(
+              Icons.image,
+              color: Colors.grey[400],
+              size: 30,
+            ),
+          );
+        },
+      );
+    }
+    if (imagePath.startsWith('/') || imagePath.contains(':')) {
+      return Image.file(
+        File(imagePath),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[200],
+            child: Icon(
+              Icons.image,
+              color: Colors.grey[400],
+              size: 30,
+            ),
+          );
+        },
+      );
+    }
+    return Image.asset(
+      imagePath,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: Colors.grey[200],
+          child: Icon(
+            Icons.image,
+            color: Colors.grey[400],
+            size: 30,
+          ),
+        );
+      },
     );
   }
 
@@ -99,20 +298,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[200],
-                      child: Icon(
-                        Icons.image,
-                        color: Colors.grey[400],
-                        size: 30,
-                      ),
-                    );
-                  },
-                ),
+                child: _buildDetailImage(imagePath),
               ),
             );
           }).toList(),
