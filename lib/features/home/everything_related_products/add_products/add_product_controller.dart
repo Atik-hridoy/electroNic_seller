@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:electronic/core/util/products_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../products_view/model/get_product_category_model.dart';
@@ -36,6 +37,85 @@ class AddProductController extends GetxController {
   final techSpecController = TextEditingController();
   final highlightController = TextEditingController();
   final overviewController = TextEditingController();
+  
+  @override
+  void onInit() {
+    super.onInit();
+    
+    // Add overview controller listener
+    overviewController.addListener(_syncOverviewText);
+    
+    // Get category ID and name from navigation arguments if provided
+    final arguments = Get.arguments as Map<String, dynamic>?;
+    if (arguments != null) {
+      if (arguments['categoryId'] != null) {
+        categoryId.value = arguments['categoryId'].toString();
+      }
+      if (arguments['categoryName'] != null) {
+        final name = arguments['categoryName'].toString();
+        categoryName.value = name;
+        
+        // Find and set the selected category from the categories list
+        if (productsController.categories.isNotEmpty) {
+          try {
+            final category = productsController.categories.firstWhere(
+              (cat) => cat.name == name,
+              orElse: () => CategoryModel(
+                id: categoryId.value,
+                name: name,
+                thumbnail: '',
+                subCategories: [],
+              ),
+            );
+            selectedCategory.value = category;
+          } catch (e) {
+            // Fallback to default category if not found
+            AppLogger.error('Category not found: $name');
+          }
+        }
+      }
+    }
+    
+    // Initialize with default values
+    productNameController.text = "Nipson TV";
+    modelController.text = "LED TV";
+    sizeController.text = "40inch";
+    priceController.text = "10.50";
+    purchasePriceController.text = "8.00";
+    profitPriceController.text = "2.50";
+    quantityController.text = "50";
+  }
+  
+  @override
+  void onClose() {
+    overviewController.removeListener(_syncOverviewText);
+    productNameController.dispose();
+    modelController.dispose();
+    brandController.dispose();
+    finishController.dispose();
+    techSpecController.dispose();
+    highlightController.dispose();
+    overviewController.dispose();
+    sizeController.dispose();
+    priceController.dispose();
+    purchasePriceController.dispose();
+    profitPriceController.dispose();
+    discountPriceController.dispose();
+    quantityDiscountPriceController.dispose();
+    quantityController.dispose();
+    super.onClose();
+  }
+  
+  // Sync overview text to tech spec and highlight fields
+  void _syncOverviewText() {
+    final text = overviewController.text;
+    if (techSpecController.text != text) {
+      techSpecController.text = text;
+    }
+    if (highlightController.text != text) {
+      highlightController.text = text;
+    }
+  }
 
   // Text editing controllers for variant-specific fields
   final sizeController = TextEditingController();
@@ -125,16 +205,17 @@ class AddProductController extends GetxController {
   }
 
   // Getter for colors list
-  List<String> get colors => [
-    'Red',
-    'Blue',
-    'Green',
-    'Black',
-    'White',
-    'Silver',
-    'Gold',
-    'Other'
-  ];
+  List<AppColor> get colors => ProductsColor().colors;
+  //  [
+    // 'Red',
+    // 'Blue',
+    // 'Green',
+    // 'Black',
+    // 'White',
+    // 'Silver',
+    // 'Gold',
+    // 'Other'
+  // ];
 
   // Getter for special categories
   List<String> get specialCategories => [
@@ -153,51 +234,6 @@ class AddProductController extends GetxController {
   // Category ID and name from navigation arguments
   final RxString categoryId = ''.obs;
   final RxString categoryName = ''.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    
-    // Get category ID and name from navigation arguments if provided
-    final arguments = Get.arguments as Map<String, dynamic>?;
-    if (arguments != null) {
-      if (arguments['categoryId'] != null) {
-        categoryId.value = arguments['categoryId'].toString();
-      }
-      if (arguments['categoryName'] != null) {
-        final name = arguments['categoryName'].toString();
-        categoryName.value = name;
-        
-        // Find and set the selected category from the categories list
-        if (productsController.categories.isNotEmpty) {
-          try {
-            final category = productsController.categories.firstWhere(
-              (cat) => cat.name == name,
-              orElse: () => CategoryModel(
-                id: categoryId.value,
-                name: name,
-                thumbnail: '',
-                subCategories: [],
-              ),
-            );
-            selectedCategory.value = category;
-          } catch (e) {
-            // Fallback to default category if not found
-            AppLogger.error('Category not found: $name');
-          }
-        }
-      }
-    }
-    
-    // Initialize with default values
-    productNameController.text = "Nipson TV";
-    modelController.text = "LED TV";
-    sizeController.text = "40inch";
-    priceController.text = "10.50";
-    purchasePriceController.text = "8.00";
-    profitPriceController.text = "2.50";
-    quantityController.text = "50";
-  }
 
   // Methods to handle dropdown changes
   void updateCategory(CategoryModel newValue) {
@@ -452,18 +488,5 @@ class AddProductController extends GetxController {
     currentPrice.value = 10.50;
   }
 
-  @override
-  void onClose() {
-    // Dispose controllers
-    productNameController.dispose();
-    modelController.dispose();
-    brandController.dispose();
-    finishController.dispose();
-    sizeController.dispose();
-    priceController.dispose();
-    purchasePriceController.dispose();
-    profitPriceController.dispose();
-    quantityController.dispose();
-    super.onClose();
-  }
+
 }

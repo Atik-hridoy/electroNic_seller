@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:electronic/core/constants/app_colors.dart';
+import 'package:electronic/core/util/products_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -658,10 +660,10 @@ class AddProductView extends StatelessWidget {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _getColorFromName(color).withOpacity(0.1),
+                    color: ProductsColor().getColors(color).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _getColorFromName(color),
+                      color: ProductsColor().getColors(color),
                       width: 1,
                     ),
                   ),
@@ -673,7 +675,7 @@ class AddProductView extends StatelessWidget {
                         height: 14,
                         margin: const EdgeInsets.only(right: 6),
                         decoration: BoxDecoration(
-                          color: _getColorFromName(color),
+                          color: ProductsColor().getColors(color),
                           shape: BoxShape.circle,
                           border: color.toLowerCase() == 'white'
                               ? Border.all(color: Colors.grey.shade300)
@@ -719,17 +721,17 @@ class AddProductView extends StatelessWidget {
           itemCount: controller.colors.length,
           itemBuilder: (context, index) {
             final color = controller.colors[index];
-            final isSelected = controller.selectedColors.contains(color);
-            final colorValue = _getColorFromName(color);
+            final isSelected = controller.selectedColors.contains(color.name);
+            final colorValue = ProductsColor().getColors(color.name);
             
             return GestureDetector(
-              onTap: () => controller.toggleColor(color),
+              onTap: () => controller.toggleColor(color.name),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 margin: const EdgeInsets.all(1),
                 decoration: BoxDecoration(
                   color: isSelected 
-                      ? colorValue.withOpacity(0.1)
+                      ? colorValue.withValues( alpha: 0.1)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
@@ -748,14 +750,14 @@ class AddProductView extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: colorValue,
                         shape: BoxShape.circle,
-                        border: color.toLowerCase() == 'white'
+                        border: color.name.toLowerCase() == 'white'
                             ? Border.all(color: Colors.grey.shade300)
                             : null,
                       ),
                     ),
                     Flexible(
                       child: Text(
-                        color,
+                        color.name,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -996,22 +998,7 @@ class AddProductView extends StatelessWidget {
     );
   }
 
-  Color _getColorFromName(String colorName) {
-    switch (colorName.toLowerCase()) {
-      case 'black':
-        return Colors.black;
-      case 'white':
-        return Colors.white;
-      case 'silver':
-        return Colors.grey;
-      case 'red':
-        return Colors.red;
-      case 'blue':
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
-  }
+
 
   Widget _buildSectionCard({
     required String title,

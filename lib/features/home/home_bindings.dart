@@ -44,7 +44,6 @@ class HomeBinding extends Bindings {
     Get.lazyPut<ProductBrandService>(() => ProductBrandService());
     Get.lazyPut<AddProductService>(() => AddProductService());
     Get.lazyPut<GetAllProductsService>(() => GetAllProductsService());
-    Get.lazyPut<GetTermsService>(() => GetTermsService());
     
   }
 }
