@@ -43,6 +43,8 @@ class NotificationView extends GetView<NotificationController> {
             onSelected: (value) {
               if (value == 'refresh') {
                 controller.refreshNotifications();
+              } else if (value == 'mark_all_read') {
+                controller.markAllAsRead();
               } else if (value == 'clear_all') {
                 controller.clearAllNotifications();
               }
@@ -55,6 +57,16 @@ class NotificationView extends GetView<NotificationController> {
                     Icon(Icons.refresh, size: 18),
                     SizedBox(width: 8),
                     Text('Refresh'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'mark_all_read',
+                child: Row(
+                  children: [
+                    Icon(Icons.done_all, size: 18, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text('Mark All as Read', style: TextStyle(color: Colors.green)),
                   ],
                 ),
               ),

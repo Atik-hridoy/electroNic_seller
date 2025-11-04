@@ -10,6 +10,10 @@ class AppUrls {
   static const String getProfile = 'users/profile';
   static const String updateProfileInsideApp = 'users/profile';
 
+  // notification 
+
+  static const String getNotifications = 'notifications/';
+
 
   //Product 
 
