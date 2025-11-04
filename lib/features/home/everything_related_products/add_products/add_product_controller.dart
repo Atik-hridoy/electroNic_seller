@@ -42,9 +42,6 @@ class AddProductController extends GetxController {
   void onInit() {
     super.onInit();
     
-    // Add overview controller listener
-    overviewController.addListener(_syncOverviewText);
-    
     // Get category ID and name from navigation arguments if provided
     final arguments = Get.arguments as Map<String, dynamic>?;
     if (arguments != null) {
@@ -88,7 +85,6 @@ class AddProductController extends GetxController {
   
   @override
   void onClose() {
-    overviewController.removeListener(_syncOverviewText);
     productNameController.dispose();
     modelController.dispose();
     brandController.dispose();
@@ -104,17 +100,6 @@ class AddProductController extends GetxController {
     quantityDiscountPriceController.dispose();
     quantityController.dispose();
     super.onClose();
-  }
-  
-  // Sync overview text to tech spec and highlight fields
-  void _syncOverviewText() {
-    final text = overviewController.text;
-    if (techSpecController.text != text) {
-      techSpecController.text = text;
-    }
-    if (highlightController.text != text) {
-      highlightController.text = text;
-    }
   }
 
   // Text editing controllers for variant-specific fields

@@ -325,7 +325,7 @@ class AddProductView extends StatelessWidget {
             //   ),
             // ),
 
-            // Technical Specifications Card
+            // Overview Card
             _buildSectionCard(
               title: 'Overview',
               child: Container(
@@ -335,7 +335,7 @@ class AddProductView extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFE9FCFF)),
                 ),
                 child: TextField(
-                  controller: controller.techSpecController,
+                  controller: controller.overviewController,
                   maxLines: 3,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -346,7 +346,7 @@ class AddProductView extends StatelessWidget {
               ),
             ),
 
-            // Technical Specifications Card
+            // Highlight Card
             _buildSectionCard(
               title: 'Highlight',
               child: Container(
@@ -356,7 +356,7 @@ class AddProductView extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFE9FCFF)),
                 ),
                 child: TextField(
-                  controller: controller.techSpecController,
+                  controller: controller.highlightController,
                   maxLines: 3,
                   decoration: const InputDecoration(
                     border: InputBorder.none,

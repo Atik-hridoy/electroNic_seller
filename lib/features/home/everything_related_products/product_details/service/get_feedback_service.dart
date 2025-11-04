@@ -1,55 +1,36 @@
-// Create a new file: lib/features/home/everything_related_products/category/services/get_all_products_service.dart
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:electronic/core/constants/app_urls.dart';
 import 'package:electronic/core/storage/storage_services.dart';
 import 'package:electronic/core/util/app_logger.dart';
-import '../model/get_model.dart';
+import '../model/feedback_model.dart';
 
-class GetAllProductsService extends GetxService {
+class GetFeedbackService extends GetxService {
   final Dio _dio = Get.find<Dio>();
 
-  Future<GetProductsResponse> getAllProducts({
-    int page = 1,
-    int limit = 10,
-    String? categoryId,
-    String? searchQuery,
-  }) async {
-    const String tag = 'GetAllProductsService';
-    final String endpoint = '${AppUrls.baseUrl}${AppUrls.getAllProducts}';
-    
+  Future<List<FeedbackModel>> getFeedbacks(String productId) async {
+    const String tag = 'GetFeedbackService';
+    final String endpoint = '${AppUrls.baseUrl}${AppUrls.getFeedBack}$productId';
+
     try {
       // Get the token from storage
       final token = LocalStorage.token;
       
-      // Build query parameters
-      final Map<String, dynamic> queryParams = {
-        'page': page,
-        'limit': limit,
-        if (categoryId != null) 'categoryId': categoryId,
-        if (searchQuery != null && searchQuery.isNotEmpty) 'search': searchQuery,
-      };
-      
-      // Build headers
-      final headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      };
-
       // Log API request
       AppLogger.apiRequest(
         method: 'GET',
         endpoint: endpoint,
-        headers: headers,
-        queryParams: queryParams,
       );
-      
+
       // Make the API call with timing
       final startTime = DateTime.now();
       final response = await _dio.get(
         endpoint,
-        queryParameters: queryParams,
-        options: Options(headers: headers),
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
       );
       final duration = DateTime.now().difference(startTime);
 
@@ -62,21 +43,35 @@ class GetAllProductsService extends GetxService {
         duration: duration,
       );
 
-      // Parse and return the response
       if (response.statusCode == 200) {
-        final productsResponse = GetProductsResponse.fromJson(response.data);
+        List<dynamic> data;
+        
+        // Check if response is wrapped in an object or is direct array
+        if (response.data is List) {
+          data = response.data as List<dynamic>;
+        } else if (response.data is Map<String, dynamic>) {
+          // If wrapped, try common keys: data, feedbacks, results
+          final map = response.data as Map<String, dynamic>;
+          data = (map['data'] ?? map['feedbacks'] ?? map['results'] ?? []) as List<dynamic>;
+        } else {
+          data = [];
+        }
+        
+        final feedbacks = data.map((json) => FeedbackModel.fromJson(json)).toList();
+        
         AppLogger.success(
-          'Successfully loaded ${productsResponse.data.length} products (Page: $page)',
+          'Loaded ${feedbacks.length} feedbacks for product: $productId',
           tag: tag,
         );
-        return productsResponse;
+        
+        return feedbacks;
       } else {
-        final errorMsg = 'Failed to load products: ${response.statusCode}';
+        final errorMsg = 'Failed to fetch feedbacks: ${response.statusCode}';
         AppLogger.error(errorMsg, tag: tag, error: response.data);
         throw Exception(errorMsg);
       }
     } on DioException catch (e) {
-      final errorMsg = 'DioError fetching products: ${e.message}';
+      final errorMsg = 'DioError fetching feedbacks: ${e.message}';
       AppLogger.error(
         errorMsg,
         tag: tag,

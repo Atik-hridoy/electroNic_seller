@@ -9,7 +9,6 @@ import 'package:electronic/core/util/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'package:path/path.dart';
 import '../model/update_profile_model.dart';
 
 class UpdateProfileServiceInsideApp {
@@ -53,41 +52,34 @@ class UpdateProfileServiceInsideApp {
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
 
-      // Add profile data to request
-      final profileJson = profileData.toJson();
-      final fields = Map<String, String>.from(
-        profileJson.map((key, value) => MapEntry(key, value.toString())),
-      );
-      request.fields.addAll(fields);
+      // Add form fields (remove null values)
+      final profileDataMap = profileData.toJson()..removeWhere((key, value) => value == null);
+      profileDataMap.forEach((key, value) {
+        if (value != null) {
+          request.fields[key] = value.toString();
+        }
+      });
       
       // Log request fields
       AppLogger.debug(
-        'Request fields',
+        'Request fields: ${request.fields}',
         tag: tag,
-        
       );
-      
-      if (profileImage != null) {
-        AppLogger.debug(
-          'Including profile image',
-          tag: tag,
-        );
-      }
 
       // Add profile image if provided
       if (profileImage != null) {
-        var stream = http.ByteStream(profileImage.openRead());
-        var length = await profileImage.length();
-        
-        var multipartFile = http.MultipartFile(
-          'profile_image', // This should match your API's expected field name
-          stream,
-          length,
-          filename: basename(profileImage.path),
-          contentType: MediaType('image', 'jpeg'), // Adjust based on your image type
+        final fileStream = http.ByteStream(profileImage.openRead());
+        final fileLength = await profileImage.length();
+        final multipartFile = http.MultipartFile(
+          'image',
+          fileStream,
+          fileLength,
+          filename: profileImage.path.split('/').last,
+          contentType: MediaType('image', 'jpeg'),
         );
-        
         request.files.add(multipartFile);
+        
+        AppLogger.debug('Uploading image: ${profileImage.path}, Size: $fileLength bytes', tag: tag);
       }
 
       // Send the request
@@ -129,11 +121,16 @@ class UpdateProfileServiceInsideApp {
           );
           LocalStorage.myName = '${profileData.firstName} ${profileData.lastName}'.trim();
         }
-        if (profileImage != null) {
-          // You might want to store the image URL here if your API returns it
-          // For now, we're just updating the local path
-          await LocalStorage.preferences?.setString(LocalStorageKeys.myImage, profileImage.path);
-          LocalStorage.myImage = profileImage.path;
+        
+        // Store image URL from backend response if available
+        if (responseData['data'] != null && responseData['data']['image'] != null) {
+          final imageUrl = responseData['data']['image'] as String;
+          await LocalStorage.preferences?.setString(LocalStorageKeys.myImage, imageUrl);
+          LocalStorage.myImage = imageUrl;
+        } else if (responseData['image'] != null) {
+          final imageUrl = responseData['image'] as String;
+          await LocalStorage.preferences?.setString(LocalStorageKeys.myImage, imageUrl);
+          LocalStorage.myImage = imageUrl;
         }
         
         return {

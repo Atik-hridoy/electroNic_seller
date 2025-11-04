@@ -1,12 +1,13 @@
 import 'package:electronic/routes/app_pages.dart';
 import 'package:get/get.dart';
+import '../../../core/constants/app_urls.dart';
 import '../views/account/services/get_profile_service.dart';
 
 class AccountController extends GetxController {
   // User data with proper null safety
   final RxString userName = ''.obs;
-
   final RxString userAddress = ''.obs;
+  final RxString profileImageUrl = ''.obs;
   final GetProfileService _getProfileService = GetProfileService();
   
   @override
@@ -21,6 +22,11 @@ class AccountController extends GetxController {
       if (profileData != null) {
         userName.value = '${profileData.data.firstName} ${profileData.data.lastName}';
         userAddress.value = profileData.data.address;
+        
+        // Load profile image URL if available
+        if (profileData.data.profileImage != null && profileData.data.profileImage!.isNotEmpty) {
+          profileImageUrl.value = _buildImageUrl(profileData.data.profileImage!);
+        }
       } else {
         // Fallback to default values if profile data is not available
         userName.value = 'John Doe';
@@ -32,6 +38,22 @@ class AccountController extends GetxController {
       userAddress.value = 'No address available';
       print('Error loading profile data: $e');
     }
+  }
+  
+  // Helper method to build full image URL
+  String _buildImageUrl(String imagePath) {
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      // Already a full URL
+      return imagePath;
+    } else {
+      // Relative path, combine with base URL
+      return '${AppUrls.imageBaseUrl}$imagePath';
+    }
+  }
+  
+  // Refresh profile data
+  Future<void> refreshProfile() async {
+    await _initializeUserData();
   }
   
   // Logout method

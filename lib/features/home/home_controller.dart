@@ -15,6 +15,7 @@ class HomeController extends GetxController {
   // Product statistics observables
   final storedItems = 0.obs;
   final activeOrders = 0.obs;
+  final shippedOrders = 0.obs;
   final delivered = 256.obs;
   final cancelledProducts = 0.obs;
   final rating = 0.obs;
@@ -121,6 +122,7 @@ class HomeController extends GetxController {
       // Assign to observables
       storedItems.value = stats.storedItems;
       activeOrders.value = stats.activeOrder;
+      shippedOrders.value = stats.shippedOrder;
       delivered.value = stats.deliveredOrder;
       cancelledProducts.value = stats.cancelledOrder;
       rating.value = stats.totalRating;
@@ -259,6 +261,7 @@ class HomeController extends GetxController {
     // In real app, update values from API response
     storedItems.value += 5; // Example increment
     activeOrders.value += 2;
+    shippedOrders.value += 10;
     delivered.value += 10;
 
     isLoadingStats.value = false;
@@ -315,6 +318,7 @@ class HomeController extends GetxController {
     return {
       'stored_items': storedItems.value,
       'active_orders': activeOrders.value,
+      'shipped_orders': shippedOrders.value,
       'delivered': delivered.value,
       'cancelled': cancelledProducts.value,
       'rating': rating.value,

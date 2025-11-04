@@ -1,43 +1,141 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:electronic/core/constants/app_urls.dart';
 import '../products_view/product_model.dart';
+import 'service/get_single_product_service.dart';
+import 'service/update_product_service.dart';
+import 'service/get_feedback_service.dart';
+import 'model/feedback_model.dart';
 
 class ProductDetailsController extends GetxController {
+  // Services
+  final GetSingleProductService _productService = GetSingleProductService();
+  final UpdateProductService _updateService = UpdateProductService();
+  final GetFeedbackService _feedbackService = GetFeedbackService();
+  final ImagePicker _imagePicker = ImagePicker();
+  
+  // Loading state
+  final RxBool isLoading = false.obs;
+  final RxBool isUpdating = false.obs;
+  
+  // Edit mode
+  final RxBool isEditMode = false.obs;
+  
+  // Form controllers for editing
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController brandController = TextEditingController();
+  final TextEditingController modelController = TextEditingController();
+  final TextEditingController overviewController = TextEditingController();
+  final TextEditingController highlightsController = TextEditingController();
+  final TextEditingController techSpecsController = TextEditingController();
+  
+  // New images for update
+  final RxList<File> newImages = <File>[].obs;
+  
   // Product model to hold dynamic data
   final Rx<ProductModel?> product = Rx<ProductModel?>(null);
   // Alternative source when coming from CategoryView: product map
   final Rx<Map<String, dynamic>?> productData = Rx<Map<String, dynamic>?>(null);
-  // Reviews state
-  final RxList<Map<String, dynamic>> reviews = <Map<String, dynamic>>[].obs;
+  // Feedbacks state
+  final RxList<FeedbackModel> feedbacks = <FeedbackModel>[].obs;
   final RxDouble averageRating = 0.0.obs;
 
   // Product basic info (computed from product model)
-  RxString get productName =>
-      (product.value?.name ?? productData.value?['name']?.toString() ?? 'Trkil Tracker').obs;
-  RxString get brandName =>
-      (product.value?.brand ?? productData.value?['brand']?.toString() ?? 'Trkil').obs;
-  RxString get quantity => product.value != null 
-      ? '${product.value!.variants.fold(0, (sum, variant) => sum + variant.quantity)}/100'.obs 
-      : (productData.value != null
-          ? '${(productData.value?['variants'] as List? ?? [])
-                .fold<double>(0, (sum, v) => sum + ((v['quantity'] ?? 0).toDouble()))}/100'.obs
-          : '2/20'.obs);
-  RxString get currentPrice => product.value != null && product.value!.variants.isNotEmpty
-      ? product.value!.variants.first.price.toStringAsFixed(2).obs
+  String get productName =>
+      product.value?.name ?? productData.value?['name']?.toString() ?? '';
+  
+  String get brandName =>
+      product.value?.brand ?? productData.value?['brand']?.toString() ?? '';
+  
+  String get quantity {
+    if (product.value != null) {
+      final variant = selectedVariant;
+      if (variant != null) {
+        return '${variant.quantity}';
+      }
+      return '${product.value!.variants.fold(0, (sum, variant) => sum + variant.quantity)}';
+    }
+    
+    // For productData map - show selected variant quantity
+    final variants = productData.value?['variants'] as List? ?? [];
+    if (variants.isNotEmpty) {
+      // Find variant matching selected size
+      Map<String, dynamic>? selectedVar;
+      try {
+        selectedVar = variants.firstWhere(
+          (v) => v['size']?.toString() == selectedSize.value,
+        ) as Map<String, dynamic>;
+      } catch (e) {
+        selectedVar = variants.first as Map<String, dynamic>;
+      }
+      return '${selectedVar['quantity'] ?? 0}';
+    }
+    return '0';
+  }
+  
+  String get currentPrice {
+    if (product.value != null && product.value!.variants.isNotEmpty) {
+      final variant = selectedVariant;
+      if (variant != null) {
+        return variant.price.toStringAsFixed(2);
+      }
+      return product.value!.variants.first.price.toStringAsFixed(2);
+    }
+    
+    // For productData map
+    final variants = productData.value?['variants'] as List? ?? [];
+    if (variants.isNotEmpty) {
+      // Find variant matching selected size
+      Map<String, dynamic>? selectedVar;
+      try {
+        selectedVar = variants.firstWhere(
+          (v) => v['size']?.toString() == selectedSize.value,
+        ) as Map<String, dynamic>;
+      } catch (e) {
+        selectedVar = variants.first as Map<String, dynamic>;
+      }
+      final price = selectedVar['price'] ?? 0;
+      final discount = selectedVar['discount'] ?? 0;
+      final discountedPrice = price - (price * discount / 100);
+      return discountedPrice.toStringAsFixed(2);
+    }
+    return '0';
+  }
+  
+  String get originalPrice {
+    if (product.value != null && product.value!.variants.isNotEmpty) {
+      final variant = selectedVariant;
+      if (variant != null) {
+        return variant.price.toStringAsFixed(2);
+      }
+      return product.value!.variants.first.price.toStringAsFixed(2);
+    }
+    
+    // For productData map
+    final variants = productData.value?['variants'] as List? ?? [];
+    if (variants.isNotEmpty) {
+      // Find variant matching selected size
+      Map<String, dynamic>? selectedVar;
+      try {
+        selectedVar = variants.firstWhere(
+          (v) => v['size']?.toString() == selectedSize.value,
+        ) as Map<String, dynamic>;
+      } catch (e) {
+        selectedVar = variants.first as Map<String, dynamic>;
+      }
+      final price = selectedVar['price'] ?? 0;
+      return price.toStringAsFixed(2);
+    }
+    return '0';
+  }
+  
+  String get size => product.value != null && product.value!.variants.isNotEmpty
+      ? product.value!.variants.first.size
       : ((productData.value?['variants'] as List?)?.isNotEmpty ?? false
-          ? ((productData.value!['variants'][0]['price'] ?? 0).toString()).obs
-          : '16.30'.obs);
-  RxString get originalPrice => product.value != null && product.value!.variants.isNotEmpty
-      ? (product.value!.variants.first.price * 1.25).toStringAsFixed(2).obs
-      : ((productData.value?['variants'] as List?)?.isNotEmpty ?? false
-          ? (((productData.value!['variants'][0]['price'] ?? 0) * 1.25).toString()).obs
-          : '20.30'.obs);
-  RxString get size => product.value != null && product.value!.variants.isNotEmpty
-      ? product.value!.variants.first.size.obs
-      : ((productData.value?['variants'] as List?)?.isNotEmpty ?? false
-          ? (productData.value!['variants'][0]['size']?.toString() ?? 'N/A').obs
-          : 'N/A'.obs);
+          ? (productData.value!['variants'][0]['size']?.toString() ?? '')
+          : '');
 
   // Product images (computed from product model)
   RxList<String> get productImages {
@@ -49,22 +147,17 @@ class ProductDetailsController extends GetxController {
       final imgs = imgsDyn.map((e) => e.toString()).toList();
       return RxList<String>.from(imgs);
     }
-    return <String>[
-      'assets/images/tracker1.png',
-      'assets/images/tracker2.png',
-      'assets/images/tracker3.png',
-      'assets/images/tracker4.png',
-    ].obs;
+    return <String>[].obs;
   }
 
   // Available colors (computed from product model)
   RxList<Color> get availableColors {
-    if ((product.value?.colors.isEmpty ?? true) && ((productData.value?['colors'] as List?)?.isEmpty ?? true)) {
-      return <Color>[Colors.black, Colors.grey, Colors.red].obs;
-    }
     final List<String> colors = product.value != null
         ? product.value!.colors
         : (productData.value?['colors']?.cast<String>() ?? <String>[]);
+    
+    if (colors.isEmpty) return <Color>[].obs;
+    
     return colors.map((colorName) {
       switch (colorName.toLowerCase()) {
         case 'black': return Colors.black;
@@ -82,9 +175,6 @@ class ProductDetailsController extends GetxController {
 
   // Size options (computed from product variants)
   RxList<String> get availableSizes {
-    if ((product.value?.variants.isEmpty ?? true) && ((productData.value?['variants'] as List?)?.isEmpty ?? true)) {
-      return <String>['Small', 'Medium', 'Large'].obs;
-    }
     if (product.value != null) {
       return product.value!.variants.map((variant) => variant.size).toSet().toList().obs;
     }
@@ -105,41 +195,21 @@ class ProductDetailsController extends GetxController {
   }
 
   // Product description (computed from product model)
-  RxString get productOverview => product.value != null 
-      ? '''${product.value!.name} by ${product.value!.brand} is a high-quality ${product.value!.category} product. This ${product.value!.model} features ${product.value!.finish} finish and comes in ${product.value!.colors.join(', ')} colors. Perfect for ${product.value!.specialCategory} users looking for premium quality and performance.'''.obs
-      : (productData.value != null
-          ? '''${productData.value!['name'] ?? ''} by ${productData.value!['brand'] ?? ''} is a high-quality ${productData.value!['category'] ?? ''} product. This ${productData.value!['model'] ?? ''} comes in ${(productData.value!['colors'] as List? ?? []).join(', ')} colors. Perfect for ${productData.value!['specialCategory'] ?? ''} users looking for premium quality and performance.'''.obs
-          : '''Protect the AirTag that's keeping track of all your important things. The OtterBox Rugged Case for AirTag securely covers the AirTag free from attached to your keys and locks it. The locked AirTag that runs in to your bends against the soft AirTag from all that bouncing and banging around as you go about your day. Simply twist on the case and AirTag is locked into legendary OtterBox protection and ready for anything.'''.obs);
+  String get productOverview => productData.value?['overview']?.toString() ?? 
+      product.value?.name ?? 'No description available';
 
   // Highlights (computed from product model)
-  RxList<String> get highlights => product.value != null 
-      ? <String>[
-          'Category: ${product.value!.category}',
-          'Sub-category: ${product.value!.subCategory}',
-          'Brand: ${product.value!.brand}',
-          'Model: ${product.value!.model}',
-          'Available Colors: ${product.value!.colors.join(', ')}',
-          'Special Category: ${product.value!.specialCategory}',
-          'Finish: ${product.value!.finish}',
-          'Total Variants: ${product.value!.variants.length}',
-        ].obs
-      : (productData.value != null
-          ? <String>[
-              'Category: ${productData.value!['category'] ?? ''}',
-              'Sub-category: ${productData.value!['subCategory'] ?? ''}',
-              'Brand: ${productData.value!['brand'] ?? ''}',
-              'Model: ${productData.value!['model'] ?? ''}',
-              'Available Colors: ${(productData.value!['colors'] as List? ?? []).join(', ')}',
-              'Special Category: ${productData.value!['specialCategory'] ?? ''}',
-              'Total Variants: ${(productData.value!['variants'] as List? ?? []).length}',
-            ].obs
-          : <String>[
-              'Secure, twist-top design',
-              'Dual-material, rugged protection',
-              'Limited lifetime warranty supported by hassle-free customer service',
-            ].obs);
+  List<String> get highlights {
+    final highlightsText = productData.value?['highlights']?.toString() ?? '';
+    if (highlightsText.isNotEmpty) {
+      return highlightsText.split('\n').where((line) => line.trim().isNotEmpty).toList();
+    }
+    return <String>[];
+  }
 
-  String get productId => productData.value?['id']?.toString() ?? '';
+  String get productId => 
+      productData.value?['_id']?.toString() ?? 
+      productData.value?['id']?.toString() ?? '';
 
   String get sellerId => productData.value?['seller']?['id']?.toString() ?? '';
 
@@ -157,53 +227,53 @@ class ProductDetailsController extends GetxController {
   }
 
   // Tech specs (computed from product model)
-  RxList<String> get techSpecs => product.value != null 
-      ? <String>[
-          'Product Name: ${product.value!.name}',
-          'Category: ${product.value!.category}',
-          'Sub-category: ${product.value!.subCategory}',
-          'Brand: ${product.value!.brand}',
-          'Model: ${product.value!.model}',
-          'Colors: ${product.value!.colors.join(', ')}',
-          'Special Category: ${product.value!.specialCategory}',
-          'Finish: ${product.value!.finish}',
-          'Total Images: ${product.value!.images.length}',
-          'Total Variants: ${product.value!.variants.length}',
-          'Created: ${product.value!.createdAt.toString().split(' ')[0]}',
-        ].obs
-      : (productData.value != null
-          ? <String>[
-              'Product Name: ${productData.value!['name'] ?? ''}',
-              'Category: ${productData.value!['category'] ?? ''}',
-              'Sub-category: ${productData.value!['subCategory'] ?? ''}',
-              'Brand: ${productData.value!['brand'] ?? ''}',
-              'Model: ${productData.value!['model'] ?? ''}',
-              'Colors: ${(productData.value!['colors'] as List? ?? []).join(', ')}',
-              'Total Images: ${(productData.value!['images'] as List? ?? []).length}',
-              'Total Variants: ${(productData.value!['variants'] as List? ?? []).length}',
-              'Created: ${(productData.value!['createdAt'] ?? '').toString().split('T').first}',
-            ].obs
-          : <String>[
-              'Form Factor: Hard Case',
-              'Material: Hard Plastic, Silicone',
-              'Height: 2 in. / 5.1 cm',
-              'Length: 1.6 in. / 4.1 cm',
-              'Width: .4 in. / 1 cm',
-            ].obs);
+  List<String> get techSpecs {
+    final techSpecsText = productData.value?['techSpecs']?.toString() ?? '';
+    if (techSpecsText.isNotEmpty) {
+      return techSpecsText.split('\n').where((line) => line.trim().isNotEmpty).toList();
+    }
+    return <String>[];
+  }
 
   @override
   void onInit() {
     super.onInit();
-    // Initialize with sample data
-    loadProductData();
-    _initializeReviews();
+    // Check if a product ID was passed to load from API
+    if (Get.arguments is String) {
+      final prodId = Get.arguments as String;
+      loadProductById(prodId);
+      loadFeedbacks(prodId);
+    } else {
+      // Initialize with sample data or passed product
+      loadProductData();
+    }
+  }
+  
+  // Load feedbacks for product
+  Future<void> loadFeedbacks(String productId) async {
+    if (productId.isEmpty) {
+      print('Cannot load feedbacks: productId is empty');
+      return;
+    }
+    
+    try {
+      print('Loading feedbacks for product: $productId');
+      final loadedFeedbacks = await _feedbackService.getFeedbacks(productId);
+      feedbacks.value = loadedFeedbacks;
+      _recomputeAverage();
+      print('Loaded ${loadedFeedbacks.length} feedbacks');
+    } catch (e) {
+      // Silent fail, just log
+      print('Failed to load feedbacks: $e');
+      feedbacks.clear();
+      averageRating.value = 0.0;
+    }
   }
 
   void loadProductData() {
     // Check if product data was passed as ProductModel
     if (Get.arguments != null && Get.arguments is ProductModel) {
       product.value = Get.arguments as ProductModel;
-      // Set initial selected size to first variant's size
       if (product.value!.variants.isNotEmpty) {
         selectedSize.value = product.value!.variants.first.size;
       }
@@ -216,151 +286,206 @@ class ProductDetailsController extends GetxController {
       if (variants.isNotEmpty) {
         selectedSize.value = (variants.first['size']?.toString() ?? selectedSize.value);
       }
-      return;
-    }
-    // Fallback
-    // Keep the fallback hardcoded values
-  }
-
-  void _initializeReviews() {
-    // Optionally load initial reviews from passed map if present
-    final list = productData.value?['reviews'] as List?;
-    if (list != null) {
-      for (final r in list) {
-        if (r is Map<String, dynamic>) {
-          reviews.add({
-            'reviewer': r['reviewer']?.toString() ?? 'Anonymous',
-            'rating': (r['rating'] is num) ? (r['rating'] as num).toInt() : 0,
-            'comment': r['comment']?.toString() ?? '',
-            'createdAt': r['createdAt']?.toString() ?? DateTime.now().toIso8601String(),
-          });
-        }
+      
+      // Load feedbacks if product ID is available
+      final prodId = productId;
+      if (prodId.isNotEmpty) {
+        loadFeedbacks(prodId);
       }
     }
-    _recomputeAverage();
   }
 
-  int get totalReviews => reviews.length;
-
-  void addReview({required String reviewer, required int rating, required String comment}) {
-    reviews.insert(0, {
-      'reviewer': reviewer.isNotEmpty ? reviewer : 'Anonymous',
-      'rating': rating.clamp(1, 5),
-      'comment': comment,
-      'createdAt': DateTime.now().toIso8601String(),
-    });
-    _recomputeAverage();
-  }
+  int get totalReviews => feedbacks.length;
 
   void _recomputeAverage() {
-    if (reviews.isEmpty) {
+    if (feedbacks.isEmpty) {
       averageRating.value = 0.0;
       return;
     }
-    final sum = reviews.fold<int>(0, (acc, r) => acc + (r['rating'] as int? ?? 0));
-    averageRating.value = sum / reviews.length;
+    final sum = feedbacks.fold<int>(0, (acc, f) => acc + f.rating);
+    averageRating.value = sum / feedbacks.length;
+  }
+
+  // Get discount percentage for selected variant
+  String get discountPercentage {
+    final variants = productData.value?['variants'] as List? ?? [];
+    if (variants.isNotEmpty) {
+      Map<String, dynamic>? selectedVar;
+      try {
+        selectedVar = variants.firstWhere(
+          (v) => v['size']?.toString() == selectedSize.value,
+        ) as Map<String, dynamic>;
+      } catch (e) {
+        selectedVar = variants.first as Map<String, dynamic>;
+      }
+      final discount = selectedVar['discount'] ?? 0;
+      return discount > 0 ? '${discount.toStringAsFixed(0)}% OFF' : '';
+    }
+    return '';
   }
 
   // Method to update selected size
   void updateSelectedSize(String newSize) {
     selectedSize.value = newSize;
-    
-    // Update price and quantity based on selected variant
-    final variant = selectedVariant;
-    if (variant != null) {
-      currentPrice.value = variant.price.toStringAsFixed(2);
-      originalPrice.value = (variant.price * 1.25).toStringAsFixed(2);
-      size.value = variant.size;
-    }
-    
-    print('Size updated to: $newSize');
+    // Reactive getters will automatically update
   }
 
   void onEditTap() {
-    // Handle edit button tap
-    print('Edit product tapped');
-    // Navigate to edit product screen
-    // Get.toNamed('/edit-product');
+    // Populate form controllers with current data
+    nameController.text = productName;
+    brandController.text = brandName;
+    modelController.text = productData.value?['model']?.toString() ?? '';
+    overviewController.text = productData.value?['overview']?.toString() ?? '';
+    highlightsController.text = productData.value?['highlights']?.toString() ?? '';
+    techSpecsController.text = productData.value?['techSpecs']?.toString() ?? '';
+    
+    // Show edit dialog
+    isEditMode.value = true;
   }
-
-  void updateProductName(String name) {
-    productName.value = name;
-  }
-
-  void updateBrandName(String brand) {
-    brandName.value = brand;
-  }
-
-  void updateQuantity(String qty) {
-    quantity.value = qty;
-  }
-
-  void updateCurrentPrice(String price) {
-    currentPrice.value = price;
-  }
-
-  void updateOriginalPrice(String price) {
-    originalPrice.value = price;
-  }
-
-  void updateSize(String productSize) {
-    size.value = productSize;
-  }
-
-  void updateOverview(String overview) {
-    productOverview.value = overview;
-  }
-
-  void addHighlight(String highlight) {
-    highlights.add(highlight);
-  }
-
-  void removeHighlight(int index) {
-    if (index >= 0 && index < highlights.length) {
-      highlights.removeAt(index);
+  
+  // Pick new images for product
+  Future<void> pickNewImages() async {
+    try {
+      final List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
+        imageQuality: 85,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+      
+      if (pickedFiles.isNotEmpty) {
+        newImages.addAll(pickedFiles.map((xFile) => File(xFile.path)));
+        Get.snackbar(
+          'Success',
+          '${pickedFiles.length} image(s) added',
+          backgroundColor: Colors.green[50],
+          colorText: Colors.green[800],
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick images: ${e.toString()}',
+        backgroundColor: Colors.red[50],
+        colorText: Colors.red[800],
+      );
     }
   }
-
-  void addTechSpec(String spec) {
-    techSpecs.add(spec);
-  }
-
-  void removeTechSpec(int index) {
-    if (index >= 0 && index < techSpecs.length) {
-      techSpecs.removeAt(index);
+  
+  // Remove new image
+  void removeNewImage(int index) {
+    if (index >= 0 && index < newImages.length) {
+      newImages.removeAt(index);
     }
   }
-
-  void addProductImage(String imagePath) {
-    productImages.add(imagePath);
-  }
-
-  void removeProductImage(int index) {
-    if (index >= 0 && index < productImages.length) {
-      productImages.removeAt(index);
+  
+  // Update product
+  Future<void> updateProduct() async {
+    try {
+      isUpdating.value = true;
+      
+      // Prepare update data
+      final updateData = {
+        'name': nameController.text.trim(),
+        'brand': brandController.text.trim(),
+        'model': modelController.text.trim(),
+        'overview': overviewController.text.trim(),
+        'highlights': highlightsController.text.trim(),
+        'techSpecs': techSpecsController.text.trim(),
+      };
+      
+      // Call update service
+      final response = await _updateService.updateProduct(
+        productId: productId,
+        productData: updateData,
+        newImages: newImages.isNotEmpty ? newImages : null,
+      );
+      
+      if (response['success'] == true) {
+        Get.snackbar(
+          'Success',
+          'Product updated successfully',
+          backgroundColor: Colors.green[50],
+          colorText: Colors.green[800],
+        );
+        
+        // Reload product data
+        await loadProductById(productId);
+        
+        // Close edit mode
+        isEditMode.value = false;
+        newImages.clear();
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update product: ${e.toString().replaceAll("Exception: ", "")}',
+        backgroundColor: Colors.red[50],
+        colorText: Colors.red[800],
+      );
+    } finally {
+      isUpdating.value = false;
     }
   }
+  
+  void cancelEdit() {
+    isEditMode.value = false;
+    newImages.clear();
+    nameController.clear();
+    brandController.clear();
+    modelController.clear();
+    overviewController.clear();
+    highlightsController.clear();
+    techSpecsController.clear();
+  }
+  
+  @override
+  void onClose() {
+    nameController.dispose();
+    brandController.dispose();
+    modelController.dispose();
+    overviewController.dispose();
+    highlightsController.dispose();
+    techSpecsController.dispose();
+    super.onClose();
+  }
 
-  void addAvailableColor(Color color) {
-    if (!availableColors.contains(color)) {
-      availableColors.add(color);
+  // Method to load product by ID from API
+  Future<void> loadProductById(String productId) async {
+    try {
+      isLoading.value = true;
+      
+      // Fetch product from API
+      final response = await _productService.getSingleProduct(productId);
+      
+      if (response.success) {
+        // Convert API response to productData map for compatibility
+        productData.value = response.data.toMap();
+        
+        // Set initial selected size
+        if (response.data.sizeType.isNotEmpty) {
+          selectedSize.value = response.data.sizeType.first.size;
+        }
+        
+        // Load feedbacks
+        await loadFeedbacks(productId);
+        
+        Get.snackbar(
+          'Success',
+          'Product loaded successfully',
+          backgroundColor: Colors.green[50],
+          colorText: Colors.green[800],
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to load product: ${e.toString().replaceAll("Exception: ", "")}',
+        backgroundColor: Colors.red[50],
+        colorText: Colors.red[800],
+      );
+    } finally {
+      isLoading.value = false;
     }
-  }
-
-  void removeAvailableColor(Color color) {
-    availableColors.remove(color);
-  }
-
-  // Method to load product by ID (for future use)
-  void loadProductById(String productId) {
-    // TODO: Implement API call to load product by ID
-    print('Loading product with ID: $productId');
-  }
-
-  // Method to save product changes (for future use)
-  Future<bool> saveProductChanges() async {
-    // TODO: Implement API call to save product changes
-    print('Saving product changes...');
-    return true;
   }
 }

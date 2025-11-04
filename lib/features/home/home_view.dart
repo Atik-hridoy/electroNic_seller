@@ -265,16 +265,23 @@ class HomeView extends GetView<HomeController> {
             ))),
             const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
-              controller.delivered.value.toString(),
-              'delivered'.tr,
-              Colors.green.shade50,
-              Colors.green.shade600,
+              controller.shippedOrders.value.toString(),
+              'shipped_order'.tr,
+              Colors.teal.shade50,
+              Colors.teal.shade600,
             ))),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
+            Expanded(child: Obx(() => _buildStatCard(
+              controller.delivered.value.toString(),
+              'delivered'.tr,
+              Colors.green.shade50,
+              Colors.green.shade600,
+            ))),
+            const SizedBox(width: 16),
             Expanded(child: Obx(() => _buildStatCard(
               '0${controller.cancelledProducts.value}',
               'cancel_products'.tr,

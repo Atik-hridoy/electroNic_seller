@@ -115,6 +115,11 @@ class MyTranslations extends Translations {
           'november': 'November',
           'december': 'December',
           'very_good': 'Very Good',
+          'pending': 'Pending',
+          'to_ship': 'To Ship',
+          'completed': 'Completed',
+          'cancelled': 'Cancelled',
+          'shipped_order': 'Shipped Order',
 
           // 🔹 Account Settings
           'account_setting': 'Account Settings',
@@ -165,6 +170,7 @@ class MyTranslations extends Translations {
           'other': 'Otro',
           'select_date': 'Seleccionar fecha',
           'profile_updated': 'Perfil actualizado exitosamente',
+          'shipped_order': 'Orden enviada',
 
           // 🔹 Snackbar
           'validation_error': 'Error de validación',

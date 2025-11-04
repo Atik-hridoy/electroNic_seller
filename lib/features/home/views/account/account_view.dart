@@ -39,11 +39,13 @@ class AccountView extends GetView<AccountController> {
         children: [
           // Profile Header Section
           GestureDetector(
-            onTap: () {
+            onTap: () async {
               try {
                 final controller = _accountController;
                 developer.log('Navigating to edit account');
-                Get.toNamed(Routes.editAccount);
+                await Get.toNamed(Routes.editAccount);
+                // Refresh profile data when returning from edit account
+                await controller.refreshProfile();
               } catch (e) {
                 developer.log('Navigation error: $e');
                 Get.snackbar('Error', 'Unable to edit account. Please try again.');
@@ -68,7 +70,7 @@ class AccountView extends GetView<AccountController> {
               child: Column(
                 children: [
                   // Profile Picture
-                  Container(
+                  Obx(() => Container(
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
@@ -79,22 +81,51 @@ class AccountView extends GetView<AccountController> {
                       ),
                     ),
                     child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/profile/profile_picture.jpg',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey.shade300,
-                            child: const Icon(
-                              Icons.person,
-                              size: 40,
-                              color: Colors.grey,
+                      child: controller.profileImageUrl.value.isNotEmpty
+                          ? Image.network(
+                              controller.profileImageUrl.value,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey.shade300,
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: Colors.grey.shade300,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              'assets/images/profile/profile_picture.jpg',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey.shade300,
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 12),
                   // Name
                   Obx(() => Text(

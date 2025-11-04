@@ -4,6 +4,7 @@ class UpdateProfileModel {
   final String gender;
   final String address;
   final String phone;
+  final String? profileImage;
 
   UpdateProfileModel({
     required this.firstName,
@@ -11,6 +12,7 @@ class UpdateProfileModel {
     this.gender = '',
     this.address = '',
     required this.phone,
+    this.profileImage,
   });
 
   // Convert model to JSON
@@ -21,6 +23,7 @@ class UpdateProfileModel {
       'gender': gender,
       'address': address,
       'phone': phone,
+      'profileImage': profileImage,
     };
   }
 
@@ -32,6 +35,7 @@ class UpdateProfileModel {
       gender: json['gender'] ?? '',
       address: json['address'] ?? '',
       phone: json['phone'] ?? '',
+      profileImage: json['profileImage'],
     );
   }
 
@@ -42,6 +46,7 @@ class UpdateProfileModel {
     String? gender,
     String? address,
     String? phone,
+    String? profileImage,
   }) {
     return UpdateProfileModel(
       firstName: firstName ?? this.firstName,
@@ -49,6 +54,7 @@ class UpdateProfileModel {
       gender: gender ?? this.gender,
       address: address ?? this.address,
       phone: phone ?? this.phone,
+      profileImage: profileImage ?? this.profileImage,
     );
   }
 }

@@ -52,28 +52,98 @@ class EditAccountView extends GetView<EditAccountController> {
               child: Column(
                 children: [
                   // Profile Picture
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey[300]!, width: 2),
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/profile_placeholder.jpg',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[200],
-                            child: Icon(
-                              Icons.person,
-                              size: 40,
-                              color: Colors.grey[400],
+                  GestureDetector(
+                    onTap: () => controller.showImageSourceDialog(),
+                    child: Stack(
+                      children: [
+                        Obx(() => Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey[300]!, width: 2),
+                          ),
+                          child: ClipOval(
+                            child: controller.profileImage.value != null
+                                ? Image.file(
+                                    controller.profileImage.value!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey[200],
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 40,
+                                          color: Colors.grey[400],
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : controller.profileImageUrl.value.isNotEmpty
+                                    ? Image.network(
+                                        controller.profileImageUrl.value,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Container(
+                                            color: Colors.grey[200],
+                                            child: Icon(
+                                              Icons.person,
+                                              size: 40,
+                                              color: Colors.grey[400],
+                                            ),
+                                          );
+                                        },
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return Container(
+                                            color: Colors.grey[200],
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress.expectedTotalBytes != null
+                                                    ? loadingProgress.cumulativeBytesLoaded /
+                                                        loadingProgress.expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Image.asset(
+                                        'assets/images/profile_placeholder.jpg',
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Container(
+                                            color: Colors.grey[200],
+                                            child: Icon(
+                                              Icons.person,
+                                              size: 40,
+                                              color: Colors.grey[400],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                          ),
+                        )),
+                        // Camera icon overlay
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Colors.amber,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
                             ),
-                          );
-                        },
-                      ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              size: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),

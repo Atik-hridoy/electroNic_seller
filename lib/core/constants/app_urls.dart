@@ -17,6 +17,15 @@ class AppUrls {
   static const String getProductsBrands = 'brands';
   static const String addProduct = 'products/create';
   static const String getAllProducts = 'products/get-all-for-seller';
+  static const String getSingleProduct = 'products/single/';
+  static const String updateProduct = 'products/update/';
+  static const String getFeedBack = 'feedbacks/';
+
+
+  // order
+
+  static const String getOrders = 'orders/';
+  static const String updateStatus = 'orders/update-status/';
 
 
   // dashboard

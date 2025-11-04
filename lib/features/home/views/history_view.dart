@@ -12,26 +12,16 @@ class HistoryView extends GetView<HistoryController> {
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
-          title: const Text(
-            'Dealing History',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Get.back(),
-          ),
+          automaticallyImplyLeading: false,
+          toolbarHeight: 0,
           bottom: TabBar(
             labelColor: Colors.amber[700],
             unselectedLabelColor: Colors.grey[600],
             indicatorColor: Colors.amber[700],
-            indicatorWeight: 2,
+            indicatorWeight: 3,
+            indicatorPadding: const EdgeInsets.symmetric(horizontal: 16),
             labelStyle: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -62,21 +52,33 @@ class HistoryView extends GetView<HistoryController> {
 
   Widget _buildOrderList(String status) {
     return Obx(() {
+      // Show loading indicator
+      if (controller.isLoading.value && controller.orders.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                color: Colors.amber[700],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Loading orders...',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      
       final allOrders = controller.orders;
       
       final filteredOrders = allOrders.where((order) {
-        switch (status) {
-          case 'pending':
-            return order['status'].toString().toLowerCase() == 'pending';
-          case 'to_ship':
-            return order['status'].toString().toLowerCase() == 'to ship';
-          case 'completed':
-            return order['status'].toString().toLowerCase() == 'completed';
-          case 'cancelled':
-            return order['status'].toString().toLowerCase() == 'cancelled';
-          default:
-            return false;
-        }
+        final tabFilter = order['tab_filter']?.toString().toLowerCase() ?? '';
+        return tabFilter == status;
       }).toList();
 
       if (filteredOrders.isEmpty) {
@@ -105,7 +107,7 @@ class HistoryView extends GetView<HistoryController> {
       return RefreshIndicator(
         onRefresh: controller.refreshOrders,
         child: ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           itemCount: filteredOrders.length,
           itemBuilder: (context, index) {
             final order = filteredOrders[index];
@@ -118,17 +120,17 @@ class HistoryView extends GetView<HistoryController> {
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.grey.withOpacity(0.08),
+            spreadRadius: 0,
+            blurRadius: 6,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -192,15 +194,15 @@ class HistoryView extends GetView<HistoryController> {
             ],
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           
           // Product details and actions
           Row(
             children: [
               // Product image with dynamic icon
               Container(
-                width: 60,
-                height: 60,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: _getProductColor(order['product_name']),
                   borderRadius: BorderRadius.circular(8),
@@ -208,11 +210,11 @@ class HistoryView extends GetView<HistoryController> {
                 child: Icon(
                   _getProductIcon(order['product_name']),
                   color: Colors.white,
-                  size: 24,
+                  size: 22,
                 ),
               ),
               
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               
               // Product info
               Expanded(
@@ -286,17 +288,60 @@ class HistoryView extends GetView<HistoryController> {
             ],
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           
           // Action buttons
           Row(
             children: [
-              Expanded(
-                child: _buildActionButton(order),
-              ),
-              if (order['status'].toString().toLowerCase() == 'pending')
+              if (order['tab_filter'].toString().toLowerCase() == 'pending') ...[
+                // Process to Ship button for pending orders
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          title: const Text('Process to Ship'),
+                          content: Text('Process order ${order['id']} to ship?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: const Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                                // Call controller method to change status
+                                controller.processOrderToShip(order['id']);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.amber[700],
+                              ),
+                              child: const Text('Confirm'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber[700],
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Process to Ship',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 12),
-              if (order['status'].toString().toLowerCase() == 'pending')
+                // Cancel button for pending orders
                 Expanded(
                   child: TextButton(
                     onPressed: () {
@@ -312,12 +357,8 @@ class HistoryView extends GetView<HistoryController> {
                             TextButton(
                               onPressed: () {
                                 Get.back();
-                                Get.snackbar(
-                                  'Order Cancelled',
-                                  'Order ${order['id']} has been cancelled',
-                                  backgroundColor: Colors.red[50],
-                                  colorText: Colors.red[800],
-                                );
+                                // Call controller method to change status
+                                controller.cancelOrder(order['id']);
                               },
                               child: const Text('Yes, Cancel'),
                             ),
@@ -340,6 +381,100 @@ class HistoryView extends GetView<HistoryController> {
                       ),
                     ),
                   ),
+                ),
+              ] else if (order['tab_filter'].toString().toLowerCase() == 'to_ship') ...[
+                // Complete button for to_ship orders
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          title: const Text('Complete Order'),
+                          content: Text('Mark order ${order['id']} as completed?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: const Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                                // Call controller method to mark as completed
+                                controller.completeOrder(order['id']);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                              ),
+                              child: const Text('Confirm'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Complete',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Cancel button for to_ship orders
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          title: const Text('Cancel Order'),
+                          content: Text('Are you sure you want to cancel order ${order['id']}?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: const Text('No'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Get.back();
+                                // Call controller method to change status
+                                controller.cancelOrder(order['id']);
+                              },
+                              child: const Text('Yes, Cancel'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ),
+              ] else
+                // Buy Again button for completed and cancelled statuses
+                Expanded(
+                  child: _buildActionButton(order),
                 ),
             ],
           ),
@@ -381,10 +516,15 @@ class HistoryView extends GetView<HistoryController> {
     switch (status?.toLowerCase()) {
       case 'pending':
         return Colors.blue;
+      case 'processing':
+        return Colors.amber;
       case 'to ship':
+      case 'shipped':
         return Colors.orange;
       case 'completed':
         return Colors.green;
+      case 'cancelled':
+        return Colors.red;
       default:
         return Colors.grey;
     }

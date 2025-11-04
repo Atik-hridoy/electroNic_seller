@@ -11,6 +11,7 @@ import 'package:electronic/features/home/views/account/services/get_profile_serv
 import 'package:electronic/features/home/views/account/services/get_about_us_service.dart';
 import 'package:electronic/features/home/views/account/services/get_work_funtionality.dart';
 import 'package:electronic/features/home/views/account/services/get_terms_service.dart';
+import 'package:electronic/features/home/services/order_service.dart';
 import 'package:get/get.dart';
 import 'everything_related_products/products_view/products_controller.dart';
 import 'home_controller.dart';
@@ -44,6 +45,7 @@ class HomeBinding extends Bindings {
     Get.lazyPut<ProductBrandService>(() => ProductBrandService());
     Get.lazyPut<AddProductService>(() => AddProductService());
     Get.lazyPut<GetAllProductsService>(() => GetAllProductsService());
+    Get.lazyPut<OrderService>(() => OrderService());
     
   }
 }

@@ -502,15 +502,7 @@ class CategoryView extends GetView<CategoryController> {
   }
 
   Widget _buildProductImage(String imagePath) {
-    // Normalize relative API paths to full URL
-    if (imagePath.isNotEmpty &&
-        !imagePath.startsWith('http') &&
-        !imagePath.startsWith('assets/') &&
-        !(imagePath.startsWith('/') || imagePath.contains(':'))) {
-      imagePath = '${AppUrls.imageBaseUrl}$imagePath';
-    }
-
-    // Check if it's a URL from API
+    // Check if it's already a full URL
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return Image.network(
         imagePath,
@@ -544,8 +536,16 @@ class CategoryView extends GetView<CategoryController> {
       );
     }
     
-    // If it's a local file path (from camera/gallery)
-    if (imagePath.startsWith('/') || imagePath.contains(':')) {
+    // Check if it's a local file path (contains drive letter ':' for Windows, or is an absolute path with multiple segments for mobile)
+    // Local file paths: D:/path/file.jpg, C:\path\file.jpg, /data/user/0/.../file.jpg, /storage/emulated/0/.../file.jpg
+    bool isLocalFilePath = imagePath.contains(':') || 
+                           (imagePath.startsWith('/') && (imagePath.startsWith('/data/') || 
+                            imagePath.startsWith('/storage/') || 
+                            imagePath.startsWith('/var/') ||
+                            imagePath.contains('/cache/') ||
+                            imagePath.contains('/files/')));
+    
+    if (isLocalFilePath) {
       return Image.file(
         File(imagePath),
         fit: BoxFit.cover,
@@ -562,10 +562,45 @@ class CategoryView extends GetView<CategoryController> {
       );
     }
 
-    // It's an asset path
-    return Image.asset(
+    // Check if it's an asset path
+    if (imagePath.startsWith('assets/')) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[100],
+            child: Icon(
+              Icons.image,
+              color: Colors.grey[400],
+              size: 40,
+            ),
+          );
+        },
+      );
+    }
+    
+    // Otherwise, it's an API relative path - prepend base URL and use network image
+    imagePath = '${AppUrls.imageBaseUrl}$imagePath';
+    return Image.network(
       imagePath,
       fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          color: Colors.grey[100],
+          child: Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded / 
+                  loadingProgress.expectedTotalBytes!
+                : null,
+              strokeWidth: 2,
+              color: Colors.blue.shade600,
+            ),
+          ),
+        );
+      },
       errorBuilder: (context, error, stackTrace) {
         return Container(
           color: Colors.grey[100],

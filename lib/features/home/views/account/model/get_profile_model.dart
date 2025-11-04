@@ -28,6 +28,7 @@ class ProfileData {
   final String gender;
   final String address;
   final String phone;
+  final String? profileImage;
 
   ProfileData({
     required this.firstName,
@@ -36,6 +37,7 @@ class ProfileData {
     required this.gender,
     required this.address,
     required this.phone,
+    this.profileImage,
   });
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class ProfileData {
       gender: json['gender'] as String? ?? '',
       address: json['address'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
+      profileImage: json['image'] as String?,
     );
   }
 }
