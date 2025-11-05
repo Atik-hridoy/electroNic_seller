@@ -44,5 +44,14 @@ class AppUrls {
   static const String getAboutUs = 'settings?key=aboutUs';
   static const String getWorkFuntionality = 'settings?key=workFuntionality';
   static const String getTermsOfService = 'settings?key=termsOfService';
+  static const String getFaqs = 'faqs';
+  
+  // Stripe Connect
+  static const String getAccountStatus = 'stripe/account-status';
+  static const String createConnectAccount = 'stripe/connect-account';
+  static const String getAccountLink = 'stripe/account-link';
+  static const String getLoginLink = 'stripe/login-link';
+  static const String getAccountInfo = 'stripe/account-info';
+  static const String getTransactions = 'stripe/transactions';
 
 }

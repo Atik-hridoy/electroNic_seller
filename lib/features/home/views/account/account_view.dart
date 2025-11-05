@@ -156,6 +156,14 @@ class AccountView extends GetView<AccountController> {
           // Menu Items
 
           _buildMenuItem(
+            icon: Icons.payment,
+            title: 'Stripe Account & Payouts',
+            onTap: () {
+              Get.toNamed(Routes.accountTransaction);
+            },
+          ),
+          
+          _buildMenuItem(
             icon: Icons.settings,
             title: 'account_settings'.tr,
             onTap: () {
@@ -190,7 +198,7 @@ class AccountView extends GetView<AccountController> {
             icon: Icons.help_outline,
             title: 'FAQ',
             onTap: () {
-              // Navigate to FAQ
+              Get.toNamed(Routes.faq);
             },
           ),
 

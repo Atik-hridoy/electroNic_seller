@@ -4,6 +4,7 @@ import '../../routes/app_pages.dart';
 import 'controllers/edit_account_controller.dart';
 import 'views/account/services/get_product_stat_service.dart';
 import 'views/account/model/get_product_stat_model.dart';
+import '../notification/notification_controller.dart';
 
 class HomeController extends GetxController {
   // Observable variables for user data
@@ -170,6 +171,19 @@ class HomeController extends GetxController {
   // Methods for user interactions
   void onNotificationTap() {
     Get.toNamed(Routes.notification);
+  }
+
+  // Get unread notification count
+  int get unreadNotificationCount {
+    try {
+      if (Get.isRegistered<NotificationController>()) {
+        final notificationController = Get.find<NotificationController>();
+        return notificationController.unreadCount;
+      }
+    } catch (e) {
+      // If controller is not registered, return 0
+    }
+    return 0;
   }
 
   void onMonthChanged(String month) {

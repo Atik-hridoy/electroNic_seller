@@ -7,11 +7,16 @@ import 'package:electronic/features/home/everything_related_products/product_det
 import 'package:electronic/features/home/everything_related_products/products_view/services/get_product_brand_service.dart';
 import 'package:electronic/features/home/everything_related_products/products_view/services/get_product_category_service.dart';
 import 'package:electronic/features/home/views/account/account_otions/controller/account_setting_controller.dart';
+import 'package:electronic/features/home/views/account/account_otions/controller/faq_controller.dart';
+import 'package:electronic/features/home/views/account/account_otions/controller/account_transaction_controller.dart';
+import 'package:electronic/features/home/views/account/services/get_faq_service.dart';
+import 'package:electronic/features/home/views/account/services/get_account_transaction_service.dart';
 import 'package:electronic/features/home/views/account/services/get_profile_service.dart';
 import 'package:electronic/features/home/views/account/services/get_about_us_service.dart';
 import 'package:electronic/features/home/views/account/services/get_work_funtionality.dart';
 import 'package:electronic/features/home/views/account/services/get_terms_service.dart';
 import 'package:electronic/features/home/services/order_service.dart';
+import 'package:electronic/features/notification/notification_controller.dart';
 import 'package:get/get.dart';
 import 'everything_related_products/products_view/products_controller.dart';
 import 'home_controller.dart';
@@ -32,6 +37,7 @@ class HomeBinding extends Bindings {
     // Register controllers
     Get.put(HomeController());
     Get.put(ProductsController());
+    Get.put(NotificationController());
     
     // Use lazy loading for feature-specific controllers to avoid conflicts
     Get.lazyPut<AddProductController>(() => AddProductController());
@@ -46,6 +52,10 @@ class HomeBinding extends Bindings {
     Get.lazyPut<AddProductService>(() => AddProductService());
     Get.lazyPut<GetAllProductsService>(() => GetAllProductsService());
     Get.lazyPut<OrderService>(() => OrderService());
+    Get.lazyPut<GetFaqService>(() => GetFaqService());
+    Get.lazyPut(() => FaqController());
+    Get.lazyPut<GetAccountTransactionService>(() => GetAccountTransactionService());
+    Get.lazyPut(() => AccountTransactionController());
     
   }
 }

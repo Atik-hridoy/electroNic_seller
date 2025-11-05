@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:electronic/core/constants/app_colors.dart';
 import 'package:electronic/core/util/products_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -125,7 +124,7 @@ class AddProductView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -232,13 +231,13 @@ class AddProductView extends StatelessWidget {
                   
                   const SizedBox(height: 16),
                   
-                  // Discount Price
+                  // Discount Percentage
                   _buildSectionCard(
-                    title: 'Discount Price',
+                    title: 'Discount (%)',
                     required: false,
                     child: _buildTextField(
                       controller: controller.discountPriceController,
-                      hintText: '0.00',
+                      hintText: '0',
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
                   ),
@@ -1233,7 +1232,7 @@ class AddProductView extends StatelessWidget {
                           child: _buildPriceItem(
                             icon: Icons.local_offer_outlined,
                             label: 'Discount',
-                            value: '\$${variant.discountPrice.toStringAsFixed(2)}',
+                            value: '${variant.discountPrice.toStringAsFixed(0)}%',
                             color: Colors.orange,
                           ),
                         ),

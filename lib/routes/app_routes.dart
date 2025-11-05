@@ -18,6 +18,8 @@ abstract class Routes {
   static const String accountAboutUs = '/accountAboutUs';
   static const String workFuntiuonality = '/workFuntiuonality';
   static const String termsOfService = '/termsOfService';
+  static const String faq = '/faq';
+  static const String accountTransaction = '/accountTransaction';
 
   static const String authSignIn = '/authSignIn';
 }

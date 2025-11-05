@@ -113,13 +113,46 @@ class HomeView extends GetView<HomeController> {
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: controller.onNotificationTap,
-                      icon: const Icon(
-                        Icons.notifications_outlined,
-                        color: Colors.black,
-                      ),
-                    ),
+                    Obx(() {
+                      final unreadCount = controller.unreadNotificationCount;
+                      return Stack(
+                        children: [
+                          IconButton(
+                            onPressed: controller.onNotificationTap,
+                            icon: const Icon(
+                              Icons.notifications_outlined,
+                              color: Colors.black,
+                            ),
+                          ),
+                          if (unreadCount > 0)
+                            Positioned(
+                              right: 8,
+                              top: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    unreadCount > 99 ? '99+' : unreadCount.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
               ),

@@ -382,7 +382,7 @@ class NotificationController extends GetxController {
                 'All notifications cleared',
                 snackPosition: SnackPosition.BOTTOM,
                 duration: const Duration(seconds: 2),
-                backgroundColor: Colors.orange.shade100,
+                backgroundColor: Colors.orange.shade100, 
                 colorText: Colors.orange.shade800,
               );
             },
@@ -394,5 +394,10 @@ class NotificationController extends GetxController {
         ],
       ),
     );
+  }
+
+  // Get count of unread notifications
+  int get unreadCount {
+    return notifications.where((notification) => notification.isHighlighted).length;
   }
 }
