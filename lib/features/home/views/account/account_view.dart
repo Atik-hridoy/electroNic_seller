@@ -157,7 +157,7 @@ class AccountView extends GetView<AccountController> {
 
           _buildMenuItem(
             icon: Icons.payment,
-            title: 'Stripe Account & Payouts',
+            title: 'stripe_account_payouts'.tr,
             onTap: () {
               Get.toNamed(Routes.accountTransaction);
             },
@@ -180,7 +180,7 @@ class AccountView extends GetView<AccountController> {
 
           _buildMenuItem(
             icon: Icons.work_outline,
-            title: 'Work Functionality',
+            title: 'work_functionality'.tr,
             onTap: () {
               Get.toNamed(Routes.workFuntiuonality);
             },
@@ -188,7 +188,7 @@ class AccountView extends GetView<AccountController> {
 
           _buildMenuItem(
             icon: Icons.description_outlined,
-            title: 'Terms & Conditions',
+            title: 'terms_conditions'.tr,
             onTap: () {
               Get.toNamed(Routes.termsOfService);
             },
@@ -196,7 +196,7 @@ class AccountView extends GetView<AccountController> {
 
           _buildMenuItem(
             icon: Icons.help_outline,
-            title: 'FAQ',
+            title: 'faq'.tr,
             onTap: () {
               Get.toNamed(Routes.faq);
             },
@@ -204,7 +204,7 @@ class AccountView extends GetView<AccountController> {
 
           _buildMenuItem(
             icon: Icons.logout,
-            title: 'Log Out',
+            title: 'log_out'.tr,
             textColor: Colors.red,
             showArrow: false,
             onTap: () {
@@ -272,21 +272,21 @@ class AccountView extends GetView<AccountController> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Log Out'),
-          content: const Text('Are you sure you want to log out?'),
+          title: Text('log_out'.tr),
+          content: Text('log_out_confirmation'.tr),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text('cancel'.tr),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 controller.logout();
               },
-              child: const Text('Log Out', style: TextStyle(color: Colors.red)),
+              child: Text('log_out'.tr, style: const TextStyle(color: Colors.red)),
             ),
           ],
         );

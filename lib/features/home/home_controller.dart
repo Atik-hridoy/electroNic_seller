@@ -4,6 +4,8 @@ import '../../routes/app_pages.dart';
 import 'controllers/edit_account_controller.dart';
 import 'views/account/services/get_product_stat_service.dart';
 import 'views/account/model/get_product_stat_model.dart';
+import 'views/account/services/get_monthly_statistics_service.dart';
+import 'views/account/model/monthly_statistics_model.dart';
 import '../notification/notification_controller.dart';
 
 class HomeController extends GetxController {
@@ -31,6 +33,7 @@ class HomeController extends GetxController {
   final monthlyIncome = 520.0.obs;
   final monthlyReturnCount = 0.0.obs;
   final monthlyProfit = 250.0.obs;
+  final currentYear = DateTime.now().year;
 
   // Rating statistics
   final overallRating = 4.5.obs;
@@ -146,9 +149,68 @@ class HomeController extends GetxController {
     });
   }
 
-  void _loadMonthlyStats() {
-    // Load monthly data based on selected month
-    // In real app, this would be an API call
+  Future<void> _loadMonthlyStats() async {
+    isLoadingChart.value = true;
+    try {
+      // Ensure service is available
+      if (!Get.isRegistered<GetMonthlyStatisticsService>()) {
+        Get.put(GetMonthlyStatisticsService());
+      }
+      final svc = Get.find<GetMonthlyStatisticsService>();
+      
+      // Convert selected month from translated string to English month name
+      final monthName = _getEnglishMonthName(selectedMonth.value);
+      
+      final res = await svc.getMonthlyStatistics(
+        month: monthName,
+        year: currentYear,
+      );
+      
+      final body = res.data;
+      // Some APIs wrap in { success, data: {...} }
+      final dataJson = (body is Map && body['data'] is Map)
+          ? body['data'] as Map<String, dynamic>
+          : (body is Map<String, dynamic> ? body : <String, dynamic>{});
+      
+      final stats = MonthlyStatisticsModel.fromJson(dataJson);
+      
+      // Assign to observables
+      monthlyIncome.value = stats.income;
+      monthlyReturnCount.value = stats.returnCount;
+      monthlyProfit.value = stats.profit;
+      
+      // Update chart data if available
+      if (stats.chartDataIncome != null && stats.chartDataIncome!.isNotEmpty) {
+        chartDataIncome.value = stats.chartDataIncome!;
+      }
+      if (stats.chartDataProfit != null && stats.chartDataProfit!.isNotEmpty) {
+        chartDataProfit.value = stats.chartDataProfit!;
+      }
+    } catch (e) {
+      // Keep existing values and log error
+      print('Error loading monthly stats: $e');
+    } finally {
+      isLoadingChart.value = false;
+    }
+  }
+  
+  // Helper method to convert translated month to English month name
+  String _getEnglishMonthName(String translatedMonth) {
+    final monthMap = {
+      'january'.tr: 'January',
+      'february'.tr: 'February',
+      'march'.tr: 'March',
+      'april'.tr: 'April',
+      'may'.tr: 'May',
+      'june'.tr: 'June',
+      'july'.tr: 'July',
+      'august'.tr: 'August',
+      'september'.tr: 'September',
+      'october'.tr: 'October',
+      'november'.tr: 'November',
+      'december'.tr: 'December',
+    };
+    return monthMap[translatedMonth] ?? 'January';
   }
 
   void _loadRatingStats() {
@@ -191,33 +253,11 @@ class HomeController extends GetxController {
     _refreshMonthlyData();
   }
 
-  void _refreshMonthlyData() {
-    // Simulate loading new monthly data
-    isLoadingChart.value = true;
-
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      // Update data based on selected month
-      _updateMonthlyStatsForMonth(selectedMonth.value);
-      _loadChartData();
-    });
+  Future<void> _refreshMonthlyData() async {
+    // Load new monthly data from API
+    await _loadMonthlyStats();
   }
 
-  void _updateMonthlyStatsForMonth(String month) {
-    // Simulate different data for different months
-    if (month == 'august'.tr) {
-      monthlyIncome.value = 520.0;
-      monthlyProfit.value = 250.0;
-    } else if (month == 'july'.tr) {
-      monthlyIncome.value = 480.0;
-      monthlyProfit.value = 220.0;
-    } else if (month == 'september'.tr) {
-      monthlyIncome.value = 560.0;
-      monthlyProfit.value = 280.0;
-    } else {
-      monthlyIncome.value = 500.0;
-      monthlyProfit.value = 240.0;
-    }
-  }
 
   String get currentMonth {
     final now = DateTime.now();

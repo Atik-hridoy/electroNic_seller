@@ -35,6 +35,7 @@ class AppUrls {
   // dashboard
 
   static const String getProductStatistics  = 'dashboard/seller-products-analysis';
+  static const String getMonthlyStatistics = 'dashboard/seller-monthly-statistic';
 
   //settings
 

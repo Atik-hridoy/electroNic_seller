@@ -29,9 +29,9 @@ class AddProductView extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Add Product',
-          style: TextStyle(
+        title: Text(
+          'add_product'.tr,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.w400,
@@ -46,7 +46,7 @@ class AddProductView extends StatelessWidget {
           children: [
             // Category Card
             _buildSectionCard(
-              title: 'Category',
+              title: 'category'.tr,
               required: true,
               child: _buildDropdown<CategoryModel>(
                 value: controller.selectedCategory.value,
@@ -59,7 +59,7 @@ class AddProductView extends StatelessWidget {
             // Sub Category Card - Only show when a category is selected
             Obx(() => controller.selectedCategory.value.name.isNotEmpty && controller.availableSubcategories.isNotEmpty
               ? _buildSectionCard(
-                  title: 'Sub Category',
+                  title: 'sub_category'.tr,
                   required: true,
                   child: _buildDropdown<Subcategory>(
                     value: controller.selectedSubCategory.value,
@@ -72,14 +72,14 @@ class AddProductView extends StatelessWidget {
 
             // Product Image Card
             _buildSectionCard(
-              title: 'Product Image',
+              title: 'product_image'.tr,
               required: true,
               child: _buildImageSection(controller),
             ),
 
             // Product Name Card
             _buildSectionCard(
-              title: 'Product Name',
+              title: 'product_name'.tr,
               required: true,
               child: _buildTextField(
                 controller: controller.productNameController,
@@ -89,7 +89,7 @@ class AddProductView extends StatelessWidget {
 
             // Model Card
             _buildSectionCard(
-              title: 'Model',
+              title: 'model'.tr,
               required: true,
               child: _buildTextField(
                 controller: controller.modelController,
@@ -99,7 +99,7 @@ class AddProductView extends StatelessWidget {
 
             // Brand Card
             _buildSectionCard(
-              title: 'Brand',
+              title: 'brand'.tr,
               required: true,
               child: _buildDropdown<String>(
                 value: controller.selectedBrand.value,
@@ -111,7 +111,7 @@ class AddProductView extends StatelessWidget {
 
             // Color Card
             _buildSectionCard(
-              title: 'Color',
+              title: 'color'.tr,
               required: true,
               child: _buildColorSection(controller),
             ),
@@ -142,8 +142,8 @@ class AddProductView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Type/Size',
+                              Text(
+                                'type_size'.tr,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -153,7 +153,7 @@ class AddProductView extends StatelessWidget {
                               const SizedBox(height: 12),
                               _buildTextField(
                                 controller: controller.sizeController,
-                                hintText: 'Enter type or size',
+                                hintText: 'enter_type_or_size'.tr,
                               ),
                             ],
                           ),
@@ -166,8 +166,8 @@ class AddProductView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Price',
+                              Text(
+                                'price'.tr,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -192,8 +192,8 @@ class AddProductView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Purchase Price*',
+                              Text(
+                                'purchase_price'.tr,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -213,8 +213,8 @@ class AddProductView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Profit Price',
+                              Text(
+                                'profit_price'.tr,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -233,7 +233,7 @@ class AddProductView extends StatelessWidget {
                   
                   // Discount Percentage
                   _buildSectionCard(
-                    title: 'Discount (%)',
+                    title: 'discount'.tr,
                     required: false,
                     child: _buildTextField(
                       controller: controller.discountPriceController,
@@ -252,8 +252,8 @@ class AddProductView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Quantity',
+                            Text(
+                              'quantity'.tr,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -280,8 +280,8 @@ class AddProductView extends StatelessWidget {
                                   ),
                                   elevation: 2,
                                 ),
-                                label: const Text(
-                                  'Add Variant',
+                                label: Text(
+                                  'add_variant'.tr,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -305,7 +305,7 @@ class AddProductView extends StatelessWidget {
 
             // Special Category Card
             _buildSectionCard(
-              title: 'Product Special Category',
+              title: 'product_special_category'.tr,
               required: true,
               child: _buildDropdown<String>(
                 value: controller.selectedSpecialCategory.value,
@@ -326,7 +326,7 @@ class AddProductView extends StatelessWidget {
 
             // Overview Card
             _buildSectionCard(
-              title: 'Overview',
+              title: 'overview'.tr,
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8F9FA),
@@ -336,9 +336,9 @@ class AddProductView extends StatelessWidget {
                 child: TextField(
                   controller: controller.overviewController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Enter Overview',
+                    hintText: 'enter_overview'.tr,
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
@@ -347,7 +347,7 @@ class AddProductView extends StatelessWidget {
 
             // Highlight Card
             _buildSectionCard(
-              title: 'Highlight',
+              title: 'highlight'.tr,
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8F9FA),
@@ -357,9 +357,9 @@ class AddProductView extends StatelessWidget {
                 child: TextField(
                   controller: controller.highlightController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Enter Highlight',
+                    hintText: 'enter_highlight'.tr,
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
@@ -368,7 +368,7 @@ class AddProductView extends StatelessWidget {
 
             // Technical Specifications Card
             _buildSectionCard(
-              title: 'Technical Specifications',
+              title: 'technical_specifications'.tr,
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8F9FA),
@@ -378,9 +378,9 @@ class AddProductView extends StatelessWidget {
                 child: TextField(
                   controller: controller.techSpecController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Enter Technical Specifications',
+                    hintText: 'enter_technical_specifications'.tr,
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
@@ -389,7 +389,7 @@ class AddProductView extends StatelessWidget {
 
             // Submit Button Card
             _buildSectionCard(
-              title: 'Submit Product',
+              title: 'submit_product'.tr,
               child: SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -402,8 +402,8 @@ class AddProductView extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Submit Product',
+                  child: Text(
+                    'submit_product'.tr,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,
@@ -579,26 +579,26 @@ class AddProductView extends StatelessWidget {
   void _pickImage(AddProductController controller) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Add Photo'),
-        content: const Text('Choose how you want to add a photo'),
+        title: Text('add_photo'.tr),
+        content: Text('choose_photo_source'.tr),
         actions: [
           TextButton(
             onPressed: () {
               Get.back();
               _pickImageFromSource(controller, ImageSource.camera);
             },
-            child: const Text('Camera'),
+            child: Text('camera'.tr),
           ),
           TextButton(
             onPressed: () {
               Get.back();
               _pickImageFromSource(controller, ImageSource.gallery);
             },
-            child: const Text('Gallery'),
+            child: Text('gallery'.tr),
           ),
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: Text('cancel'.tr),
           ),
         ],
       ),

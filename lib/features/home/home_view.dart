@@ -194,9 +194,9 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             shadowColor: Colors.black.withOpacity(0.1),
-            title: const Text(
-              'Orders',
-              style: TextStyle(
+            title: Text(
+              'orders'.tr,
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -495,27 +495,40 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildMonthlyStatsRow() {
-    return Row(
-      children: [
-        Obx(() => _buildMonthlyStatItem(
-            'income'.tr,
-            controller.formatCurrency(controller.monthlyIncome.value),
-            Colors.red.shade400
-        )),
-        const SizedBox(width: 24),
-        Obx(() => _buildMonthlyStatItem(
-            'return_count'.tr,
-            controller.formatCurrency(controller.monthlyReturnCount.value),
-            Colors.grey[600]!
-        )),
-        const SizedBox(width: 24),
-        Obx(() => _buildMonthlyStatItem(
-            'profit'.tr,
-            controller.formatCurrency(controller.monthlyProfit.value),
-            Colors.green.shade400
-        )),
-      ],
-    );
+    return Obx(() {
+      if (controller.isLoadingChart.value) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade400),
+            ),
+          ),
+        );
+      }
+      
+      return Row(
+        children: [
+          _buildMonthlyStatItem(
+              'income'.tr,
+              controller.formatCurrency(controller.monthlyIncome.value),
+              Colors.red.shade400
+          ),
+          const SizedBox(width: 24),
+          _buildMonthlyStatItem(
+              'return_count'.tr,
+              controller.formatCurrency(controller.monthlyReturnCount.value),
+              Colors.grey[600]!
+          ),
+          const SizedBox(width: 24),
+          _buildMonthlyStatItem(
+              'profit'.tr,
+              controller.formatCurrency(controller.monthlyProfit.value),
+              Colors.green.shade400
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildMonthlyStatItem(String label, String value, Color color) {
@@ -540,17 +553,63 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildChart() {
-    return SizedBox(
-      height: 150,
-      child: Obx(() => controller.isLoadingChart.value
-          ? _buildLoadingIndicator()
-          : CustomPaint(
-        size: const Size(double.infinity, 150),
-        painter: LineChartPainter(
-          incomeData: controller.chartDataIncome,
-          profitData: controller.chartDataProfit,
+    return Obx(() {
+      if (controller.isLoadingChart.value) {
+        return SizedBox(
+          height: 200,
+          child: _buildLoadingIndicator(),
+        );
+      }
+      
+      return Column(
+        children: [
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('income_label'.tr, Colors.red.shade400),
+              const SizedBox(width: 20),
+              _buildLegendItem('profit_label'.tr, Colors.green.shade400),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Chart
+          SizedBox(
+            height: 200,
+            child: CustomPaint(
+              size: const Size(double.infinity, 200),
+              painter: ImprovedLineChartPainter(
+                incomeData: controller.chartDataIncome,
+                profitData: controller.chartDataProfit,
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+  
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 3,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
-      )),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
@@ -711,66 +770,176 @@ class HomeView extends GetView<HomeController> {
   }
 }
 
-class LineChartPainter extends CustomPainter {
+class ImprovedLineChartPainter extends CustomPainter {
   final List<double> incomeData;
   final List<double> profitData;
 
-  LineChartPainter({
+  ImprovedLineChartPainter({
     required this.incomeData,
     required this.profitData,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint1 = Paint()
-      ..color = Colors.red.shade300
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+    if (incomeData.isEmpty && profitData.isEmpty) return;
 
-    final paint2 = Paint()
-      ..color = Colors.green.shade400
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+    // Padding for axes and labels
+    const leftPadding = 40.0;
+    const rightPadding = 10.0;
+    const topPadding = 10.0;
+    const bottomPadding = 30.0;
 
-    final paint3 = Paint()
+    final chartWidth = size.width - leftPadding - rightPadding;
+    final chartHeight = size.height - topPadding - bottomPadding;
+
+    // Paint styles
+    final axisPaint = Paint()
+      ..color = Colors.grey.shade400
+      ..strokeWidth = 1.5;
+
+    final gridPaint = Paint()
       ..color = Colors.grey.shade200
-      ..strokeWidth = 1
+      ..strokeWidth = 0.5;
+
+    final incomePaint = Paint()
+      ..color = Colors.red.shade400
+      ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
-    // Draw grid lines
-    for (int i = 1; i < 5; i++) {
-      final y = size.height * i / 5;
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint3);
+    final profitPaint = Paint()
+      ..color = Colors.green.shade400
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+
+    final dotPaint = Paint()
+      ..style = PaintingStyle.fill;
+
+    // Find max value for Y-axis
+    double maxValue = 0;
+    for (var value in incomeData) {
+      if (value > maxValue) maxValue = value;
+    }
+    for (var value in profitData) {
+      if (value > maxValue) maxValue = value;
+    }
+    if (maxValue == 0) maxValue = 100;
+
+    // Round up maxValue to nearest nice number
+    final magnitude = (maxValue / 5).ceil() * 5;
+    maxValue = magnitude * 5;
+
+    // Draw Y-axis
+    canvas.drawLine(
+      Offset(leftPadding, topPadding),
+      Offset(leftPadding, size.height - bottomPadding),
+      axisPaint,
+    );
+
+    // Draw X-axis
+    canvas.drawLine(
+      Offset(leftPadding, size.height - bottomPadding),
+      Offset(size.width - rightPadding, size.height - bottomPadding),
+      axisPaint,
+    );
+
+    // Draw horizontal grid lines and Y-axis labels
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.right,
+    );
+
+    for (int i = 0; i <= 5; i++) {
+      final y = size.height - bottomPadding - (chartHeight * i / 5);
+      
+      // Grid line
+      canvas.drawLine(
+        Offset(leftPadding, y),
+        Offset(size.width - rightPadding, y),
+        gridPaint,
+      );
+
+      // Y-axis label
+      final value = (maxValue * i / 5).toInt();
+      textPainter.text = TextSpan(
+        text: value.toString(),
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 10,
+        ),
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(leftPadding - textPainter.width - 5, y - textPainter.height / 2),
+      );
     }
 
-    // Draw income line
+    // Draw X-axis labels (show every 5th day)
+    for (int i = 0; i < incomeData.length; i += 5) {
+      final x = leftPadding + (chartWidth * i / (incomeData.length - 1));
+      
+      textPainter.text = TextSpan(
+        text: 'D${i + 1}',
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 10,
+        ),
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(x - textPainter.width / 2, size.height - bottomPadding + 5),
+      );
+    }
+
+    // Helper function to get Y position
+    double getY(double value) {
+      final normalizedValue = value / maxValue;
+      return size.height - bottomPadding - (chartHeight * normalizedValue);
+    }
+
+    // Draw income line and dots
     if (incomeData.isNotEmpty) {
-      final path1 = Path();
+      final path = Path();
       for (int i = 0; i < incomeData.length; i++) {
-        final x = size.width * i / (incomeData.length - 1);
-        final y = size.height * incomeData[i];
+        final x = leftPadding + (chartWidth * i / (incomeData.length - 1));
+        final y = getY(incomeData[i]);
+        
         if (i == 0) {
-          path1.moveTo(x, y);
+          path.moveTo(x, y);
         } else {
-          path1.lineTo(x, y);
+          path.lineTo(x, y);
+        }
+
+        // Draw dot if value > 0
+        if (incomeData[i] > 0) {
+          dotPaint.color = Colors.red.shade400;
+          canvas.drawCircle(Offset(x, y), 3, dotPaint);
         }
       }
-      canvas.drawPath(path1, paint1);
+      canvas.drawPath(path, incomePaint);
     }
 
-    // Draw profit line
+    // Draw profit line and dots
     if (profitData.isNotEmpty) {
-      final path2 = Path();
+      final path = Path();
       for (int i = 0; i < profitData.length; i++) {
-        final x = size.width * i / (profitData.length - 1);
-        final y = size.height * profitData[i];
+        final x = leftPadding + (chartWidth * i / (profitData.length - 1));
+        final y = getY(profitData[i]);
+        
         if (i == 0) {
-          path2.moveTo(x, y);
+          path.moveTo(x, y);
         } else {
-          path2.lineTo(x, y);
+          path.lineTo(x, y);
+        }
+
+        // Draw dot if value > 0
+        if (profitData[i] > 0) {
+          dotPaint.color = Colors.green.shade400;
+          canvas.drawCircle(Offset(x, y), 3, dotPaint);
         }
       }
-      canvas.drawPath(path2, paint2);
+      canvas.drawPath(path, profitPaint);
     }
   }
 
