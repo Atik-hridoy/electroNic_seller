@@ -9,6 +9,7 @@ class AppUrls {
   static const String updateProfile = 'users/complete';
   static const String getProfile = 'users/profile';
   static const String updateProfileInsideApp = 'users/profile';
+  static const String deleteAccount = 'users/delete';
 
   // notification 
 

@@ -176,6 +176,9 @@ class MyTranslations extends Translations {
               'Are you sure you want to delete your account? This action cannot be undone.',
           'account_deleted': 'Account Deleted',
           'account_deleted_message': 'Your account has been successfully deleted.',
+          'account_deleted_successfully': 'Your account has been deleted successfully',
+          'failed_to_delete_account': 'Failed to delete account. Please try again.',
+          'delete': 'Delete',
           'english': 'English',
           'spanish': 'Español',
           'select_language': 'Select Language',
@@ -238,6 +241,7 @@ class MyTranslations extends Translations {
           'or': 'O',
           'login_with_google': 'Continuar con Google',
           'login_with_apple': 'Continuar con Apple',
+          // ignore: equal_keys_in_map
           'dont_have_account': '¿No tienes una cuenta?',
           'sign_up': 'Regístrate',
           'back': 'Atrás',

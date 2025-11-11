@@ -17,6 +17,7 @@ import 'package:electronic/features/home/views/account/services/get_work_funtion
 import 'package:electronic/features/home/views/account/services/get_terms_service.dart';
 import 'package:electronic/features/home/views/account/services/get_product_stat_service.dart';
 import 'package:electronic/features/home/views/account/services/get_monthly_statistics_service.dart';
+import 'package:electronic/features/home/views/account/services/delete_account_service.dart';
 import 'package:electronic/features/home/services/order_service.dart';
 import 'package:electronic/features/notification/notification_controller.dart';
 import 'package:get/get.dart';
@@ -37,6 +38,7 @@ class HomeBinding extends Bindings {
     Get.lazyPut<GetTermsService>(() => GetTermsService());
     Get.lazyPut<GetProductStatService>(() => GetProductStatService());
     Get.lazyPut<GetMonthlyStatisticsService>(() => GetMonthlyStatisticsService());
+    Get.lazyPut<DeleteAccountService>(() => DeleteAccountService());
 
     // Register controllers
     Get.put(HomeController());

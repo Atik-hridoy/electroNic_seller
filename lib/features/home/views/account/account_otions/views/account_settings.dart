@@ -358,31 +358,72 @@ class AccountSettingView extends GetView<AccountSettingController> {
   void _showDeleteAccountDialog() {
     Get.dialog(
       AlertDialog(
-        title: Text('delete_account_confirmation'.tr),
-        content: Text('delete_account_message'.tr),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        title: Text(
+          'delete_account_confirmation'.tr,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        content: Text(
+          'delete_account_message'.tr,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF424242),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('cancel'.tr),
-          ),
-          TextButton(
-            onPressed: () {
-              // Handle account deletion
-              Get.back();
-              // Show success message
-              Get.snackbar(
-                'account_deleted'.tr,
-                'account_deleted_message'.tr,
-                snackPosition: SnackPosition.BOTTOM,
-              );
-              // Navigate to login or home screen
-              // Get.offAllNamed(Routes.LOGIN);
-            },
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            ),
             child: Text(
-              'delete'.tr,
-              style: const TextStyle(color: Colors.red),
+              'cancel'.tr,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF9E9E9E),
+              ),
             ),
           ),
+          Obx(() => TextButton(
+            onPressed: controller.isDeleting.value
+                ? null
+                : () async {
+                    Get.back(); // Close dialog first
+                    await controller.deleteAccount();
+                  },
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            ),
+            child: controller.isDeleting.value
+                ? SizedBox(
+                    width: 20.w,
+                    height: 20.h,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                    ),
+                  )
+                : Text(
+                    'delete'.tr,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.red,
+                    ),
+                  ),
+          )),
         ],
       ),
     );
