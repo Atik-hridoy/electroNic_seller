@@ -15,7 +15,32 @@ class HistoryView extends GetView<HistoryController> {
           backgroundColor: Colors.white,
           elevation: 0,
           automaticallyImplyLeading: false,
-          toolbarHeight: 0,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Order History',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Row(
+                children: [
+                  Obx(() => controller.hasError.value
+                      ? Icon(Icons.error, color: Colors.red, size: 20)
+                      : SizedBox.shrink()),
+                  SizedBox(width: 8),
+                  IconButton(
+                    onPressed: () => controller.refreshOrders(),
+                    icon: Icon(Icons.refresh, color: Colors.amber[700]),
+                    tooltip: 'Refresh Orders',
+                  ),
+                ],
+              ),
+            ],
+          ),
           bottom: TabBar(
             labelColor: Colors.amber[700],
             unselectedLabelColor: Colors.grey[600],

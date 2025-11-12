@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../routes/app_pages.dart';
 import 'controllers/edit_account_controller.dart';
@@ -6,6 +5,10 @@ import 'views/account/services/get_product_stat_service.dart';
 import 'views/account/model/get_product_stat_model.dart';
 import 'views/account/services/get_monthly_statistics_service.dart';
 import 'views/account/model/monthly_statistics_model.dart';
+import 'views/account/services/get_transaction_statistics_service.dart';
+import 'views/account/model/transaction_statistics_model.dart';
+import 'views/account/services/get_seller_rating_service.dart';
+import 'views/account/model/seller_rating_model.dart';
 import '../notification/notification_controller.dart';
 
 class HomeController extends GetxController {
@@ -24,9 +27,9 @@ class HomeController extends GetxController {
   final rating = 0.obs;
 
   // Transaction data observables
-  final totalEarning = 5620.0.obs;
-  final pendingMoney = 755.0.obs;
-  final sentMoney = 4865.0.obs;
+  final totalEarning = 2720.0.obs;
+  final pendingMoney = 0.0.obs;
+  final receivedMoney = 2560.0.obs;
 
   // Monthly statistics
   final selectedMonth = 'august'.tr.obs;
@@ -38,6 +41,10 @@ class HomeController extends GetxController {
   // Rating statistics
   final overallRating = 4.5.obs;
   final ratingQuality = 'very_good'.tr.obs;
+
+  // Seller rating statistics from API
+  final Rx<SellerRatingModel?> sellerRating = Rx<SellerRatingModel?>(null);
+  final isLoadingSellerRating = false.obs;
   final ratingBreakdown = <int, int>{
     5: 50,
     4: 30,
@@ -53,6 +60,7 @@ class HomeController extends GetxController {
   final isLoadingStats = false.obs;
   final isLoadingTransactions = false.obs;
   final isLoadingChart = false.obs;
+  final isLoadingTransactionStats = false.obs;
 
   // Chart data
   final chartDataIncome = <double>[].obs;
@@ -103,6 +111,8 @@ class HomeController extends GetxController {
     // Initialize with default data
     _loadProductStats();
     _loadTransactionData();
+    _loadTransactionStatistics();
+    _loadSellerRating();
     _loadMonthlyStats();
     _loadRatingStats();
   }
@@ -147,6 +157,80 @@ class HomeController extends GetxController {
     Future.delayed(const Duration(milliseconds: 800), () {
       isLoadingTransactions.value = false;
     });
+  }
+
+  Future<void> _loadTransactionStatistics() async {
+    isLoadingTransactionStats.value = true;
+    try {
+      // Ensure service is available
+      if (!Get.isRegistered<GetTransactionStatisticsService>()) {
+        Get.put(GetTransactionStatisticsService());
+      }
+      final svc = Get.find<GetTransactionStatisticsService>();
+      final res = await svc.getMonthlyTransactionStatistics();
+      final body = res.data;
+      
+      // Some APIs wrap in { success, data: {...} }
+      final dataJson = (body is Map && body['data'] is Map)
+          ? body['data'] as Map<String, dynamic>
+          : (body is Map<String, dynamic> ? body : <String, dynamic>{});
+      
+      final stats = TransactionStatisticsModel.fromJson(dataJson);
+      
+      // Assign to observables
+      totalEarning.value = stats.totalEarning;
+      pendingMoney.value = stats.pendingMoney;
+      receivedMoney.value = stats.receivedMoney;
+      
+    } catch (e) {
+      // Keep existing values and log error
+      print('Error loading transaction statistics: $e');
+    } finally {
+      isLoadingTransactionStats.value = false;
+    }
+  }
+
+  Future<void> _loadSellerRating() async {
+    isLoadingSellerRating.value = true;
+    try {
+      // Ensure service is available
+      if (!Get.isRegistered<GetSellerRatingService>()) {
+        Get.put(GetSellerRatingService());
+      }
+      final svc = Get.find<GetSellerRatingService>();
+      final res = await svc.getSellerRating();
+      final body = res.data;
+      
+      // Some APIs wrap in { success, data: {...} }
+      final dataJson = (body is Map && body['data'] is Map)
+          ? body['data'] as Map<String, dynamic>
+          : (body is Map<String, dynamic> ? body : <String, dynamic>{});
+      
+      final rating = SellerRatingModel.fromJson(dataJson);
+      
+      // Assign to observables
+      sellerRating.value = rating;
+      overallRating.value = rating.averageRating;
+      
+      // Update rating quality based on average rating
+      if (rating.averageRating >= 4.5) {
+        ratingQuality.value = 'excellent'.tr;
+      } else if (rating.averageRating >= 4.0) {
+        ratingQuality.value = 'very_good'.tr;
+      } else if (rating.averageRating >= 3.0) {
+        ratingQuality.value = 'good'.tr;
+      } else if (rating.averageRating >= 2.0) {
+        ratingQuality.value = 'fair'.tr;
+      } else {
+        ratingQuality.value = 'poor'.tr;
+      }
+      
+    } catch (e) {
+      // Keep existing values and log error
+      print('Error loading seller rating: $e');
+    } finally {
+      isLoadingSellerRating.value = false;
+    }
   }
 
   Future<void> _loadMonthlyStats() async {
@@ -275,34 +359,14 @@ class HomeController extends GetxController {
     await Future.wait([
       refreshProductStats(),
       refreshTransactionData(),
+      _loadTransactionStatistics(),
+      _loadSellerRating(),
       refreshMonthlyStats(),
     ]);
     
-    // Show completion message
-    Future.microtask(() {
-      Get.snackbar(
-        'refresh_complete'.tr,
-        '',
-        duration: const Duration(seconds: 2),
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(10),
-        borderRadius: 8,
-      );
-    });
   } catch (e) {
-    // Show error message if something goes wrong
-    Future.microtask(() {
-      Get.snackbar(
-        'error'.tr,
-        'update_failed'.tr,
-        duration: const Duration(seconds: 2),
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(10),
-        borderRadius: 8,
-        colorText: Colors.white,
-        backgroundColor: Colors.red,
-      );
-    });
+    // Log error silently without showing snackbar
+    print('Error refreshing data: $e');
   }
 }
 
@@ -324,11 +388,8 @@ class HomeController extends GetxController {
   Future<void> refreshTransactionData() async {
     isLoadingTransactions.value = true;
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Update transaction data
-    totalEarning.value += 50.0;
-    sentMoney.value += 100.0;
+    // Instead of adding values, refresh from API
+    await _loadTransactionStatistics();
 
     isLoadingTransactions.value = false;
   }
@@ -341,6 +402,7 @@ class HomeController extends GetxController {
     _loadChartData();
   }
 
+
   // Utility methods
   String formatCurrency(double amount) {
     return '\$${amount.toStringAsFixed(0)}';
@@ -351,6 +413,20 @@ class HomeController extends GetxController {
   }
 
   double getRatingPercentage(int stars) {
+    // Use API data if available, otherwise fallback to local data
+    if (sellerRating.value != null) {
+      final rating = sellerRating.value!;
+      switch (stars) {
+        case 1: return rating.ratingPercentages.star1Percent.toDouble();
+        case 2: return rating.ratingPercentages.star2Percent.toDouble();
+        case 3: return rating.ratingPercentages.star3Percent.toDouble();
+        case 4: return rating.ratingPercentages.star4Percent.toDouble();
+        case 5: return rating.ratingPercentages.star5Percent.toDouble();
+        default: return 0.0;
+      }
+    }
+    
+    // Fallback to local data
     final int count = ratingBreakdown[stars] ?? 0;
     final int total = totalRatings;
     if (total == 0) return 0.0;
@@ -359,6 +435,10 @@ class HomeController extends GetxController {
 
   // Calculate total rating count
   int get totalRatings {
+    // Use API data if available, otherwise fallback to local data
+    if (sellerRating.value != null) {
+      return sellerRating.value!.totalReviews;
+    }
     return ratingBreakdown.values.fold(0, (sum, count) => sum + count);
   }
 
@@ -384,7 +464,7 @@ class HomeController extends GetxController {
     return {
       'total_earning': totalEarning.value,
       'pending_money': pendingMoney.value,
-      'sent_money': sentMoney.value,
+      'received_money': receivedMoney.value,
     };
   }
 }

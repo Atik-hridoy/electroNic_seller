@@ -23,6 +23,8 @@ class EditAccountController extends GetxController {
   final RxString gender = ''.obs;
   final RxString registrationNo = ''.obs;
   final RxString dateOfBirth = ''.obs;
+  final RxString shopName = ''.obs;
+  final RxInt shippingCost = 0.obs;
   final RxString password = '••••••••'.obs;
   
   // Profile image
@@ -37,6 +39,8 @@ class EditAccountController extends GetxController {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
+  final TextEditingController shopNameController = TextEditingController();
+  final TextEditingController shippingCostController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   @override
@@ -57,6 +61,8 @@ class EditAccountController extends GetxController {
         address.value = profileData.data.address;
         registrationNo.value = profileData.data.registrationNo;
         phone.value = profileData.data.phone;
+        shopName.value = profileData.data.shopName;
+        shippingCost.value = profileData.data.shippingCost;
         
         // Update profile image URL from backend
         if (profileData.data.profileImage != null && profileData.data.profileImage!.isNotEmpty) {
@@ -69,6 +75,8 @@ class EditAccountController extends GetxController {
         genderController.text = profileData.data.gender;
         addressController.text = profileData.data.address;
         phoneController.text = profileData.data.phone;
+        shopNameController.text = profileData.data.shopName;
+        shippingCostController.text = profileData.data.shippingCost.toString();
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to load profile: $e');
@@ -88,6 +96,8 @@ class EditAccountController extends GetxController {
         gender: genderController.text.trim().toLowerCase(),
         address: addressController.text.trim(),
         phone: phoneController.text.trim(),
+        shopName: shopNameController.text.trim(),
+        shippingCost: int.tryParse(shippingCostController.text.trim()) ?? 0,
       );
 
       // Call the update service without image (image uploaded separately)
@@ -101,6 +111,8 @@ class EditAccountController extends GetxController {
         phone.value = phoneController.text.trim();
         address.value = addressController.text.trim();
         gender.value = genderController.text.trim();
+        shopName.value = shopNameController.text.trim();
+        shippingCost.value = int.tryParse(shippingCostController.text.trim()) ?? 0;
         
         Get.snackbar(
           'Success',
@@ -235,6 +247,8 @@ class EditAccountController extends GetxController {
         gender: genderController.text.trim().toLowerCase(),
         address: addressController.text.trim(),
         phone: phoneController.text.trim(),
+        shopName: shopNameController.text.trim(),
+        shippingCost: int.tryParse(shippingCostController.text.trim()) ?? 0,
       );
 
       // Call the update service with image
@@ -279,6 +293,8 @@ class EditAccountController extends GetxController {
     phoneController.dispose();
     addressController.dispose();
     genderController.dispose();
+    shopNameController.dispose();
+    shippingCostController.dispose();
     passwordController.dispose();
     super.onClose();
   }

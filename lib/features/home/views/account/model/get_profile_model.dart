@@ -28,6 +28,8 @@ class ProfileData {
   final String gender;
   final String address;
   final String phone;
+  final String shopName;
+  final int shippingCost;
   final String? profileImage;
 
   ProfileData({
@@ -37,6 +39,8 @@ class ProfileData {
     required this.gender,
     required this.address,
     required this.phone,
+    required this.shopName,
+    required this.shippingCost,
     this.profileImage,
   });
 
@@ -48,6 +52,10 @@ class ProfileData {
       gender: json['gender'] as String? ?? '',
       address: json['address'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
+      shopName: json['shopName'] as String? ?? '',
+      shippingCost: json['shippingCost'] is String 
+          ? int.tryParse(json['shippingCost']) ?? 0
+          : json['shippingCost'] as int? ?? 0,
       profileImage: json['image'] as String?,
     );
   }

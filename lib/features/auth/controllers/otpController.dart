@@ -4,6 +4,7 @@ import 'package:electronic/core/storage/storage_keys.dart';
 import 'package:get/get.dart';
 import '../../../routes/app_pages.dart';
 import '../services/auth_verify_otp_service.dart';
+import '../services/auth_resend_otp_service.dart';
 import '../../../core/util/app_logger.dart';
 import 'package:flutter/material.dart';
 
@@ -22,12 +23,14 @@ class OtpController extends GetxController {
   late final String email;
   late final bool isLoginFlow;
   late final AuthVerifyOtpService _otpService;
+  late final AuthResendOtpService _resendOtpService;
   late Timer _timer;
 
   @override
   void onInit() {
     super.onInit();
     _otpService = Get.find<AuthVerifyOtpService>();
+    _resendOtpService = Get.find<AuthResendOtpService>();
     
     // Get arguments
     final args = Get.arguments as Map<String, dynamic>?;
@@ -140,18 +143,44 @@ class OtpController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       
-      // Call your resend OTP API here
-      // final response = await _otpService.resendOtp(email: email);
+      AppLogger.info('Resending OTP to email: $email', tag: 'OtpController');
       
-      // Reset timer
-      secondsRemaining.value = 60;
-      canResend.value = false;
-      startTimer();
+      // Call resend OTP API
+      final response = await _resendOtpService.resendOtp(email: email);
       
-      Get.snackbar('Success', 'New OTP sent to your email');
+      if (response['success'] == true) {
+        // Reset timer on successful resend
+        secondsRemaining.value = 60;
+        canResend.value = false;
+        startTimer();
+        
+        Get.snackbar(
+          'Success', 
+          'New OTP sent to your email',
+          backgroundColor: const Color(0xFF09B782),
+          colorText: Colors.white,
+        );
+        
+        AppLogger.info('OTP resent successfully', tag: 'OtpController');
+      } else {
+        errorMessage.value = response['message'] ?? 'Failed to resend OTP';
+        Get.snackbar(
+          'Error', 
+          errorMessage.value,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     } catch (e) {
       errorMessage.value = 'Failed to resend OTP. Please try again.';
       AppLogger.error('Resend OTP Error: $e', tag: 'OtpController');
+      
+      Get.snackbar(
+        'Error', 
+        errorMessage.value,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }

@@ -227,6 +227,8 @@ class EditAccountView extends GetView<EditAccountController> {
                   Obx(() => _buildDetailItem('Phone', controller.phone.value)),
                   // You can add them later when they're available in the API response
                   Obx(() => _buildDetailItem('Gender', controller.gender.value.capitalizeFirst ?? '')),
+                  Obx(() => _buildDetailItem('Shop Name', controller.shopName.value)),
+                  Obx(() => _buildDetailItem('Shipping Cost', controller.shippingCost.value == 0 ? 'Not set' : '\$${controller.shippingCost.value}')),
                 ],
 
               ),
@@ -348,10 +350,14 @@ class EditAccountView extends GetView<EditAccountController> {
               ),
               child: Container(
                 padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -491,6 +497,68 @@ class EditAccountView extends GetView<EditAccountController> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Shop Name
+                    const Text(
+                      'Shop Name',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: TextFormField(
+                        controller: controller.shopNameController,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          hintText: 'Enter your shop name',
+                        ),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Shipping Cost
+                    const Text(
+                      'Shipping Cost',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: TextFormField(
+                        controller: controller.shippingCostController,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          hintText: 'Enter shipping cost (e.g., 5.99)',
+                          prefixText: '\$ ',
+                        ),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     // Date of Birth
                     const Text(
                       'Date of Birth',
@@ -583,7 +651,8 @@ class EditAccountView extends GetView<EditAccountController> {
                         ),
                       ),
                     ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -603,10 +672,14 @@ class EditAccountView extends GetView<EditAccountController> {
           ),
           child: Container(
             padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -678,8 +751,8 @@ class EditAccountView extends GetView<EditAccountController> {
                         // Show error message if something goes wrong
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to update address: ${e.toString()}'),
+                            const SnackBar(
+                              content: Text('Failed to update address. Please try again.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -704,7 +777,8 @@ class EditAccountView extends GetView<EditAccountController> {
                   ),
                 ),
                 )
-              ],
+                ],
+              ),
             ),
           ),
         );

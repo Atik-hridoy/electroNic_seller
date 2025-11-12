@@ -6,6 +6,7 @@ import '../controllers/otpController.dart';
 import '../controllers/profile_info_controller.dart';
 import '../services/auth_create_user_service.dart';
 import '../services/auth_verify_otp_service.dart';
+import '../services/auth_resend_otp_service.dart';
 
 class AuthBinding extends Bindings {
   @override
@@ -22,6 +23,7 @@ class AuthBinding extends Bindings {
     Get.put(AuthController());
     Get.put(AuthCreateUserService());
     Get.put(AuthVerifyOtpService());
+    Get.put(AuthResendOtpService());
     Get.put(AuthSignInController());
   
   }

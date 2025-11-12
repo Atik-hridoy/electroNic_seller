@@ -34,14 +34,27 @@ class HistoryController extends GetxController {
       final response = await _orderService.getOrders(status: status);
       
       // ===== DEBUG: Print full response =====
-      print('\n========== GET ORDERS API RESPONSE ==========');
+      print('\n========== GET ORDERS API RESPONSE (Controller) ==========');
       print('Status Code: ${response.statusCode}');
+      print('Response Data Type: ${response.data.runtimeType}');
       print('Response Data: ${response.data}');
-      print('Success: ${response.data['success']}');
-      print('Message: ${response.data['message']}');
-      print('Orders Count: ${response.data['data']?['orders']?.length ?? 0}');
-      print('Full Orders Data: ${response.data['data']?['orders']}');
-      print('=============================================\n');
+      
+      if (response.data is Map) {
+        final data = response.data as Map;
+        print('Success: ${data['success']}');
+        print('Message: ${data['message']}');
+        print('Has data key: ${data.containsKey('data')}');
+        print('Data content: ${data['data']}');
+        
+        if (data['data'] is Map) {
+          final dataMap = data['data'] as Map;
+          print('Has orders key: ${dataMap.containsKey('orders')}');
+          print('Orders type: ${dataMap['orders'].runtimeType}');
+          print('Orders Count: ${dataMap['orders']?.length ?? 0}');
+          print('First order sample: ${dataMap['orders']?.isNotEmpty == true ? dataMap['orders'][0] : 'No orders'}');
+        }
+      }
+      print('=========================================================\n');
       
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> ordersData = response.data['data']['orders'] ?? [];

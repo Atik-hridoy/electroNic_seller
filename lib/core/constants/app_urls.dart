@@ -1,11 +1,15 @@
 class AppUrls {
 
-  static const String baseUrl = 'http://10.10.7.62:7010/api/v1/';
-  static const String imageBaseUrl = 'http://10.10.7.62:7010/';
+  //static const String baseUrl = 'http://10.10.7.62:7010/api/v1/';
+  //static const String imageBaseUrl = 'http://10.10.7.62:7010/';
+
+   static const String baseUrl = 'http://178.16.129.213:7010/api/v1/';
+   static const String imageBaseUrl = 'http://178.16.129.213:7010/';
 
   static const String createAccount = 'auth/register';
   static const String signIn = 'auth/login';
   static const String verifyOtp = 'auth/verify-otp';
+  static const String resendOtp ='auth/resend-otp';
   static const String updateProfile = 'users/complete';
   static const String getProfile = 'users/profile';
   static const String updateProfileInsideApp = 'users/profile';
@@ -37,6 +41,8 @@ class AppUrls {
 
   static const String getProductStatistics  = 'dashboard/seller-products-analysis';
   static const String getMonthlyStatistics = 'dashboard/seller-monthly-statistic';
+  static const String getMonthlyTransactionStatistics = 'dashboard/seller-transaction-update';
+  static const String getSellerRateing = 'feedbacks/stats/' ;
 
   //settings
 

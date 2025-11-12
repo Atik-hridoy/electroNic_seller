@@ -29,7 +29,7 @@ class AccountView extends GetView<AccountController> {
         developer.log('AccountController initialized: ${controller.runtimeType}');
       } catch (e) {
         developer.log('Failed to initialize AccountController: $e');
-        Get.snackbar('Error', 'Failed to load account information');
+        Get.snackbar('Error', 'Unable to load account information. Please try again.');
       }
     });
 

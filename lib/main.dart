@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import 'routes/app_pages.dart';
 
 void main() async {
@@ -18,6 +19,9 @@ void main() async {
   final localizationService = LocalizationService();
   await localizationService.init();
   Get.put<LocalizationService>(localizationService);
+  
+  // Initialize Dio
+  Get.put<Dio>(Dio());
 
   // Set up system UI
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

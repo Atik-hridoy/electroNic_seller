@@ -382,7 +382,7 @@ class HomeView extends GetView<HomeController> {
             ),
           ),
           const SizedBox(height: 20),
-          Obx(() => controller.isLoadingTransactions.value
+          Obx(() => controller.isLoadingTransactionStats.value
               ? _buildLoadingIndicator()
               : _buildTransactionContent()),
         ],
@@ -406,8 +406,8 @@ class HomeView extends GetView<HomeController> {
         ))),
         const SizedBox(width: 16),
         Expanded(child: Obx(() => _buildTransactionCard(
-          controller.formatCurrency(controller.sentMoney.value),
-          'sent_money'.tr,
+          controller.formatCurrency(controller.receivedMoney.value),
+          'received_money'.tr,
           Colors.green.shade600,
         ))),
       ],
@@ -437,6 +437,7 @@ class HomeView extends GetView<HomeController> {
       ],
     );
   }
+
 
   Widget _buildMonthlyStatistic() {
     return Container(
@@ -636,23 +637,35 @@ class HomeView extends GetView<HomeController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 24),
-                      const SizedBox(width: 4),
-                      Obx(() => Text(
-                        controller.overallRating.value.toString(),
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                  Obx(() => controller.isLoadingSellerRating.value
+                    ? const SizedBox(
+                        height: 32,
+                        child: Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
-                      )),
-                      const Text(
-                        '/5',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                    ],
+                      )
+                    : Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 24),
+                          const SizedBox(width: 4),
+                          Text(
+                            controller.overallRating.value.toString(),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const Text(
+                            '/5',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                        ],
+                      )
                   ),
                   const SizedBox(height: 8),
                   Obx(() => Text(
@@ -667,13 +680,40 @@ class HomeView extends GetView<HomeController> {
               const SizedBox(width: 32),
               // Right side - Rating bars
               Expanded(
-                child: Column(
-                  children: [5, 4, 3, 2, 1].map((stars) =>
-                      Obx(() => _buildHorizontalRatingBar(
-                          stars,
-                          controller.getRatingPercentage(stars).toInt()
-                      ))
-                  ).toList(),
+                child: Obx(() => controller.isLoadingSellerRating.value
+                  ? Column(
+                      children: List.generate(5, (index) => Container(
+                        margin: const EdgeInsets.symmetric(vertical: 3),
+                        height: 20,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.star, color: Colors.grey, size: 14),
+                            const SizedBox(width: 8),
+                            Text('${5 - index}', style: const TextStyle(color: Colors.grey)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const SizedBox(width: 30, child: Text('--', style: TextStyle(color: Colors.grey))),
+                          ],
+                        ),
+                      )),
+                    )
+                  : Column(
+                      children: [5, 4, 3, 2, 1].map((stars) =>
+                          _buildHorizontalRatingBar(
+                              stars,
+                              controller.getRatingPercentage(stars).toInt()
+                          )
+                      ).toList(),
+                    )
                 ),
               ),
             ],

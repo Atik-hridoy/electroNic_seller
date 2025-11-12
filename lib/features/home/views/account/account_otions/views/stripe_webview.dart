@@ -62,7 +62,7 @@ class _StripeWebViewState extends State<StripeWebView> {
           onWebResourceError: (WebResourceError error) {
             Get.snackbar(
               'Error',
-              'Failed to load page: ${error.description}',
+              'Unable to load page. Please check your connection and try again.',
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.red.shade100,
               colorText: Colors.red.shade900,

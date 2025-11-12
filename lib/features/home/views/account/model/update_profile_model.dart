@@ -4,6 +4,8 @@ class UpdateProfileModel {
   final String gender;
   final String address;
   final String phone;
+  final String shopName;
+  final int shippingCost;
   final String? profileImage;
 
   UpdateProfileModel({
@@ -12,6 +14,8 @@ class UpdateProfileModel {
     this.gender = '',
     this.address = '',
     required this.phone,
+    this.shopName = '',
+    this.shippingCost = 0,
     this.profileImage,
   });
 
@@ -23,6 +27,8 @@ class UpdateProfileModel {
       'gender': gender,
       'address': address,
       'phone': phone,
+      'shopName': shopName,
+      'shippingCost': shippingCost,
       'profileImage': profileImage,
     };
   }
@@ -35,6 +41,10 @@ class UpdateProfileModel {
       gender: json['gender'] ?? '',
       address: json['address'] ?? '',
       phone: json['phone'] ?? '',
+      shopName: json['shopName'] ?? '',
+      shippingCost: json['shippingCost'] is String 
+          ? int.tryParse(json['shippingCost']) ?? 0
+          : json['shippingCost'] ?? 0,
       profileImage: json['profileImage'],
     );
   }
@@ -46,6 +56,8 @@ class UpdateProfileModel {
     String? gender,
     String? address,
     String? phone,
+    String? shopName,
+    int? shippingCost,
     String? profileImage,
   }) {
     return UpdateProfileModel(
@@ -54,6 +66,8 @@ class UpdateProfileModel {
       gender: gender ?? this.gender,
       address: address ?? this.address,
       phone: phone ?? this.phone,
+      shopName: shopName ?? this.shopName,
+      shippingCost: shippingCost ?? this.shippingCost,
       profileImage: profileImage ?? this.profileImage,
     );
   }

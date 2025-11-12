@@ -77,33 +77,34 @@ class ProductsView extends GetView<ProductsController> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.8,
-            ),
-            itemCount: 8,
-            itemBuilder: (_, __) => Column(
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+          SizedBox(
+            height: 100,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 8,
+              itemBuilder: (_, __) => Container(
+                width: 80,
+                margin: const EdgeInsets.only(right: 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 50,
+                      height: 8,
+                      color: Colors.white,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  width: 50,
-                  height: 10,
-                  color: Colors.white,
-                ),
-              ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -226,20 +227,20 @@ class ProductsView extends GetView<ProductsController> {
 
   Widget _buildCategoryGrid() {
     return Obx(() {
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.8,
+      return SizedBox(
+        height: 100, // Fixed height for horizontal scrolling
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: controller.categories.length,
+          itemBuilder: (context, index) {
+            final category = controller.categories[index];
+            return Container(
+              width: 80, // Fixed width for each category item
+              margin: const EdgeInsets.only(right: 12),
+              child: _buildCategoryItem(category),
+            );
+          },
         ),
-        itemCount: controller.categories.length,
-        itemBuilder: (context, index) {
-          final category = controller.categories[index];
-          return _buildCategoryItem(category);
-        },
       );
     }
   );
@@ -251,10 +252,11 @@ class ProductsView extends GetView<ProductsController> {
     return GestureDetector(
       onTap: () => controller.onCategoryTap(category),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 60,
+            height: 60,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
@@ -297,16 +299,18 @@ class ProductsView extends GetView<ProductsController> {
                     ),
                   ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            category.name,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
+          const SizedBox(height: 6),
+          Flexible(
+            child: Text(
+              category.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
             ),
           ),
         ],

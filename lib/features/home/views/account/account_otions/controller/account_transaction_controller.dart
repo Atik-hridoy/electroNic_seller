@@ -180,7 +180,7 @@ class AccountTransactionController extends GetxController {
       print('❌ Error getting account link: $e');
       Get.snackbar(
         'Error',
-        'Failed to get account link: $e',
+        'Unable to access account settings. Please try again later.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.shade100,
         colorText: Colors.red.shade900,
@@ -208,7 +208,7 @@ class AccountTransactionController extends GetxController {
       print('❌ Error getting account link: $e');
       Get.snackbar(
         'Error',
-        'Failed to get account link: $e',
+        'Unable to access account settings. Please try again later.',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );
@@ -287,7 +287,7 @@ class AccountTransactionController extends GetxController {
       print('❌ Error opening WebView: $e');
       Get.snackbar(
         'Error',
-        'Failed to open page: $e',
+        'Unable to open dashboard. Please try again later.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.shade100,
         colorText: Colors.red.shade900,
