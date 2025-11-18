@@ -1,4 +1,3 @@
-import 'package:electronic/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'home_controller.dart';
@@ -8,6 +7,8 @@ import 'views/account/account_view.dart';
 import 'views/history_view.dart';
 
 class HomeView extends GetView<HomeController> {
+  const HomeView({super.key});
+
 
 
 
@@ -86,7 +87,7 @@ class HomeView extends GetView<HomeController> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Image.asset(
-                        'assets/images/Group 290580.png',
+                        'assets/images/sundor logo.png',
                       ),
                     ),
                     const SizedBox(width: 12),

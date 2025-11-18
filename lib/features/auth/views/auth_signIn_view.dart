@@ -54,7 +54,7 @@ class _AuthSignInViewState extends State<AuthSignInView> {
                   children: [
                     // Logo
                     Image.asset(
-                      'assets/images/Group 290580.png',
+                      'assets/images/sundor logo.png',
                       width: screenWidth * 0.25,
                       height: screenHeight * 0.12,
                       fit: BoxFit.contain,

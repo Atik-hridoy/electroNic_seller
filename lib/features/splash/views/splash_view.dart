@@ -29,7 +29,7 @@ class _SplashViewState extends State<SplashView> {
             child: Opacity(
               opacity: 1.0,
               child: Image.asset(
-                'assets/images/Group 290580.png',
+                'assets/images/sundor logo.png',
                 width: 154.33,
                 height: 192.29,
                 fit: BoxFit.contain,

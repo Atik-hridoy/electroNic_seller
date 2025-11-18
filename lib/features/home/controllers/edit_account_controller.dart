@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:electronic/core/services/snackbar_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -79,7 +80,7 @@ class EditAccountController extends GetxController {
         shippingCostController.text = profileData.data.shippingCost.toString();
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load profile: $e');
+      SnackbarService.showError('Error', 'Failed to load profile: $e');
     } finally {
       isLoading.value = false;
     }
@@ -114,12 +115,7 @@ class EditAccountController extends GetxController {
         shopName.value = shopNameController.text.trim();
         shippingCost.value = int.tryParse(shippingCostController.text.trim()) ?? 0;
         
-        Get.snackbar(
-          'Success',
-          'Profile updated successfully',
-          backgroundColor: Colors.green[50],
-          colorText: Colors.green[800],
-        );
+        SnackbarService.showSuccess('Success', 'Profile updated successfully');
         
         // Optionally navigate back
         Get.back();
@@ -127,11 +123,9 @@ class EditAccountController extends GetxController {
         throw Exception(response['error'] ?? 'Failed to update profile');
       }
     } catch (e) {
-      Get.snackbar(
+      SnackbarService.showError(
         'Error',
         e.toString().replaceAll('Exception: ', ''),
-        backgroundColor: Colors.red[50],
-        colorText: Colors.red[800],
       );
     } finally {
       isLoading.value = false;
@@ -142,18 +136,11 @@ class EditAccountController extends GetxController {
     if (newPassword.length >= 8) {
       password.value = '•' * 8; // Mask password
 
-      Get.snackbar(
-        'Success',
-        'Password updated successfully',
-        backgroundColor: Colors.green[50],
-        colorText: Colors.green[800],
-      );
+      SnackbarService.showSuccess('Success', 'Password updated successfully');
     } else {
-      Get.snackbar(
+      SnackbarService.showError(
         'Error',
         'Password must be at least 8 characters long',
-        backgroundColor: Colors.red[50],
-        colorText: Colors.red[800],
       );
     }
   }
@@ -175,11 +162,9 @@ class EditAccountController extends GetxController {
         await uploadProfileImage();
       }
     } catch (e) {
-      Get.snackbar(
+      SnackbarService.showError(
         'Error',
         'Failed to pick image: ${e.toString()}',
-        backgroundColor: Colors.red[50],
-        colorText: Colors.red[800],
       );
     }
   }
@@ -228,12 +213,7 @@ class EditAccountController extends GetxController {
   /// Upload profile image to server
   Future<void> uploadProfileImage() async {
     if (profileImage.value == null) {
-      Get.snackbar(
-        'Error',
-        'Please select an image first',
-        backgroundColor: Colors.orange[50],
-        colorText: Colors.orange[800],
-      );
+      SnackbarService.showWarning('Warning', 'Please select an image first');
       return;
     }
 
@@ -261,12 +241,7 @@ class EditAccountController extends GetxController {
         // Clear local image so network image will be shown
         profileImage.value = null;
         
-        Get.snackbar(
-          'Success',
-          'Profile image updated successfully',
-          backgroundColor: Colors.green[50],
-          colorText: Colors.green[800],
-        );
+        SnackbarService.showSuccess('Success', 'Profile image updated successfully');
         
         // Refresh profile data to get updated image URL from backend
         await fetchProfileData();
@@ -274,11 +249,9 @@ class EditAccountController extends GetxController {
         throw Exception(response['error'] ?? 'Failed to upload image');
       }
     } catch (e) {
-      Get.snackbar(
+      SnackbarService.showError(
         'Error',
         'Failed to upload image: ${e.toString().replaceAll("Exception: ", "")}',
-        backgroundColor: Colors.red[50],
-        colorText: Colors.red[800],
       );
     } finally {
       isLoading.value = false;

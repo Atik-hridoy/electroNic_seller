@@ -74,7 +74,7 @@ class _AuthViewState extends State<AuthView> {
                   children: [
                     // Logo
                     Image.asset(
-                      'assets/images/Group 290580.png',
+                      'assets/images/sundor logo.png',
                       width: screenWidth * 0.25,
                       height: screenHeight * 0.12,
                       fit: BoxFit.contain,
@@ -94,7 +94,7 @@ class _AuthViewState extends State<AuthView> {
                         ),
                         SizedBox(height: screenHeight * 0.01),
                         Text(
-                          'create_account_subtitle'.tr,
+                          'enter_email'.tr,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'Poppins',
@@ -194,7 +194,7 @@ class _AuthViewState extends State<AuthView> {
                           child: _authController.isLoading.value
                               ? const CircularProgressIndicator(color: Colors.white)
                               : Text(
-                                  'create_account'.tr,
+                                  'continue'.tr,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: screenHeight * 0.02,

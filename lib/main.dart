@@ -1,3 +1,4 @@
+import 'package:electronic/core/services/snackbar_service.dart';
 import 'package:electronic/core/switching_language_facilities/localization_service.dart';
 import 'package:electronic/core/switching_language_facilities/my_translations.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
           translations: MyTranslations(),
           locale: initialLocale,
           fallbackLocale: const Locale('en', 'US'),
+          scaffoldMessengerKey: SnackbarService.messengerKey,
         );
       },
     );
