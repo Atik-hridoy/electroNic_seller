@@ -1,10 +1,13 @@
 class AppUrls {
 
-  //static const String baseUrl = 'http://10.10.7.62:7010/api/v1/';
-  //static const String imageBaseUrl = 'http://10.10.7.62:7010/';
+  // static const String baseUrl = 'http://10.10.7.62:7010/api/v1/';
+  // static const String imageBaseUrl = 'http://10.10.7.62:7010/';
 
-   static const String baseUrl = 'http://178.16.129.213:7010/api/v1/';
-   static const String imageBaseUrl = 'http://178.16.129.213:7010/';
+  static const String baseUrl = 'https://rakibur5000.binarybards.online/api/v1/';
+  static const String baseImageUrl = 'https://rakibur5000.binarybards.online/';
+
+  //  static const String baseUrl = 'http://178.16.129.213:7010/api/v1/';
+  //  static const String imageBaseUrl = 'http://178.16.129.213:7010/';
 
   static const String createAccount = 'auth/register';
   static const String signIn = 'auth/login';

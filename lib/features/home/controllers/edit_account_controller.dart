@@ -191,7 +191,7 @@ class EditAccountController extends GetxController {
       return imagePath;
     } else {
       // Relative path, combine with base URL
-      return '${AppUrls.imageBaseUrl}$imagePath';
+      return '${AppUrls.baseImageUrl}$imagePath';
     }
   }
 

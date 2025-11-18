@@ -54,7 +54,7 @@ class CategoryController extends GetxController {
               ? category.thumbnail 
               : _getDefaultCategoryImage(categoryName);
           if (image.isNotEmpty && !image.startsWith('http')) {
-            image = '${AppUrls.imageBaseUrl}$image';
+            image = '${AppUrls.baseImageUrl}$image';
           }
           return {
             'id': category.id,
@@ -319,18 +319,18 @@ class CategoryController extends GetxController {
 
     String mainImage = product.images.isNotEmpty ? product.images.first : '';
     if (mainImage.isNotEmpty && !mainImage.startsWith('http') && !mainImage.startsWith('assets/')) {
-      mainImage = '${AppUrls.imageBaseUrl}$mainImage';
+      mainImage = '${AppUrls.baseImageUrl}$mainImage';
     }
     final normalizedImages = product.images.map((img) {
       if (img.isNotEmpty && !img.startsWith('http') && !img.startsWith('assets/')) {
-        return '${AppUrls.imageBaseUrl}$img';
+        return '${AppUrls.baseImageUrl}$img';
       }
       return img;
     }).toList();
 
     String sellerImage = product.seller.image ?? '';
     if (sellerImage.isNotEmpty && !sellerImage.startsWith('http') && !sellerImage.startsWith('assets/')) {
-      sellerImage = '${AppUrls.imageBaseUrl}$sellerImage';
+      sellerImage = '${AppUrls.baseImageUrl}$sellerImage';
     }
 
     return {

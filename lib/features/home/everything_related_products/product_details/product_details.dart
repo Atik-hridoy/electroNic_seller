@@ -178,7 +178,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                                 children: feedback.images.take(3).map((img) {
                                   final imageUrl = img.startsWith('http') 
                                       ? img 
-                                      : '${AppUrls.imageBaseUrl}$img';
+                                      : '${AppUrls.baseImageUrl}$img';
                                   return ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: Image.network(
@@ -242,7 +242,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
       }
       
       // Otherwise, it's an API relative path - prepend base URL
-      img = '${AppUrls.imageBaseUrl}$img';
+      img = '${AppUrls.baseImageUrl}$img';
       return CircleAvatar(radius: size/2, backgroundImage: NetworkImage(img));
     }
     final initial = (reviewerName?.isNotEmpty == true ? reviewerName!.substring(0,1).toUpperCase() : 'A');
@@ -322,7 +322,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
     }
     
     // Otherwise, it's an API relative path - prepend base URL and use network image
-    imagePath = '${AppUrls.imageBaseUrl}$imagePath';
+    imagePath = '${AppUrls.baseImageUrl}$imagePath';
     return Image.network(
       imagePath,
       fit: BoxFit.cover,

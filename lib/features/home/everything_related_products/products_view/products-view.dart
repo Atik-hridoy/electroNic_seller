@@ -270,7 +270,7 @@ class ProductsView extends GetView<ProductsController> {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: CachedNetworkImage(
-                      imageUrl: '${AppUrls.imageBaseUrl}${category.thumbnail.startsWith('/') ? category.thumbnail.substring(1) : category.thumbnail}',
+                      imageUrl: '${AppUrls.baseImageUrl}${category.thumbnail.startsWith('/') ? category.thumbnail.substring(1) : category.thumbnail}',
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -362,7 +362,7 @@ class ProductsView extends GetView<ProductsController> {
               borderRadius: BorderRadius.circular(8),
               child: brand.image.isNotEmpty
                   ? CachedNetworkImage(
-                      imageUrl: '${AppUrls.imageBaseUrl}${brand.image.startsWith('/') ? brand.image.substring(1) : brand.image}',
+                      imageUrl: '${AppUrls.baseImageUrl}${brand.image.startsWith('/') ? brand.image.substring(1) : brand.image}',
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,

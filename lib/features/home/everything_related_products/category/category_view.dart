@@ -581,7 +581,7 @@ class CategoryView extends GetView<CategoryController> {
     }
     
     // Otherwise, it's an API relative path - prepend base URL and use network image
-    imagePath = '${AppUrls.imageBaseUrl}$imagePath';
+    imagePath = '${AppUrls.baseImageUrl}$imagePath';
     return Image.network(
       imagePath,
       fit: BoxFit.cover,
@@ -626,7 +626,7 @@ class CategoryView extends GetView<CategoryController> {
     // Normalize to full URL if relative
     String imagePath = path;
     if (!imagePath.startsWith('http') && !imagePath.startsWith('assets/')) {
-      imagePath = '${AppUrls.imageBaseUrl}$imagePath';
+      imagePath = '${AppUrls.baseImageUrl}$imagePath';
     }
 
     if (imagePath.startsWith('http')) {

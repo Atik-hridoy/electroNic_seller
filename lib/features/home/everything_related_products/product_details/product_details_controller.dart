@@ -223,7 +223,7 @@ class ProductDetailsController extends GetxController {
     String path = productData.value?['seller']?['image']?.toString() ?? '';
     if (path.isEmpty) return '';
     if (path.startsWith('http') || path.startsWith('assets/')) return path;
-    return '${AppUrls.imageBaseUrl}$path';
+    return '${AppUrls.baseImageUrl}$path';
   }
 
   // Tech specs (computed from product model)
